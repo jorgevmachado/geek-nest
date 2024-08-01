@@ -33,16 +33,16 @@ export class Users {
   salt: string;
 
   @Column({ nullable: true, length: 64 })
-  confirmationToken: string;
+  confirmationToken?: string;
 
   @Column({ nullable: true, length: 64 })
-  recoverToken: string;
+  recoverToken?: string;
 
   @Column({ nullable: true })
-  dateOfBirth: Date;
+  dateOfBirth?: Date;
 
   @Column({ nullable: true })
-  gender: EGender;
+  gender?: EGender;
 
   @CreateDateColumn()
   createdAt: Date;

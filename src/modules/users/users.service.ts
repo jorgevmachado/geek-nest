@@ -93,68 +93,6 @@ export class UsersService extends Service<Users> {
     }
 
     return await this.paginate(filterDto, filters);
-
-    // filterDto.page = filterDto.page < 1 ? 1 : filterDto.page;
-    // filterDto.limit > 100 ? 100 : filterDto.limit;
-    //
-    // const query = this.repository.createQueryBuilder('users');
-    //
-    // if (filterDto.role) {
-    //   query.where('users.role = :role', { role: filterDto.role.toUpperCase() });
-    // }
-    //
-    // if (filterDto.status) {
-    //   query.andWhere('users.status = :status', {
-    //     status: filterDto.status.toUpperCase(),
-    //   });
-    // }
-    //
-    // if (filterDto.name) {
-    //   query.andWhere('users.name LIKE :name', {
-    //     name: `%${filterDto.name}%`,
-    //   });
-    // }
-    //
-    // if (filterDto.email) {
-    //   query.andWhere('users.email LIKE :email', {
-    //     email: `%${filterDto.email}%`,
-    //   });
-    // }
-    //
-    // const skip = Number(filterDto.page - 1) * Number(filterDto.limit);
-    // query.skip(skip);
-    //
-    // const asc = !filterDto.asc ? undefined : filterDto.asc;
-    // const desc = !filterDto.desc ? undefined : filterDto.desc;
-    //
-    // if (asc && desc) {
-    //   throw new ConflictException('Cannot use asc and desc at the same time');
-    // }
-    //
-    // if (asc) {
-    //   query.orderBy('users.' + asc, 'ASC');
-    // }
-    //
-    // if (desc) {
-    //   query.orderBy('users.' + desc, 'DESC');
-    // }
-    //
-    // query.take(Number(filterDto.limit));
-    //
-    // const [users, total] = await query.getManyAndCount();
-    //
-    // const currentPage = filterDto.page === 0 ? 1 : Number(filterDto.page);
-    // const pages = Math.ceil(total / Number(filterDto.limit));
-    // return {
-    //   next: currentPage === pages ? null : currentPage + 1,
-    //   prev: currentPage === 1 ? null : currentPage - 1,
-    //   total,
-    //   pages,
-    //   perPage: 0,
-    //   currentPage: 0,
-    //   skip: 0,
-    //   data: users,
-    // };
   }
 
   findOne(id: number) {

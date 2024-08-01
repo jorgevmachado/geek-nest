@@ -33,8 +33,8 @@ export abstract class Service<T extends ObjectLiteral> {
       prev: currentPage === 1 ? null : currentPage - 1,
       total,
       pages,
-      perPage: limit === 0 ? total : limit,
-      currentPage,
+      per_page: limit === 0 ? total : limit,
+      current_page: currentPage,
       skip,
       data,
     };

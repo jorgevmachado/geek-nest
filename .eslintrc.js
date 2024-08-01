@@ -17,6 +17,13 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {
+    semi: ["error", "always"],
+    quotes: ["error", "single"],
+    allowString : 0,
+    allowNumber : 0,
+    "no-redeclare": "off",
+    "no-unused-vars": "off",
+    "object-curly-spacing": ["error", "always"],
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
