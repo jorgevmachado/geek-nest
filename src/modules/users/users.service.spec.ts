@@ -10,7 +10,31 @@ import {
   USERS_PAGINATE,
 } from './users.fixture';
 import { PAGINATE } from '../../fixtures';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+
+const usersClean = (users: Array<Users>) => {
+  return users.map((user) => userClean(user));
+};
+
+const userClean = (user: Users) => {
+  return {
+    id: user.id,
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    status: user.status,
+    ...(user.status !== EStatus.INCOMPLETE && {
+      gender: user.gender,
+      dateOfBirth: user.dateOfBirth,
+    }),
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    ...(user.deletedAt && { deletedAt: user.deletedAt }),
+  };
+};
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -25,7 +49,6 @@ describe('UsersService', () => {
     }).compile();
 
     service = module.get<UsersService>(UsersService);
-    // repository = await module.resolve(getRepositoryToken(Users));
     repository = module.get<Repository<Users>>(getRepositoryToken(Users));
   });
 
@@ -36,11 +59,50 @@ describe('UsersService', () => {
   it('must return the findAll method without filters.', async () => {
     const user = USER_INCOMPLETE;
     jest.spyOn(repository, 'find').mockResolvedValueOnce([user]);
-    expect(await service.findAll({})).toEqual([user]);
+    expect(await service.findAll({})).toEqual(usersClean([user]));
+  });
+
+  it('must return the findOne method.', async () => {
+    const user = USER_INCOMPLETE;
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+    expect(await service.findOne(user.id)).toEqual(userClean(user));
+  });
+
+  it('must return the findOne method not found.', async () => {
+    const user = USER_INCOMPLETE;
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
+    await expect(service.findOne(user.id)).rejects.toThrow(NotFoundException);
+  });
+
+  it('must return the checkCredentials method failed.', async () => {
+    const user = {
+      ...USER_INCOMPLETE,
+      validatePassword: jest.fn().mockResolvedValueOnce(false),
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+    expect(
+      await service.checkCredentials({
+        email: user.email,
+        password: user.password,
+      }),
+    ).toBeNull();
+  });
+
+  it('must return the checkCredentials method success.', async () => {
+    const user = USER_INCOMPLETE;
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
+      ...user,
+      validatePassword: jest.fn().mockResolvedValueOnce(true),
+    });
+    expect(
+      await service.checkCredentials({
+        email: user.email,
+        password: user.password,
+      }),
+    ).toEqual(user);
   });
 
   it('must return the findAll method without filters empty.', async () => {
-    const user = USER_INCOMPLETE;
     jest.spyOn(repository, 'find').mockResolvedValueOnce([]);
     expect(await service.findAll({})).toEqual([]);
   });
@@ -60,7 +122,10 @@ describe('UsersService', () => {
         status: EStatus.INCOMPLETE,
         asc: 'name',
       }),
-    ).toEqual(USERS_PAGINATE);
+    ).toEqual({
+      ...USERS_PAGINATE,
+      data: usersClean(USERS_PAGINATE.data),
+    });
   });
 
   it('must return the findAll method with filters empty', async () => {

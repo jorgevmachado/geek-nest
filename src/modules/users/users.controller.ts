@@ -2,34 +2,42 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
-  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserDto } from './dto/filter-user.dto';
+import { AuthGuard } from '@nestjs/passport';
+import { AuthRoleGuards } from '../auth/auth-role.guards';
+import { Role } from '../auth/auth-role.decorator';
+import { ERole } from './users.interface';
+import { GetUserAuth } from '../auth/auth-user.decorator';
+import { Users } from './users.entity';
 
 @Controller('users')
+@UseGuards(AuthGuard(), AuthRoleGuards)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get()
+  @Role(ERole.ADMIN)
   findAll(@Query() filter: FilterUserDto) {
     return this.usersService.findAll(filter);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@GetUserAuth() user: Users, @Param('id') id: string) {
+    if (user.role !== ERole.ADMIN && user.id.toString() !== id) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')

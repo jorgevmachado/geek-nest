@@ -7,6 +7,8 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 
+import * as bcrypt from 'bcrypt';
+
 import { EGender, ERole, EStatus } from './users.interface';
 
 @Entity({ name: 'users' })
@@ -52,4 +54,9 @@ export class Users {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  async validatePassword?(password: string) {
+    const hash = await bcrypt.hash(password, this.salt);
+    return hash === this.password;
+  }
 }

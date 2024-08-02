@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -13,6 +14,7 @@ import * as crypto from 'crypto';
 import { ERole, EStatus } from './users.interface';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { Service } from '../../services/service';
+import { CredentialsUserDto } from './dto/credentials-user.dto';
 
 @Injectable()
 export class UsersService extends Service<Users> {
@@ -54,7 +56,7 @@ export class UsersService extends Service<Users> {
 
   async findAll(filterDto: FilterUserDto) {
     if (!filterDto.limit || !filterDto.page) {
-      return await this.repository.find();
+      return this.cleanUsers(await this.repository.find());
     }
 
     const filters: Array<{ param: string; condition: string; value: string }> =
@@ -92,11 +94,48 @@ export class UsersService extends Service<Users> {
       });
     }
 
-    return await this.paginate(filterDto, filters);
+    const listUsersPaginate = await this.paginate(filterDto, filters);
+    return {
+      ...listUsersPaginate,
+      data: this.cleanUsers(listUsersPaginate.data),
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async checkCredentials({ email, password }: CredentialsUserDto) {
+    const user = await this.repository.findOne({
+      where: { email: email, status: EStatus.INCOMPLETE || EStatus.ACTIVE },
+    });
+
+    if (user && (await user.validatePassword(password))) {
+      return {
+        id: user.id,
+        salt: user.salt,
+        role: user.role,
+        name: user.name,
+        email: user.email,
+        status: user.status,
+        password: user.password,
+        createdAt: user.createdAt,
+        deletedAt: user.deletedAt,
+        updatedAt: user.updatedAt,
+        recoverToken: user.recoverToken,
+        confirmationToken: user.confirmationToken,
+        ...(user.dateOfBirth && { dateOfBirth: user.dateOfBirth }),
+        ...(user.gender && { gender: user.gender }),
+      };
+    }
+
+    return null;
+  }
+
+  async findOne(id: string) {
+    const user = await this.repository.findOne({ where: { id: id } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.cleanUser(user);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
@@ -109,5 +148,26 @@ export class UsersService extends Service<Users> {
 
   private hashPassword(password: string, salt: string) {
     return bcrypt.hash(password, salt);
+  }
+
+  private cleanUsers(users: Array<Users>) {
+    return users.map((user) => this.cleanUser(user));
+  }
+
+  private cleanUser(user: Users) {
+    return {
+      id: user.id,
+      role: user.role,
+      name: user.name,
+      email: user.email,
+      status: user.status,
+      ...(user.status !== EStatus.INCOMPLETE && {
+        gender: user.gender,
+        dateOfBirth: user.dateOfBirth,
+      }),
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      ...(user.deletedAt && { deletedAt: user.deletedAt }),
+    };
   }
 }

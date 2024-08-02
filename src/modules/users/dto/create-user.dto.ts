@@ -1,7 +1,12 @@
 import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 import { Match } from '../../../decorators/match.decorator';
+import { IUser } from '../users.interface';
 
-export class CreateUserDto {
+interface ICreateUserDto extends Pick<IUser, 'name' | 'email' | 'password'> {
+  passwordConfirmation: string;
+}
+
+export class CreateUserDto implements ICreateUserDto {
   @IsNotEmpty()
   @MaxLength(200)
   name: string;
