@@ -20,6 +20,7 @@ export const USER_INCOMPLETE: Users = {
   createdAt: undefined,
   deletedAt: undefined,
   updatedAt: undefined,
+  dateOfBirth: new Date('1990-01-01'),
   recoverToken: 'xpto-recoverToken',
   confirmationToken: 'xpto-confirmationToken',
 };
@@ -36,5 +37,6 @@ export const USER_INCOMPLETE_DTO: CreateUserDto = {
   name: USER.name,
   email: USER.email,
   password: USER.password,
+  dateOfBirth: new Date('1990-01-01'),
   passwordConfirmation: USER.password,
 };

@@ -24,16 +24,16 @@ export class UsersService extends Service<Users> {
     super(repository, 'users');
   }
 
-  async create({ name, email, password }: CreateUserDto) {
+  async create({ name, email, dateOfBirth, password }: CreateUserDto) {
     const user = new Users();
+    user.salt = await bcrypt.genSalt();
+    user.role = ERole.USER;
     user.name = name;
     user.email = email;
-    user.password = password;
-    user.confirmationToken = crypto.randomBytes(32).toString('hex');
-    user.salt = await bcrypt.genSalt();
-    user.password = await this.hashPassword(password, user.salt);
-    user.role = ERole.USER;
     user.status = EStatus.INCOMPLETE;
+    user.dateOfBirth = dateOfBirth;
+    user.password = await this.hashPassword(password, user.salt);
+    user.confirmationToken = crypto.randomBytes(32).toString('hex');
 
     try {
       const result = await this.repository.save(user);
@@ -138,7 +138,21 @@ export class UsersService extends Service<Users> {
     return this.cleanUser(user);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: string, { name, gender, dateOfBirth }: UpdateUserDto) {
+    const user = await this.findOne(id);
+
+    if (name) {
+      user.name = name;
+    }
+
+    if (gender) {
+      user.gender = gender;
+    }
+    // TODO REMEMBER TO REMOVE
+    console.log('# => user => ', user);
+    console.log('# => update => name => ', name);
+    console.log('# => update => gender => ', gender);
+    console.log('# => update => dateOfBirth => ', dateOfBirth);
     return `This action updates a #${id} user`;
   }
 

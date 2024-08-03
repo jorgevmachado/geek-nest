@@ -1,7 +1,6 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
-import { CreateAuthDto } from './dto/create-auth.dto';
 import { CredentialsAuthDto } from './dto/credentials-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 
@@ -12,11 +11,18 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp({ name, email, password, passwordConfirmation }: CreateAuthDto) {
+  async signUp({
+    name,
+    email,
+    dateOfBirth,
+    password,
+    passwordConfirmation,
+  }: CreateUserDto) {
     const createUserDto = new CreateUserDto();
     createUserDto.name = name;
     createUserDto.email = email;
     createUserDto.password = password;
+    createUserDto.dateOfBirth = dateOfBirth;
     createUserDto.passwordConfirmation = passwordConfirmation;
 
     await this.userService.create(createUserDto);

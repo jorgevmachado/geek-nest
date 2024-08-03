@@ -41,8 +41,18 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  update(
+    @GetUserAuth() user: Users,
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    if (user.role !== ERole.ADMIN && user.id.toString() !== id) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+
+    return this.usersService.update(id, updateUserDto);
   }
 
   @Delete(':id')
