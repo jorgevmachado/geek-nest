@@ -24,8 +24,9 @@ export class UsersService extends Service<Users> {
     super(repository, 'users');
   }
 
-  async create({ name, email, dateOfBirth, password }: CreateUserDto) {
+  async create({ cpf, name, email, dateOfBirth, password }: CreateUserDto) {
     const user = new Users();
+    user.cpf = cpf;
     user.salt = await bcrypt.genSalt();
     user.role = ERole.USER;
     user.name = name;
@@ -109,6 +110,7 @@ export class UsersService extends Service<Users> {
     if (user && (await user.validatePassword(password))) {
       return {
         id: user.id,
+        cpf: user.cpf,
         salt: user.salt,
         role: user.role,
         name: user.name,

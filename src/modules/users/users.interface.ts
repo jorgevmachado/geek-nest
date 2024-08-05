@@ -14,17 +14,18 @@ export enum EGender {
 }
 export interface IUser {
   id: string;
-  email: string;
-  name: string;
-  gender: EGender;
-  dateOfBirth: Date;
+  cpf: string;
   role: ERole;
+  salt: string;
+  name: string;
+  email: string;
+  gender?: EGender;
   status: EStatus;
   password: string;
-  salt: string;
-  confirmationToken: string;
-  recoverToken: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
+  dateOfBirth?: Date;
+  recoverToken?: string;
+  confirmationToken?: string;
 }

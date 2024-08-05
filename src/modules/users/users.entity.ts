@@ -9,42 +9,36 @@ import {
 
 import * as bcrypt from 'bcrypt';
 
-import { EGender, ERole, EStatus } from './users.interface';
+import { EGender, ERole, EStatus, IUser } from './users.interface';
 
 @Entity({ name: 'users' })
-export class Users {
+export class Users implements IUser {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, unique: true, length: 200 })
-  email: string;
+  @Column({ nullable: false, unique: true, length: 11 })
+  cpf: string;
+
+  @Column({ nullable: false, length: 20 })
+  role: ERole;
+
+  @Column({ nullable: false })
+  salt: string;
 
   @Column({ nullable: false, length: 200 })
   name: string;
 
-  @Column({ nullable: false, length: 20 })
-  role: ERole;
+  @Column({ nullable: false, unique: true, length: 200 })
+  email: string;
+
+  @Column({ nullable: true })
+  gender?: EGender;
 
   @Column({ nullable: false, default: 'INCOMPLETE' })
   status: EStatus;
 
   @Column({ nullable: false })
   password: string;
-
-  @Column({ nullable: false })
-  salt: string;
-
-  @Column({ nullable: true, length: 64 })
-  confirmationToken?: string;
-
-  @Column({ nullable: true, length: 64 })
-  recoverToken?: string;
-
-  @Column({ nullable: true })
-  dateOfBirth?: Date;
-
-  @Column({ nullable: true })
-  gender?: EGender;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -54,6 +48,15 @@ export class Users {
 
   @DeleteDateColumn()
   deletedAt: Date;
+
+  @Column({ nullable: false })
+  dateOfBirth?: Date;
+
+  @Column({ nullable: true, length: 64 })
+  recoverToken?: string;
+
+  @Column({ nullable: true, length: 64 })
+  confirmationToken?: string;
 
   async validatePassword?(password: string) {
     const hash = await bcrypt.hash(password, this.salt);

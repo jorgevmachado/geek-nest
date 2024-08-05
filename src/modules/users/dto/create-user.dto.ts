@@ -9,6 +9,7 @@ import {
 import { Match } from '../../../decorators/match.decorator';
 import { IUser } from '../users.interface';
 import { Transform } from 'class-transformer';
+import { CPF } from '../../../decorators/cpf.decorator';
 
 interface ICreateUserDto
   extends Pick<IUser, 'name' | 'email' | 'password' | 'dateOfBirth'> {
@@ -16,6 +17,9 @@ interface ICreateUserDto
 }
 
 export class CreateUserDto implements ICreateUserDto {
+  @IsNotEmpty()
+  @CPF()
+  cpf: string;
   @IsNotEmpty()
   @MaxLength(200)
   name: string;

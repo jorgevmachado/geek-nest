@@ -11,20 +11,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp({
-    name,
-    email,
-    dateOfBirth,
-    password,
-    passwordConfirmation,
-  }: CreateUserDto) {
-    const createUserDto = new CreateUserDto();
-    createUserDto.name = name;
-    createUserDto.email = email;
-    createUserDto.password = password;
-    createUserDto.dateOfBirth = dateOfBirth;
-    createUserDto.passwordConfirmation = passwordConfirmation;
-
+  async signUp(createUserDto: CreateUserDto) {
     await this.userService.create(createUserDto);
     return { message: 'Registration Completed Successfully!' };
   }

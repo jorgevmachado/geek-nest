@@ -51,6 +51,7 @@ describe('AuthService', () => {
     const user = USER_INCOMPLETE;
     jest.spyOn(userService, 'checkCredentials').mockResolvedValueOnce({
       id: user.id,
+      cpf: user.cpf,
       salt: user.salt,
       role: user.role,
       name: user.name,
