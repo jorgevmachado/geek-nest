@@ -5,7 +5,6 @@ import { PassportModule } from '@nestjs/passport';
 import { USER_FIXTURE } from '../users/users.fixture';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
-import { AuthModule } from './auth.module';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -14,10 +13,7 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        PassportModule.register({ defaultStrategy: 'jwt' }),
-        AuthModule,
-      ],
+      imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
       controllers: [AuthController],
       providers: [
         {
