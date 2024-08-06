@@ -3,14 +3,16 @@ import { UsersService } from './users.service';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ERole, EStatus } from './users.interface';
+import { EGender, ERole, EStatus } from './users.interface';
 import {
-  USER_INCOMPLETE,
+  USER_FIXTURE,
   USER_INCOMPLETE_DTO,
   USERS_PAGINATE,
 } from './users.fixture';
 import { PAGINATE } from '../../fixtures';
 import {
+  BadRequestException,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ const usersClean = (users: Array<Users>) => {
 const userClean = (user: Users) => {
   return {
     id: user.id,
+    cpf: user.cpf,
     role: user.role,
     name: user.name,
     email: user.email,
@@ -57,26 +60,26 @@ describe('UsersService', () => {
   });
 
   it('must return the findAll method without filters.', async () => {
-    const user = USER_INCOMPLETE;
+    const user = USER_FIXTURE;
     jest.spyOn(repository, 'find').mockResolvedValueOnce([user]);
     expect(await service.findAll({})).toEqual(usersClean([user]));
   });
 
   it('must return the findOne method.', async () => {
-    const user = USER_INCOMPLETE;
+    const user = USER_FIXTURE;
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
     expect(await service.findOne(user.id)).toEqual(userClean(user));
   });
 
   it('must return the findOne method not found.', async () => {
-    const user = USER_INCOMPLETE;
+    const user = USER_FIXTURE;
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
     await expect(service.findOne(user.id)).rejects.toThrow(NotFoundException);
   });
 
   it('must return the checkCredentials method failed.', async () => {
     const user = {
-      ...USER_INCOMPLETE,
+      ...USER_FIXTURE,
       validatePassword: jest.fn().mockResolvedValueOnce(false),
     };
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
@@ -89,7 +92,7 @@ describe('UsersService', () => {
   });
 
   it('must return the checkCredentials method success.', async () => {
-    const user = USER_INCOMPLETE;
+    const user = USER_FIXTURE;
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
       ...user,
       validatePassword: jest.fn().mockResolvedValueOnce(true),
@@ -112,7 +115,7 @@ describe('UsersService', () => {
       where: jest.fn(),
       orderBy: jest.fn(),
       andWhere: jest.fn(),
-      getManyAndCount: jest.fn().mockResolvedValueOnce([[USER_INCOMPLETE], 1]),
+      getManyAndCount: jest.fn().mockResolvedValueOnce([[USER_FIXTURE], 1]),
     } as any);
     expect(
       await service.findAll({
@@ -148,8 +151,8 @@ describe('UsersService', () => {
   });
 
   it('must create an incomplete user', async () => {
-    jest.spyOn(repository, 'save').mockResolvedValueOnce(USER_INCOMPLETE);
-    expect(await service.create(USER_INCOMPLETE_DTO)).toEqual(USER_INCOMPLETE);
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(USER_FIXTURE);
+    expect(await service.create(USER_INCOMPLETE_DTO)).toEqual(USER_FIXTURE);
   });
 
   it('must create an incomplete user with error', async () => {
@@ -159,5 +162,211 @@ describe('UsersService', () => {
         passwordConfirmation: '0',
       }),
     ).rejects.toThrow(InternalServerErrorException);
+  });
+
+  it('must update an incomplete user', async () => {
+    const userComplete = {
+      ...USER_FIXTURE,
+      gender: EGender.MALE,
+      status: EStatus.ACTIVE,
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
+    expect(
+      await service.update(USER_FIXTURE.id, { gender: userComplete.gender }),
+    ).toEqual(userClean(userComplete));
+  });
+
+  it('must update an incomplete user with cpf already exists', async () => {
+    const userComplete = {
+      ...USER_FIXTURE,
+      gender: EGender.MALE,
+      status: EStatus.ACTIVE,
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
+      ...USER_FIXTURE,
+      id: 'USER_CPF_EQUAL',
+    });
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
+    await expect(
+      service.update(USER_FIXTURE.id, { cpf: userComplete.cpf }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('must update an incomplete user with email already exists', async () => {
+    const userComplete = {
+      ...USER_FIXTURE,
+      gender: EGender.MALE,
+      status: EStatus.ACTIVE,
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
+      ...USER_FIXTURE,
+      id: 'USER_EMAIL_EQUAL',
+    });
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
+    await expect(
+      service.update(USER_FIXTURE.id, { email: userComplete.email }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('must update an incomplete user with role', async () => {
+    const userComplete = {
+      ...USER_FIXTURE,
+      gender: EGender.MALE,
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
+      ...USER_FIXTURE,
+      status: EStatus.INCOMPLETE,
+    });
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
+    await expect(
+      service.update(USER_FIXTURE.id, { role: ERole.ADMIN }),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('must promote an active user to admin when just one user in database', async () => {
+    const AUTH_USER = USER_FIXTURE;
+    const ONLY_ONE_USER = {
+      ...USER_FIXTURE,
+      role: ERole.USER,
+      status: EStatus.ACTIVE,
+    };
+    jest
+      .spyOn(repository, 'findAndCount')
+      .mockResolvedValueOnce([[ONLY_ONE_USER], 1]);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(ONLY_ONE_USER);
+    jest.spyOn(repository, 'save').mockResolvedValueOnce({
+      ...ONLY_ONE_USER,
+      role: ERole.ADMIN,
+    });
+    expect(await service.promote(USER_FIXTURE.id, AUTH_USER)).toEqual({
+      message: 'User promoted to administrator successfully',
+    });
+  });
+
+  it('must promote an active user to admin when user with status admin request', async () => {
+    const AUTH_USER = {
+      ...USER_FIXTURE,
+      id: 'AUTH_USER',
+      role: ERole.ADMIN,
+      status: EStatus.ACTIVE,
+    };
+
+    const FIRST_USER = {
+      ...USER_FIXTURE,
+      id: 'FIRST_USER',
+      role: ERole.USER,
+      status: EStatus.INCOMPLETE,
+    };
+
+    const SECOND_USER = {
+      ...USER_FIXTURE,
+      id: 'SECOND_USER',
+      role: ERole.USER,
+      status: EStatus.ACTIVE,
+    };
+    jest
+      .spyOn(repository, 'findAndCount')
+      .mockResolvedValueOnce([[FIRST_USER, SECOND_USER], 2]);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(SECOND_USER);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(SECOND_USER);
+    jest.spyOn(repository, 'save').mockResolvedValueOnce({
+      ...SECOND_USER,
+      role: ERole.ADMIN,
+    });
+    expect(await service.promote(SECOND_USER.id, AUTH_USER)).toEqual({
+      message: 'User promoted to administrator successfully',
+    });
+  });
+
+  it('must promote an active user to admin when user with status user request', async () => {
+    const AUTH_USER = {
+      ...USER_FIXTURE,
+      id: 'AUTH_USER',
+      role: ERole.USER,
+      status: EStatus.ACTIVE,
+    };
+
+    const FIRST_USER = {
+      ...USER_FIXTURE,
+      id: 'FIRST_USER',
+      role: ERole.USER,
+      status: EStatus.INCOMPLETE,
+    };
+
+    const SECOND_USER = {
+      ...USER_FIXTURE,
+      id: 'SECOND_USER',
+      role: ERole.USER,
+      status: EStatus.ACTIVE,
+    };
+    jest
+      .spyOn(repository, 'findAndCount')
+      .mockResolvedValueOnce([[FIRST_USER, SECOND_USER], 2]);
+    await expect(service.promote(SECOND_USER.id, AUTH_USER)).rejects.toThrow(
+      ForbiddenException,
+    );
+  });
+
+  it('must promote an incomplete user to admin when user with status admin request', async () => {
+    const AUTH_USER = {
+      ...USER_FIXTURE,
+      id: 'AUTH_USER',
+      role: ERole.ADMIN,
+      status: EStatus.ACTIVE,
+    };
+
+    const FIRST_USER = {
+      ...USER_FIXTURE,
+      id: 'FIRST_USER',
+      role: ERole.USER,
+      status: EStatus.INCOMPLETE,
+    };
+
+    const SECOND_USER = {
+      ...USER_FIXTURE,
+      id: 'SECOND_USER',
+      role: ERole.USER,
+      status: EStatus.INCOMPLETE,
+    };
+    jest
+      .spyOn(repository, 'findAndCount')
+      .mockResolvedValueOnce([[FIRST_USER, SECOND_USER], 2]);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(SECOND_USER);
+    await expect(service.promote(SECOND_USER.id, AUTH_USER)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('must promote an active user and role admin to admin when user with status admin request', async () => {
+    const AUTH_USER = {
+      ...USER_FIXTURE,
+      id: 'AUTH_USER',
+      role: ERole.ADMIN,
+      status: EStatus.ACTIVE,
+    };
+
+    const FIRST_USER = {
+      ...USER_FIXTURE,
+      id: 'FIRST_USER',
+      role: ERole.USER,
+      status: EStatus.INCOMPLETE,
+    };
+
+    const SECOND_USER = {
+      ...USER_FIXTURE,
+      id: 'SECOND_USER',
+      role: ERole.ADMIN,
+      status: EStatus.ACTIVE,
+    };
+    jest
+      .spyOn(repository, 'findAndCount')
+      .mockResolvedValueOnce([[FIRST_USER, SECOND_USER], 2]);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(SECOND_USER);
+    await expect(service.promote(SECOND_USER.id, AUTH_USER)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 });

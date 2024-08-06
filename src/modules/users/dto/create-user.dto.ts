@@ -20,20 +20,25 @@ export class CreateUserDto implements ICreateUserDto {
   @IsNotEmpty()
   @CPF()
   cpf: string;
+
   @IsNotEmpty()
   @MaxLength(200)
   name: string;
+
   @IsNotEmpty()
   @MaxLength(200)
   @IsEmail()
   email: string;
+
   @IsNotEmpty()
   @MinLength(6)
   password: string;
+
   @IsNotEmpty()
   @MinLength(6)
   @Match('password')
   passwordConfirmation: string;
+
   @IsNotEmpty()
   @Transform(({ value }) => new Date(value))
   @IsDate()

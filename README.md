@@ -56,6 +56,12 @@ $ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
+
+execute user.service test 
+$ npm run test src/modules/users/users.service.spec.ts
+
+execute auth.service test 
+$ npm run test src/modules/auth/auth.service.spec.ts
 ```
 
 ## Support

@@ -2,6 +2,7 @@ import { QueryParametersDto } from '../../../dto/query-parameters.dto';
 import { ERole, EStatus } from '../users.interface';
 
 export class FilterUserDto extends QueryParametersDto {
+  cpf?: string;
   role?: ERole;
   name?: string;
   email?: string;

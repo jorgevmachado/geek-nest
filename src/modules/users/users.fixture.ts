@@ -11,7 +11,7 @@ const USER = {
   dateOfBirth: new Date('1990-01-01'),
 };
 
-export const USER_INCOMPLETE: Users = {
+export const USER_FIXTURE: Users = {
   id: 'USER_INCOMPLETE',
   cpf: USER.cpf,
   salt: 'xpto-salt',
@@ -33,7 +33,7 @@ export const USERS_PAGINATE = {
   next: NEXT,
   pages: PAGES,
   total: TOTAL,
-  data: [USER_INCOMPLETE],
+  data: [USER_FIXTURE],
 };
 
 export const USER_INCOMPLETE_DTO: CreateUserDto = {

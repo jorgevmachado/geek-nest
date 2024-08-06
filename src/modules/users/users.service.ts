@@ -1,5 +1,7 @@
 import {
+  BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -87,11 +89,19 @@ export class UsersService extends Service<Users> {
       });
     }
 
-    if (filterDto.name) {
+    if (filterDto.email) {
       filters.push({
         param: 'email',
         condition: 'LIKE',
         value: `%${filterDto.email}%`,
+      });
+    }
+
+    if (filterDto.cpf) {
+      filters.push({
+        param: 'cpf',
+        condition: 'LIKE',
+        value: `%${filterDto.cpf}%`,
       });
     }
 
@@ -104,26 +114,30 @@ export class UsersService extends Service<Users> {
 
   async checkCredentials({ email, password }: CredentialsUserDto) {
     const user = await this.repository.findOne({
-      where: { email: email, status: EStatus.INCOMPLETE || EStatus.ACTIVE },
+      where: { email: email },
     });
+
+    if (user.status === EStatus.INACTIVE) {
+      return null;
+    }
 
     if (user && (await user.validatePassword(password))) {
       return {
         id: user.id,
         cpf: user.cpf,
-        salt: user.salt,
         role: user.role,
+        salt: user.salt,
         name: user.name,
         email: user.email,
+        gender: user.gender,
         status: user.status,
         password: user.password,
         createdAt: user.createdAt,
-        deletedAt: user.deletedAt,
         updatedAt: user.updatedAt,
+        deletedAt: user.deletedAt,
+        dateOfBirth: user.dateOfBirth,
         recoverToken: user.recoverToken,
         confirmationToken: user.confirmationToken,
-        ...(user.dateOfBirth && { dateOfBirth: user.dateOfBirth }),
-        ...(user.gender && { gender: user.gender }),
       };
     }
 
@@ -131,35 +145,114 @@ export class UsersService extends Service<Users> {
   }
 
   async findOne(id: string) {
-    const user = await this.repository.findOne({ where: { id: id } });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
+    const user = await this.findUserBy('id', id, true);
     return this.cleanUser(user);
   }
 
-  async update(id: string, { name, gender, dateOfBirth }: UpdateUserDto) {
-    const user = await this.findOne(id);
+  async update(
+    id: string,
+    { cpf, name, email, role, gender, dateOfBirth }: UpdateUserDto,
+  ) {
+    const user = await this.findUserBy('id', id, true);
 
-    if (name) {
-      user.name = name;
+    if (cpf) {
+      const userCpf = await this.findUserBy('cpf', cpf);
+
+      if (userCpf && userCpf.id !== user.id) {
+        throw new BadRequestException('CPF already exists');
+      }
+      user.cpf = cpf;
     }
 
-    if (gender) {
-      user.gender = gender;
+    if (email) {
+      const userEmail = await this.findUserBy('email', email);
+
+      if (userEmail && userEmail.id !== user.id) {
+        throw new BadRequestException('Email already exists');
+      }
+      user.email = email;
     }
-    // TODO REMEMBER TO REMOVE
-    console.log('# => user => ', user);
-    console.log('# => update => name => ', name);
-    console.log('# => update => gender => ', gender);
-    console.log('# => update => dateOfBirth => ', dateOfBirth);
-    return `This action updates a #${id} user`;
+
+    if (role) {
+      if (user.status !== EStatus.ACTIVE) {
+        throw new BadRequestException(
+          'the user cannot be an administrator because it is not active',
+        );
+      }
+      user.role = role;
+    }
+
+    user.name = name ? name : user.name;
+    user.gender = gender ? gender : user.gender;
+    user.dateOfBirth = dateOfBirth ? dateOfBirth : user.dateOfBirth;
+
+    try {
+      user.status = this.validateStatus(user);
+      const result = await this.repository.save(user);
+      return this.cleanUser(result);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error updating user with ${id} in database`,
+      );
+    }
+  }
+
+  async promote(id: string, authUser: Users) {
+    const [users, total] = await this.repository.findAndCount();
+    const onlyUser = users[0];
+    if (
+      total === 1 &&
+      onlyUser.id === id &&
+      onlyUser.role === ERole.USER &&
+      onlyUser.status === EStatus.ACTIVE
+    ) {
+      return await this.promoteUser(onlyUser);
+    }
+
+    if (authUser.role !== ERole.ADMIN) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+
+    const user = await this.findUserBy('id', id, true);
+
+    if (user.role !== ERole.USER || user.status !== EStatus.ACTIVE) {
+      const message =
+        user.role === ERole.ADMIN
+          ? 'User is already an administrator'
+          : 'User cannot be promoted';
+      throw new BadRequestException(message);
+    }
+
+    return await this.promoteUser(user);
   }
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  private validateStatus(user: Users) {
+    if (user.status === EStatus.INCOMPLETE && !user.gender) {
+      return EStatus.INCOMPLETE;
+    }
+    return EStatus.ACTIVE;
+  }
+
+  private async findUserBy(
+    by: 'id' | 'cpf' | 'email',
+    value: string,
+    withThrow?: boolean,
+  ) {
+    const user = await this.repository.findOne({ where: { [by]: value } });
+
+    if (!user) {
+      if (!withThrow) {
+        return null;
+      }
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 
   private hashPassword(password: string, salt: string) {
@@ -170,9 +263,13 @@ export class UsersService extends Service<Users> {
     return users.map((user) => this.cleanUser(user));
   }
 
-  private cleanUser(user: Users) {
+  private cleanUser(user?: Users) {
+    if (!user) {
+      return user;
+    }
     return {
       id: user.id,
+      cpf: user.cpf,
       role: user.role,
       name: user.name,
       email: user.email,
@@ -185,5 +282,16 @@ export class UsersService extends Service<Users> {
       updatedAt: user.updatedAt,
       ...(user.deletedAt && { deletedAt: user.deletedAt }),
     };
+  }
+
+  private async promoteUser(user: Users) {
+    try {
+      await this.update(user.id, {
+        role: ERole.ADMIN,
+      });
+      return { message: 'User promoted to administrator successfully' };
+    } catch (error) {
+      throw new InternalServerErrorException('Error promoting user');
+    }
   }
 }

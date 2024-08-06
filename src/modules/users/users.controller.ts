@@ -52,7 +52,18 @@ export class UsersController {
       );
     }
 
+    if (user.role !== ERole.ADMIN && updateUserDto.role) {
+      throw new ForbiddenException(
+        'You are not authorized to change the user role',
+      );
+    }
+
     return this.usersService.update(id, updateUserDto);
+  }
+
+  @Patch('promote/:id')
+  promote(@GetUserAuth() user: Users, @Param('id') id: string) {
+    return this.usersService.promote(id, user);
   }
 
   @Delete(':id')
