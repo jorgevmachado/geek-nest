@@ -3,12 +3,35 @@ import { ERole, EStatus } from './users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { NEXT, PAGES, PAGINATE, TOTAL } from '../../fixtures';
 
+export const usersClean = (users: Array<Users>) => {
+  return users.map((user) => userClean(user));
+};
+
+export const userClean = (user: Users) => {
+  return {
+    id: user.id,
+    cpf: user.cpf,
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    status: user.status,
+    ...(user.status !== EStatus.INCOMPLETE && {
+      gender: user.gender,
+      dateOfBirth: user.dateOfBirth,
+    }),
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    ...(user.deletedAt && { deletedAt: user.deletedAt }),
+  };
+};
+
+export const USER_DATE_OF_BIRTH = '1990-01-01';
 const USER = {
   cpf: '44217458800',
   name: 'John Doe',
   email: 'john.doe@mail.com',
   password: '123456',
-  dateOfBirth: new Date('1990-01-01'),
+  dateOfBirth: new Date(USER_DATE_OF_BIRTH),
 };
 
 export const USER_FIXTURE: Users = {

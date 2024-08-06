@@ -7,7 +7,9 @@ import { EGender, ERole, EStatus } from './users.interface';
 import {
   USER_FIXTURE,
   USER_INCOMPLETE_DTO,
+  userClean,
   USERS_PAGINATE,
+  usersClean,
 } from './users.fixture';
 import { PAGINATE } from '../../fixtures';
 import {
@@ -16,28 +18,6 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-
-const usersClean = (users: Array<Users>) => {
-  return users.map((user) => userClean(user));
-};
-
-const userClean = (user: Users) => {
-  return {
-    id: user.id,
-    cpf: user.cpf,
-    role: user.role,
-    name: user.name,
-    email: user.email,
-    status: user.status,
-    ...(user.status !== EStatus.INCOMPLETE && {
-      gender: user.gender,
-      dateOfBirth: user.dateOfBirth,
-    }),
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
-    ...(user.deletedAt && { deletedAt: user.deletedAt }),
-  };
-};
 
 describe('UsersService', () => {
   let service: UsersService;

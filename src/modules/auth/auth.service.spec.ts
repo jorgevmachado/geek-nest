@@ -2,8 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { USER_INCOMPLETE, USER_INCOMPLETE_DTO } from '../users/users.fixture';
+import { USER_FIXTURE, USER_INCOMPLETE_DTO } from '../users/users.fixture';
 import { UnprocessableEntityException } from '@nestjs/common';
+import { EStatus } from '../users/users.interface';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -41,37 +42,37 @@ describe('AuthService', () => {
   });
 
   it('must return the signUp method success.', async () => {
-    jest.spyOn(userService, 'create').mockResolvedValueOnce(USER_INCOMPLETE);
+    jest.spyOn(userService, 'create').mockResolvedValueOnce(USER_FIXTURE);
     expect(await service.signUp(USER_INCOMPLETE_DTO)).toEqual({
       message: 'Registration Completed Successfully!',
     });
   });
 
   it('must return the signIn method success.', async () => {
-    const user = USER_INCOMPLETE;
+    const user = USER_FIXTURE;
     jest.spyOn(userService, 'checkCredentials').mockResolvedValueOnce({
       id: user.id,
       cpf: user.cpf,
-      salt: user.salt,
       role: user.role,
+      salt: user.salt,
       name: user.name,
       email: user.email,
-      status: user.status,
+      gender: user.gender,
+      status: EStatus.INCOMPLETE,
       password: user.password,
       createdAt: user.createdAt,
-      deletedAt: user.deletedAt,
       updatedAt: user.updatedAt,
+      deletedAt: user.deletedAt,
+      dateOfBirth: user.dateOfBirth,
       recoverToken: user.recoverToken,
       confirmationToken: user.confirmationToken,
-      ...(user.dateOfBirth && { dateOfBirth: user.dateOfBirth }),
-      ...(user.gender && { gender: user.gender }),
     });
     jest.spyOn(jwtService, 'sign').mockReturnValueOnce('token');
 
     expect(
       await service.signIn({
-        email: USER_INCOMPLETE.email,
-        password: USER_INCOMPLETE.password,
+        email: USER_FIXTURE.email,
+        password: USER_FIXTURE.password,
       }),
     ).toEqual({ token: 'token' });
   });
@@ -81,8 +82,8 @@ describe('AuthService', () => {
 
     await expect(
       service.signIn({
-        email: USER_INCOMPLETE.email,
-        password: USER_INCOMPLETE.password,
+        email: USER_FIXTURE.email,
+        password: USER_FIXTURE.password,
       }),
     ).rejects.toThrow(UnprocessableEntityException);
   });
