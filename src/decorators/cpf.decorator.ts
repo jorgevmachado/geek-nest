@@ -20,10 +20,6 @@ export function CPF(validationOptions?: ValidationOptions) {
 @ValidatorConstraint({ name: 'CPF' })
 export class CPFConstraint implements ValidatorConstraintInterface {
   validate(cpf: string) {
-    if (typeof cpf !== 'string') {
-      return false;
-    }
-
     cpf = cpf.replace(/\D+/g, '');
     if (cpf.length !== 11) {
       return false;
