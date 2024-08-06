@@ -7,7 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { USER_FIXTURE, userClean } from './users.fixture';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
-import { ERole } from './users.interface';
+import { ERole, EStatus } from './users.interface';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -47,10 +47,39 @@ describe('UsersController', () => {
     expect(result).toEqual([USER_CLEAN]);
   });
 
+  it('should be get success with user removed', async () => {
+    const USER_CLEAN = userClean({
+      ...USER_FIXTURE,
+      status: EStatus.INACTIVE,
+      deletedAt: new Date(),
+    });
+    jest.spyOn(service, 'findAll').mockResolvedValueOnce([USER_CLEAN]);
+    const result = await controller.findAll({ all: true });
+    expect(result).toEqual([USER_CLEAN]);
+  });
+
   it('should be get with param id success', async () => {
     const USER_CLEAN = userClean(USER_FIXTURE);
     jest.spyOn(service, 'findOne').mockResolvedValueOnce(USER_CLEAN);
-    const result = await controller.findOne(USER_FIXTURE, USER_CLEAN.id);
+    const result = await controller.findOne(USER_FIXTURE, USER_CLEAN.id, false);
+    expect(result).toEqual(USER_CLEAN);
+  });
+
+  it('should be get with param id success user removed', async () => {
+    const USER_CLEAN = userClean({
+      ...USER_FIXTURE,
+      status: EStatus.INACTIVE,
+      deletedAt: new Date(),
+    });
+    jest.spyOn(service, 'findOne').mockResolvedValueOnce(USER_CLEAN);
+    const result = await controller.findOne(
+      {
+        ...USER_FIXTURE,
+        role: ERole.ADMIN,
+      },
+      USER_CLEAN.id,
+      false,
+    );
     expect(result).toEqual(USER_CLEAN);
   });
 

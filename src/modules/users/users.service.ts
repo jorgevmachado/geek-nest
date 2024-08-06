@@ -59,7 +59,8 @@ export class UsersService extends Service<Users> {
 
   async findAll(filterDto: FilterUserDto) {
     if (!filterDto.limit || !filterDto.page) {
-      return this.cleanUsers(await this.repository.find());
+      const params = !filterDto.all ? {} : { withDeleted: true };
+      return this.cleanUsers(await this.repository.find(params));
     }
 
     const filters: Array<{ param: string; condition: string; value: string }> =
@@ -144,8 +145,8 @@ export class UsersService extends Service<Users> {
     return null;
   }
 
-  async findOne(id: string) {
-    const user = await this.findUserBy('id', id, true);
+  async findOne(id: string, all?: boolean) {
+    const user = await this.findUserBy('id', id, true, all);
     return this.cleanUser(user);
   }
 
@@ -158,19 +159,21 @@ export class UsersService extends Service<Users> {
     if (cpf) {
       const userCpf = await this.findUserBy('cpf', cpf);
 
+      user.cpf = cpf;
+
       if (userCpf && userCpf.id !== user.id) {
         throw new BadRequestException('CPF already exists');
       }
-      user.cpf = cpf;
     }
 
     if (email) {
       const userEmail = await this.findUserBy('email', email);
 
+      user.email = email;
+
       if (userEmail && userEmail.id !== user.id) {
         throw new BadRequestException('Email already exists');
       }
-      user.email = email;
     }
 
     if (role) {
@@ -249,8 +252,12 @@ export class UsersService extends Service<Users> {
     by: 'id' | 'cpf' | 'email',
     value: string,
     withThrow?: boolean,
+    all?: boolean,
   ) {
-    const user = await this.repository.findOne({ where: { [by]: value } });
+    const options = !all
+      ? { where: { [by]: value } }
+      : { withDeleted: true, where: { [by]: value } };
+    const user = await this.repository.findOne(options);
 
     if (!user) {
       if (!withThrow) {

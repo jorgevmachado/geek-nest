@@ -32,11 +32,18 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@GetUserAuth() user: Users, @Param('id') id: string) {
+  findOne(
+    @GetUserAuth() user: Users,
+    @Param('id') id: string,
+    @Query() all: boolean,
+  ) {
     if (user.role !== ERole.ADMIN && user.id.toString() !== id) {
       throw new ForbiddenException(
         'You are not authorized to access this feature',
       );
+    }
+    if (all && user.role === ERole.ADMIN) {
+      return this.usersService.findOne(id, true);
     }
     return this.usersService.findOne(id);
   }

@@ -45,10 +45,30 @@ describe('UsersService', () => {
     expect(await service.findAll({})).toEqual(usersClean([user]));
   });
 
+  it('must return the findAll method with filter user removed.', async () => {
+    const user = {
+      ...USER_FIXTURE,
+      status: EStatus.INACTIVE,
+      deletedAt: new Date(),
+    };
+    jest.spyOn(repository, 'find').mockResolvedValueOnce([user]);
+    expect(await service.findAll({ all: true })).toEqual(usersClean([user]));
+  });
+
   it('must return the findOne method.', async () => {
     const user = USER_FIXTURE;
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
     expect(await service.findOne(user.id)).toEqual(userClean(user));
+  });
+
+  it('must return the findOne method with user removed.', async () => {
+    const user = {
+      ...USER_FIXTURE,
+      status: EStatus.INACTIVE,
+      deletedAt: new Date(),
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+    expect(await service.findOne(user.id, true)).toEqual(userClean(user));
   });
 
   it('must return the findOne method not found.', async () => {
@@ -61,6 +81,20 @@ describe('UsersService', () => {
     const user = {
       ...USER_FIXTURE,
       validatePassword: jest.fn().mockResolvedValueOnce(false),
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
+    expect(
+      await service.checkCredentials({
+        email: user.email,
+        password: user.password,
+      }),
+    ).toBeNull();
+  });
+
+  it('must return the checkCredentials user with status inactive.', async () => {
+    const user = {
+      ...USER_FIXTURE,
+      status: EStatus.INACTIVE,
     };
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
     expect(
@@ -100,6 +134,9 @@ describe('UsersService', () => {
     expect(
       await service.findAll({
         page: 1,
+        name: USER_FIXTURE.name,
+        email: USER_FIXTURE.email,
+        cpf: USER_FIXTURE.cpf,
         limit: 10,
         role: ERole.USER,
         status: EStatus.INCOMPLETE,
@@ -147,7 +184,8 @@ describe('UsersService', () => {
   it('must update an incomplete user', async () => {
     const userComplete = {
       ...USER_FIXTURE,
-      gender: EGender.MALE,
+      cpf: '62627761846',
+      email: 'mail@mail.com',
       status: EStatus.ACTIVE,
     };
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
@@ -155,6 +193,20 @@ describe('UsersService', () => {
     expect(
       await service.update(USER_FIXTURE.id, { gender: userComplete.gender }),
     ).toEqual(userClean(userComplete));
+  });
+
+  it('must update an incomplete user with error', async () => {
+    const userComplete = {
+      ...USER_FIXTURE,
+      cpf: '62627761846',
+      email: 'mail@mail.com',
+      gender: EGender.MALE,
+      status: EStatus.ACTIVE,
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
+    await expect(
+      service.update(USER_FIXTURE.id, { gender: userComplete.gender }),
+    ).rejects.toThrow(InternalServerErrorException);
   });
 
   it('must update an incomplete user with cpf already exists', async () => {
@@ -347,6 +399,38 @@ describe('UsersService', () => {
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(SECOND_USER);
     await expect(service.promote(SECOND_USER.id, AUTH_USER)).rejects.toThrow(
       BadRequestException,
+    );
+  });
+  it('must promote an active user and role admin to admin when user with status admin request error', async () => {
+    const AUTH_USER = {
+      ...USER_FIXTURE,
+      id: 'AUTH_USER',
+      role: ERole.ADMIN,
+      status: EStatus.ACTIVE,
+    };
+
+    const FIRST_USER = {
+      ...USER_FIXTURE,
+      id: 'FIRST_USER',
+      role: ERole.USER,
+      status: EStatus.INCOMPLETE,
+    };
+
+    const SECOND_USER = {
+      ...USER_FIXTURE,
+      id: 'SECOND_USER',
+      role: ERole.USER,
+      status: EStatus.ACTIVE,
+    };
+    jest
+      .spyOn(repository, 'findAndCount')
+      .mockResolvedValueOnce([[FIRST_USER, SECOND_USER], 2]);
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(SECOND_USER);
+    jest
+      .spyOn(service, 'update')
+      .mockRejectedValue(new InternalServerErrorException());
+    await expect(service.promote(SECOND_USER.id, AUTH_USER)).rejects.toThrow(
+      InternalServerErrorException,
     );
   });
 
