@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -64,10 +63,5 @@ export class UsersController {
   @Patch('promote/:id')
   promote(@GetUserAuth() user: Users, @Param('id') id: string) {
     return this.usersService.promote(id, user);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
   }
 }
