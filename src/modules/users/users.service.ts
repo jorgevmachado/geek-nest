@@ -228,8 +228,14 @@ export class UsersService extends Service<Users> {
     return await this.promoteUser(user);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    const user = await this.findUserBy('id', id, true);
+    user.deletedAt = new Date();
+    user.status = EStatus.INACTIVE;
+    await this.repository.save(user);
+    return {
+      message: `User with id ${id} successfully removed`,
+    };
   }
 
   private validateStatus(user: Users) {

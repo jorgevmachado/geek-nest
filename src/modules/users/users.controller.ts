@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -63,5 +65,18 @@ export class UsersController {
   @Patch('promote/:id')
   promote(@GetUserAuth() user: Users, @Param('id') id: string) {
     return this.usersService.promote(id, user);
+  }
+
+  @Delete(':id')
+  remove(@GetUserAuth() user: Users, @Param('id') id: string) {
+    if (user.role !== ERole.ADMIN) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+    if (user.id === id) {
+      throw new BadRequestException('You cannot delete yourself');
+    }
+    return this.usersService.remove(id);
   }
 }

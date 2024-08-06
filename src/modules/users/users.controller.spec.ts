@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { USER_FIXTURE, userClean } from './users.fixture';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
+import { ERole } from './users.interface';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -24,6 +25,7 @@ describe('UsersController', () => {
             findOne: jest.fn(),
             update: jest.fn(),
             promote: jest.fn(),
+            remove: jest.fn(),
           },
         },
         { provide: getRepositoryToken(Users), useClass: Repository },
@@ -77,6 +79,20 @@ describe('UsersController', () => {
     jest.spyOn(service, 'promote').mockResolvedValueOnce(response);
     const result = await controller.promote(USER_FIXTURE, USER_FIXTURE.id);
 
+    expect(result).toEqual(response);
+  });
+
+  it('should be delete with param id success', async () => {
+    const response = {
+      message: 'User with id USER_INCOMPLETE successfully removed',
+    };
+    const USER_ADMIN = {
+      ...USER_FIXTURE,
+      id: 'USER_ADMIN',
+      role: ERole.ADMIN,
+    };
+    jest.spyOn(service, 'remove').mockResolvedValueOnce(response);
+    const result = await controller.remove(USER_ADMIN, USER_FIXTURE.id);
     expect(result).toEqual(response);
   });
 });

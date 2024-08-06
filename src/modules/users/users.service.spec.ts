@@ -349,4 +349,17 @@ describe('UsersService', () => {
       BadRequestException,
     );
   });
+
+  it('must remove an user by admin', async () => {
+    const userRemoved = {
+      ...USER_FIXTURE,
+      status: EStatus.INACTIVE,
+      deletedAt: new Date(),
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(userRemoved);
+    expect(await service.remove(USER_FIXTURE.id)).toEqual({
+      message: 'User with id USER_INCOMPLETE successfully removed',
+    });
+  });
 });
