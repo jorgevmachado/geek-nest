@@ -62,6 +62,9 @@ $ npm run test src/modules/users/users.service.spec.ts
 
 execute auth.service test 
 $ npm run test src/modules/auth/auth.service.spec.ts
+
+execute pokemon.service test 
+$ npm run test src/modules/pokemon/pokemon.service.spec.ts
 ```
 
 ## Support

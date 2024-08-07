@@ -223,6 +223,7 @@ export class PokemonService extends Service<Pokemon> {
 
       return await this.index(filterDto);
     } catch (error) {
+      console.error(`# => pokemon => generate => error => ${error}`);
       throw new InternalServerErrorException(
         'Error saving generate pokemon to database',
       );
