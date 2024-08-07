@@ -11,7 +11,7 @@ export class AbilityService extends Service<Ability> {
     @InjectRepository(Ability)
     protected repository: Repository<Ability>,
   ) {
-    super(repository, 'abilities');
+    super(repository, 'abilities', []);
   }
   async generate(
     abilities: IResponsePokemonByName['abilities'],

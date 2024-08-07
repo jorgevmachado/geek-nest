@@ -11,7 +11,7 @@ export class StatService extends Service<Stat> {
     @InjectRepository(Stat)
     protected repository: Repository<Stat>,
   ) {
-    super(repository, 'stats');
+    super(repository, 'stats', []);
   }
   async generate(stats: IResponsePokemonByName['stats']): Promise<Array<Stat>> {
     return Promise.all(

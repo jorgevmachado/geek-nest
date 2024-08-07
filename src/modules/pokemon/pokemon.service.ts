@@ -30,12 +30,13 @@ export class PokemonService extends Service<Pokemon> {
     protected moveService: MoveService,
     protected abilityService: AbilityService,
   ) {
-    super(repository, 'pokemons');
+    super(repository, 'pokemons', ['moves', 'stats', 'types', 'abilities']);
   }
   private _totalPokemon: number = 1302;
 
   async findAll(filterDto: FilterPokemonDto): Promise<any> {
     const total = await this.repository.count();
+
     if (total === 0 || total !== this._totalPokemon) {
       return this.generate(filterDto);
     }
@@ -162,9 +163,13 @@ export class PokemonService extends Service<Pokemon> {
 
   private async index(filterDto: FilterPokemonDto) {
     if (!filterDto.limit || !filterDto.page) {
-      return await this.repository.find();
+      return await this.repository.find({ order: { order: 'ASC' } });
     }
     const filters: Array<IFilterParams> = this.generateFilters(filterDto);
+
+    if (!filterDto.asc && !filterDto.desc) {
+      filterDto.asc = 'order';
+    }
     return await this.paginate(filterDto, filters);
   }
 
@@ -225,7 +230,10 @@ export class PokemonService extends Service<Pokemon> {
   }
 
   private async findBy(by: 'id' | 'name', value: string, withThrow?: boolean) {
-    const result = await this.repository.findOne({ where: { [by]: value } });
+    const result = await this.repository.findOne({
+      where: { [by]: value },
+      relations: this.relations,
+    });
 
     if (!result) {
       if (!withThrow) {

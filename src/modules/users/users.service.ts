@@ -24,7 +24,7 @@ export class UsersService extends Service<Users> {
   constructor(
     @InjectRepository(Users) protected repository: Repository<Users>,
   ) {
-    super(repository, 'users');
+    super(repository, 'users', []);
   }
 
   async create({ cpf, name, email, dateOfBirth, password }: CreateUserDto) {

@@ -12,7 +12,7 @@ export class TypeService extends Service<Type> {
     @InjectRepository(Type)
     protected repository: Repository<Type>,
   ) {
-    super(repository, 'types');
+    super(repository, 'types', []);
   }
   async generate(types: IResponsePokemonByName['types']): Promise<Array<Type>> {
     return Promise.all(

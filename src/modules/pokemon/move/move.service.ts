@@ -11,7 +11,7 @@ export class MoveService extends Service<Move> {
     @InjectRepository(Move)
     protected repository: Repository<Move>,
   ) {
-    super(repository, 'moves');
+    super(repository, 'moves', []);
   }
   async generate(moves: IResponsePokemonByName['moves']): Promise<Array<Move>> {
     return Promise.all(
