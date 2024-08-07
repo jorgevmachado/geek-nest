@@ -15,7 +15,7 @@ import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { ERole, EStatus } from './users.interface';
 import { FilterUserDto } from './dto/filter-user.dto';
-import { Service } from '../../services/abstract';
+import { Service } from '../../services';
 import { CredentialsUserDto } from './dto/credentials-user.dto';
 
 @Injectable()
