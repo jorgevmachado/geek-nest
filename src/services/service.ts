@@ -3,6 +3,17 @@ import { QueryParametersDto } from '../dto/query-parameters.dto';
 import { ConflictException } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 
+interface IPaginate<T> {
+  next: number | null;
+  prev: number | null;
+  total: number;
+  pages: number;
+  per_page: number;
+  current_page: number;
+  skip: number;
+  data: Array<T>;
+}
+
 export abstract class Service<T extends ObjectLiteral> {
   protected constructor(
     protected readonly repository: Repository<T>,
@@ -12,7 +23,7 @@ export abstract class Service<T extends ObjectLiteral> {
   async paginate(
     { page, limit, asc, desc }: QueryParametersDto,
     filters: Array<any>,
-  ) {
+  ): Promise<IPaginate<T>> {
     page = page < 1 ? 1 : page;
     limit = limit > 100 ? 100 : limit;
 
