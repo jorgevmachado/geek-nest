@@ -69,8 +69,11 @@ $ npm run test src/modules/pokemon/pokemon.service.spec.ts
 execute ability.service test 
 $ npm run test src/modules/pokemon/ability/ability.service.spec.ts
 
-execute ability.service test 
+execute move.service test 
 $ npm run test src/modules/pokemon/move/move.service.spec.ts
+
+execute stat.service test 
+$ npm run test src/modules/pokemon/stat/stat.service.spec.ts
 ```
 
 ## Support
