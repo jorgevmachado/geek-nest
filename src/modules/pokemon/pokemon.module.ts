@@ -8,6 +8,7 @@ import { MoveModule } from './move/move.module';
 import { AbilityModule } from './ability/ability.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Pokemon } from './pokemon.entity';
+import { PokemonApi } from './pokemon.api';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { Pokemon } from './pokemon.entity';
     AbilityModule,
   ],
   controllers: [PokemonController],
-  providers: [PokemonService],
+  providers: [PokemonService, PokemonApi],
 })
 export class PokemonModule {}

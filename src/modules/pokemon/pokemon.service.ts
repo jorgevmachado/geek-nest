@@ -16,7 +16,7 @@ import {
 } from './pokemon.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Service } from '../../services';
+import { IPaginate, Service } from '../../services';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { IFilterParams } from '../../interfaces/filter.interface';
 
@@ -29,6 +29,7 @@ export class PokemonService extends Service<Pokemon> {
     protected statService: StatService,
     protected moveService: MoveService,
     protected abilityService: AbilityService,
+    protected pokemonApi: PokemonApi,
   ) {
     super(repository, 'pokemons', ['moves', 'stats', 'types', 'abilities']);
   }
@@ -112,11 +113,10 @@ export class PokemonService extends Service<Pokemon> {
   private async generateBase(
     data: Pokemon,
   ): Promise<IResponsePokemonFull | void> {
-    const api = new PokemonApi();
     const name = data.name;
     return await Promise.all([
-      await api.getByName(name),
-      await api.getSpecieByName(name),
+      await this.pokemonApi.getByName(name),
+      await this.pokemonApi.getSpecieByName(name),
     ])
       .then(([response, responseSpecie]) => ({
         id: data.id,
@@ -152,52 +152,8 @@ export class PokemonService extends Service<Pokemon> {
       });
   }
 
-  private generateImage(sprites: IResponsePokemonByName['sprites']): string {
-    if (!sprites) {
-      return '';
-    }
-    const frontDefault = sprites.front_default;
-    const dreamWorld = sprites.other.dream_world.front_default;
-    return frontDefault || dreamWorld;
-  }
-
-  private async index(filterDto: FilterPokemonDto) {
-    if (!filterDto.limit || !filterDto.page) {
-      return await this.repository.find({ order: { order: 'ASC' } });
-    }
-    const filters: Array<IFilterParams> = this.generateFilters(filterDto);
-
-    if (!filterDto.asc && !filterDto.desc) {
-      filterDto.asc = 'order';
-    }
-    return await this.paginate(filterDto, filters);
-  }
-
-  private generateFilters(filterDto: FilterPokemonDto) {
-    const filters: Array<IFilterParams> = [];
-
-    if (filterDto.status) {
-      filters.push({
-        param: 'status',
-        condition: '=',
-        value: filterDto.status.toUpperCase(),
-      });
-    }
-
-    if (filterDto.name) {
-      filters.push({
-        param: 'name',
-        condition: 'LIKE',
-        value: `%${filterDto.name}%`,
-      });
-    }
-
-    return filters;
-  }
-
   private async generate(filterDto: FilterPokemonDto) {
-    const api = new PokemonApi();
-    const response = await api.getAll(0, this._totalPokemon);
+    const response = await this.pokemonApi.getAll(0, this._totalPokemon);
 
     if (!response) {
       throw new InternalServerErrorException(
@@ -228,6 +184,52 @@ export class PokemonService extends Service<Pokemon> {
         'Error saving generate pokemon to database',
       );
     }
+  }
+
+  private generateImage(sprites: IResponsePokemonByName['sprites']): string {
+    if (!sprites) {
+      return '';
+    }
+    const frontDefault = sprites.front_default;
+    const dreamWorld = sprites.other.dream_world.front_default;
+    return frontDefault || dreamWorld;
+  }
+
+  private async index(
+    filterDto: FilterPokemonDto,
+  ): Promise<Array<Pokemon> | IPaginate<Pokemon>> {
+    if (!filterDto.limit || !filterDto.page) {
+      return await this.repository.find({ order: { order: 'ASC' } });
+    }
+    const filters: Array<IFilterParams> = this.generateFilters(filterDto);
+
+    if (!filterDto.asc && !filterDto.desc) {
+      filterDto.asc = 'order';
+    }
+
+    return await this.paginate(filterDto, filters);
+  }
+
+  private generateFilters(filterDto: FilterPokemonDto) {
+    const filters: Array<IFilterParams> = [];
+
+    if (filterDto.status) {
+      filters.push({
+        param: 'status',
+        condition: '=',
+        value: filterDto.status.toUpperCase(),
+      });
+    }
+
+    if (filterDto.name) {
+      filters.push({
+        param: 'name',
+        condition: 'LIKE',
+        value: `%${filterDto.name}%`,
+      });
+    }
+
+    return filters;
   }
 
   private async findBy(by: 'id' | 'name', value: string, withThrow?: boolean) {

@@ -3,7 +3,7 @@ import { QueryParametersDto } from '../../../dto/query-parameters.dto';
 import { ConflictException } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 
-interface IPaginate<T> {
+export interface IPaginate<T> {
   next: number | null;
   prev: number | null;
   total: number;
