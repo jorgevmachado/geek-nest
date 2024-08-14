@@ -77,6 +77,9 @@ $ npm run test src/modules/pokemon/stat/stat.service.spec.ts
 
 execute type.service test 
 $ npm run test src/modules/pokemon/type/type.service.spec.ts
+
+execute pokemon.controller test 
+$ npm run test src/modules/pokemon/pokemon.controller.spec.ts
 ```
 
 ## Support

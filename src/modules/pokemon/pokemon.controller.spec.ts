@@ -1,20 +1,45 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PokemonController } from './pokemon.controller';
 import { PokemonService } from './pokemon.service';
+import { PassportModule } from '@nestjs/passport';
+import { ENTITY_POKEMON } from './pokemon.fixture';
 
 describe('PokemonController', () => {
   let controller: PokemonController;
+  let service: PokemonService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [PassportModule.register({ defaultStrategy: 'jwt' })],
       controllers: [PokemonController],
-      providers: [PokemonService],
+      providers: [
+        {
+          provide: PokemonService,
+          useValue: {
+            findAll: jest.fn(),
+            findOne: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     controller = module.get<PokemonController>(PokemonController);
+    service = module.get<PokemonService>(PokemonService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('should be get success', async () => {
+    jest.spyOn(service, 'findAll').mockResolvedValueOnce([ENTITY_POKEMON]);
+    const result = await controller.findAll({});
+    expect(result).toEqual([ENTITY_POKEMON]);
+  });
+
+  it('should be get with param success', async () => {
+    jest.spyOn(service, 'findOne').mockResolvedValueOnce(ENTITY_POKEMON);
+    const result = await controller.findOne(ENTITY_POKEMON.name);
+    expect(result).toEqual(ENTITY_POKEMON);
   });
 });
