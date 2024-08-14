@@ -23,7 +23,7 @@ export abstract class Http {
     return this._config;
   }
 
-  protected get<T>(
+  get<T>(
     path: string,
     config: Omit<RequestConfig, 'body'> = { params: {}, override: {} },
   ): Promise<T> {
@@ -34,7 +34,7 @@ export abstract class Http {
     return this.send<T>(url, { ...override, method: 'GET' });
   }
 
-  protected post<B, T = any>(
+  post<B, T = any>(
     path: string,
     config: RequestConfig<B> = { params: {}, override: {}, body: {} as B },
   ): Promise<T> {
