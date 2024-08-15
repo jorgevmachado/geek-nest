@@ -62,6 +62,24 @@ $ npm run test src/modules/users/users.service.spec.ts
 
 execute auth.service test 
 $ npm run test src/modules/auth/auth.service.spec.ts
+
+execute pokemon.service test 
+$ npm run test src/modules/pokemon/pokemon.service.spec.ts
+
+execute ability.service test 
+$ npm run test src/modules/pokemon/ability/ability.service.spec.ts
+
+execute move.service test 
+$ npm run test src/modules/pokemon/move/move.service.spec.ts
+
+execute stat.service test 
+$ npm run test src/modules/pokemon/stat/stat.service.spec.ts
+
+execute type.service test 
+$ npm run test src/modules/pokemon/type/type.service.spec.ts
+
+execute pokemon.controller test 
+$ npm run test src/modules/pokemon/pokemon.controller.spec.ts
 ```
 
 ## Support

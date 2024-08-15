@@ -3,7 +3,7 @@ import { QueryParametersDto } from '../../../dto/query-parameters.dto';
 import { ConflictException } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 
-interface IPaginate<T> {
+export interface IPaginate<T> {
   next: number | null;
   prev: number | null;
   total: number;
@@ -18,6 +18,7 @@ export abstract class Service<T extends ObjectLiteral> {
   protected constructor(
     protected readonly repository: Repository<T>,
     protected readonly alias: string,
+    protected readonly relations: Array<string>,
   ) {}
 
   async paginate(
@@ -29,9 +30,11 @@ export abstract class Service<T extends ObjectLiteral> {
 
     const query = this.repository.createQueryBuilder(this.alias);
 
-    this.orderBy(query, asc, desc);
+    this.queryOrderBy(query, asc, desc);
 
-    this.filters(query, filters);
+    this.queryFilters(query, filters);
+
+    this.queryRelations(query);
 
     const [data, total] = await query.getManyAndCount();
 
@@ -51,7 +54,11 @@ export abstract class Service<T extends ObjectLiteral> {
     };
   }
 
-  private orderBy(query: SelectQueryBuilder<T>, asc: string, desc: string) {
+  private queryOrderBy(
+    query: SelectQueryBuilder<T>,
+    asc: string,
+    desc: string,
+  ) {
     if (asc && desc) {
       throw new ConflictException('Cannot use asc and desc at the same time');
     }
@@ -65,7 +72,7 @@ export abstract class Service<T extends ObjectLiteral> {
     }
   }
 
-  private filters(query: SelectQueryBuilder<T>, filters: Array<any>) {
+  private queryFilters(query: SelectQueryBuilder<T>, filters: Array<any>) {
     if (filters.length) {
       filters.forEach((filter) => {
         query.andWhere(
@@ -74,6 +81,14 @@ export abstract class Service<T extends ObjectLiteral> {
             [filter.param]: filter.value,
           },
         );
+      });
+    }
+  }
+
+  private queryRelations(query: SelectQueryBuilder<T>) {
+    if (this.relations.length) {
+      this.relations.forEach((relation) => {
+        query.leftJoinAndSelect(`${this.alias}.${relation}`, relation);
       });
     }
   }

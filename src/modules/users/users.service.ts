@@ -17,13 +17,14 @@ import { ERole, EStatus } from './users.interface';
 import { FilterUserDto } from './dto/filter-user.dto';
 import { Service } from '../../services';
 import { CredentialsUserDto } from './dto/credentials-user.dto';
+import { IFilterParams } from '../../interfaces/filter.interface';
 
 @Injectable()
 export class UsersService extends Service<Users> {
   constructor(
     @InjectRepository(Users) protected repository: Repository<Users>,
   ) {
-    super(repository, 'users');
+    super(repository, 'users', []);
   }
 
   async create({ cpf, name, email, dateOfBirth, password }: CreateUserDto) {
@@ -63,8 +64,7 @@ export class UsersService extends Service<Users> {
       return this.cleanUsers(await this.repository.find(params));
     }
 
-    const filters: Array<{ param: string; condition: string; value: string }> =
-      [];
+    const filters: Array<IFilterParams> = [];
 
     if (filterDto.role) {
       filters.push({
