@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PokemonController } from './pokemon.controller';
 import { PokemonService } from './pokemon.service';
 import { PassportModule } from '@nestjs/passport';
-import { ENTITY_POKEMON } from './pokemon.fixture';
+import { ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER } from './pokemon.fixture';
 
 describe('PokemonController', () => {
   let controller: PokemonController;
@@ -32,14 +32,20 @@ describe('PokemonController', () => {
   });
 
   it('should be get success', async () => {
-    jest.spyOn(service, 'findAll').mockResolvedValueOnce([ENTITY_POKEMON]);
+    jest
+      .spyOn(service, 'findAll')
+      .mockResolvedValueOnce([ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER]);
     const result = await controller.findAll({});
-    expect(result).toEqual([ENTITY_POKEMON]);
+    expect(result).toEqual([ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER]);
   });
 
   it('should be get with param success', async () => {
-    jest.spyOn(service, 'findOne').mockResolvedValueOnce(ENTITY_POKEMON);
-    const result = await controller.findOne(ENTITY_POKEMON.name);
-    expect(result).toEqual(ENTITY_POKEMON);
+    jest
+      .spyOn(service, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER);
+    const result = await controller.findOne(
+      ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER.name,
+    );
+    expect(result).toEqual(ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER);
   });
 });

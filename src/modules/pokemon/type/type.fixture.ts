@@ -13,7 +13,7 @@ const transformColor = (
   };
 };
 
-export const transformResponseType = (
+const transformResponseType = (
   response: IResponsePokemonByName['types'][number],
 ): Type => ({
   id: response.type.name,
@@ -26,7 +26,7 @@ export const transformResponseType = (
   deletedAt: null,
 });
 
-export const RESPONSE_TYPE_FIXTURE: IResponsePokemonByName['types'] = [
+export const RESPONSE_TYPES_FIXTURE: IResponsePokemonByName['types'] = [
   {
     slot: 1,
     order: 1,
@@ -45,6 +45,6 @@ export const RESPONSE_TYPE_FIXTURE: IResponsePokemonByName['types'] = [
   },
 ];
 
-export const ENTITY_TYPES_FIXTURE: Array<Type> = RESPONSE_TYPE_FIXTURE.map(
+export const ENTITY_TYPES_FIXTURE: Array<Type> = RESPONSE_TYPES_FIXTURE.map(
   (item) => transformResponseType(item),
 );

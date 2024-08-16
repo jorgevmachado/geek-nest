@@ -59,6 +59,10 @@ export class Pokemon implements IPokemon {
   @JoinTable()
   abilities?: Array<Ability>;
 
+  @ManyToMany(() => Pokemon, { nullable: true })
+  @JoinTable()
+  evolutions?: Array<Pokemon>;
+
   @Column({ nullable: true, length: 200 })
   shape_name?: string;
 

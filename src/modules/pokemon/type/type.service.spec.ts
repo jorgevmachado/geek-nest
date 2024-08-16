@@ -3,7 +3,7 @@ import { TypeService } from './type.service';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Type } from './type.entity';
-import { ENTITY_TYPES_FIXTURE, RESPONSE_TYPE_FIXTURE } from './type.fixture';
+import { ENTITY_TYPES_FIXTURE, RESPONSE_TYPES_FIXTURE } from './type.fixture';
 
 describe('TypeService', () => {
   let service: TypeService;
@@ -33,7 +33,7 @@ describe('TypeService', () => {
     jest
       .spyOn(repository, 'save')
       .mockResolvedValueOnce(ENTITY_TYPES_FIXTURE[1]);
-    const result = await service.generate(RESPONSE_TYPE_FIXTURE);
+    const result = await service.generate(RESPONSE_TYPES_FIXTURE);
     expect(result).toEqual(ENTITY_TYPES_FIXTURE);
   });
 
@@ -45,7 +45,7 @@ describe('TypeService', () => {
       .spyOn(repository, 'findOne')
       .mockResolvedValueOnce(ENTITY_TYPES_FIXTURE[1]);
 
-    const result = await service.generate(RESPONSE_TYPE_FIXTURE);
+    const result = await service.generate(RESPONSE_TYPES_FIXTURE);
 
     expect(result).toEqual(ENTITY_TYPES_FIXTURE);
   });

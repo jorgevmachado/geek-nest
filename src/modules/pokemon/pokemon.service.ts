@@ -11,6 +11,8 @@ import { MoveService } from './move/move.service';
 import { AbilityService } from './ability/ability.service';
 import {
   EStatus,
+  IPokemon,
+  IResponseEvolution,
   IResponsePokemonByName,
   IResponsePokemonFull,
 } from './pokemon.interface';
@@ -31,7 +33,13 @@ export class PokemonService extends Service<Pokemon> {
     protected abilityService: AbilityService,
     protected pokemonApi: PokemonApi,
   ) {
-    super(repository, 'pokemons', ['moves', 'stats', 'types', 'abilities']);
+    super(repository, 'pokemons', [
+      'moves',
+      'stats',
+      'types',
+      'abilities',
+      'evolutions',
+    ]);
   }
   private _totalPokemon: number = 1302;
 
@@ -45,69 +53,63 @@ export class PokemonService extends Service<Pokemon> {
     return await this.index(filterDto);
   }
 
-  async findOne(name: string): Promise<any> {
+  async findOne(name: string): Promise<Pokemon> {
     const result = await this.findBy('name', name, true);
 
     if (result.status === EStatus.COMPLETE) {
-      return result;
+      return await this.completePokemonEvolution(result);
     }
 
-    const responsePokemonFull = await this.generateBase(result);
+    return await this.completePokemon(result);
+  }
 
-    if (!responsePokemonFull) {
-      return null;
-    }
-
-    const pokemon = await Promise.all([
-      await this.typeService.generate(responsePokemonFull.types),
-      await this.statService.generate(responsePokemonFull.stats),
-      await this.moveService.generate(responsePokemonFull.moves),
-      await this.abilityService.generate(responsePokemonFull.abilities),
+  private async generatePokemon(
+    response: IResponsePokemonFull,
+  ): Promise<IPokemon> {
+    return await Promise.all([
+      await this.typeService.generate(response.types),
+      await this.statService.generate(response.stats),
+      await this.moveService.generate(response.moves),
+      await this.abilityService.generate(response.abilities),
+      await this.generateEvolutions(response.evolution_chain_url),
     ])
-      .then(([types, stats, moves, abilities]) => {
+      .then(([types, stats, moves, abilities, evolutions]) => {
         const pokemon = new Pokemon();
-        pokemon.id = responsePokemonFull.id;
-        pokemon.url = responsePokemonFull.url;
-        pokemon.name = responsePokemonFull.name;
-        pokemon.image = responsePokemonFull.image;
+        if (!types) {
+          throw new InternalServerErrorException('Error to get types');
+        }
+        pokemon.id = response.id;
+        pokemon.url = response.url;
+        pokemon.name = response.name;
+        pokemon.image = response.image;
         pokemon.moves = moves;
-        pokemon.order = responsePokemonFull.order;
+        pokemon.order = response.order;
         pokemon.types = types;
         pokemon.stats = stats;
         pokemon.status = EStatus.COMPLETE;
-        pokemon.habitat = responsePokemonFull.habitat;
-        pokemon.is_baby = responsePokemonFull.is_baby;
-        pokemon.shape_url = responsePokemonFull.shape_url;
+        pokemon.habitat = response.habitat;
+        pokemon.is_baby = response.is_baby;
+        pokemon.shape_url = response.shape_url;
         pokemon.abilities = abilities;
-        pokemon.shape_name = responsePokemonFull.shape_name;
-        pokemon.is_mythical = responsePokemonFull.is_mythical;
-        pokemon.gender_rate = responsePokemonFull.gender_rate;
-        pokemon.is_legendary = responsePokemonFull.is_legendary;
-        pokemon.capture_rate = responsePokemonFull.capture_rate;
-        pokemon.hatch_counter = responsePokemonFull.hatch_counter;
-        pokemon.base_happiness = responsePokemonFull.base_happiness;
-        pokemon.evolution_chain_url = responsePokemonFull.evolution_chain_url;
-        pokemon.evolves_from_species = responsePokemonFull.evolves_from_species;
-        pokemon.has_gender_differences =
-          responsePokemonFull.has_gender_differences;
+        pokemon.evolutions = evolutions;
+        pokemon.shape_name = response.shape_name;
+        pokemon.is_mythical = response.is_mythical;
+        pokemon.gender_rate = response.gender_rate;
+        pokemon.is_legendary = response.is_legendary;
+        pokemon.capture_rate = response.capture_rate;
+        pokemon.hatch_counter = response.hatch_counter;
+        pokemon.base_happiness = response.base_happiness;
+        pokemon.evolution_chain_url = response.evolution_chain_url;
+        pokemon.evolves_from_species = response.evolves_from_species;
+        pokemon.has_gender_differences = response.has_gender_differences;
         return pokemon;
       })
       .catch((error) => {
         console.error(`# => error => ${error}`);
         throw new InternalServerErrorException(
-          `Error to get pokemon by ${name}`,
+          `Error to get pokemon by ${response.name}`,
         );
       });
-
-    if (!pokemon) {
-      return null;
-    }
-    try {
-      return await this.repository.save(pokemon);
-    } catch (error) {
-      console.error(`# => error => ${error}`);
-      throw new InternalServerErrorException(`Error to get pokemon by ${name}`);
-    }
   }
 
   private async generateBase(
@@ -245,6 +247,91 @@ export class PokemonService extends Service<Pokemon> {
 
       throw new NotFoundException('Pokemon not found');
     }
+
+    return result;
+  }
+
+  private async generateEvolutions(url: string) {
+    const response = await this.pokemonApi.getEvolutions(url);
+    if (!response) {
+      return [];
+    }
+    const name = response.chain.species.name;
+    const evolvesToList = [
+      name,
+      ...this.generateNextEvolution(response.chain.evolves_to),
+    ];
+    if (!evolvesToList.length) {
+      return [];
+    }
+
+    const listEntity = await Promise.all(
+      evolvesToList.map(async (name) => await this.findBy('name', name)),
+    );
+
+    const evolutions = listEntity.filter((item) => Boolean(item));
+
+    if (!evolutions.length) {
+      return [];
+    }
+
+    return evolutions;
+  }
+
+  private generateNextEvolution(
+    evolvesTo: IResponseEvolution['chain']['evolves_to'],
+  ) {
+    return evolvesTo
+      .map((item) =>
+        [item.species.name].concat(
+          ...this.generateNextEvolution(item.evolves_to),
+        ),
+      )
+      .reduce((arr, curr) => [...arr, ...curr], []);
+  }
+
+  private async completePokemon(entity: Pokemon) {
+    const responsePokemonFull = await this.generateBase(entity);
+
+    if (!responsePokemonFull) {
+      return null;
+    }
+
+    const pokemon = await this.generatePokemon(responsePokemonFull);
+
+    if (!pokemon) {
+      return null;
+    }
+    try {
+      return await this.repository.save(pokemon);
+    } catch (error) {
+      console.error(`# => error => ${error}`);
+      throw new InternalServerErrorException(
+        `Error to complete pokemon by ${entity.name}`,
+      );
+    }
+  }
+
+  private async completePokemonEvolution(result: Pokemon) {
+    const evolutions = result.evolutions;
+    const firstNotComplete = evolutions
+      .sort((a, b) => a.order - b.order)
+      .find((item) => item.status !== EStatus.COMPLETE);
+
+    if (!firstNotComplete) {
+      return result;
+    }
+
+    const firstComplete = await this.completePokemon(firstNotComplete);
+
+    if (!firstComplete) {
+      return result;
+    }
+
+    result.evolutions = [
+      ...evolutions.filter((item) => item.id !== firstNotComplete.id),
+      firstComplete,
+    ];
 
     return result;
   }

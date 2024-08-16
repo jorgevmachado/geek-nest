@@ -12,41 +12,30 @@ import { Stat } from './stat/stat.entity';
 import { Move } from './move/move.entity';
 import { Ability } from './ability/ability.entity';
 import {
-  ENTITY_POKEMON,
-  ENTITY_POKEMON_INCOMPLETE_BULBASAUR,
-  ENTITY_POKEMON_INCOMPLETE_CHARIZARD,
-  ENTITY_POKEMON_INCOMPLETE_CHARMANDER,
-  ENTITY_POKEMON_INCOMPLETE_CHARMELEON,
-  ENTITY_POKEMON_INCOMPLETE_IVYSAUR,
-  ENTITY_POKEMON_INCOMPLETE_VENUSAUR,
-  ENTITY_POKEMONS_INCOMPLETE_LIST,
-  POKEMONS_INCOMPLETE_FIXTURE,
-  RESPONSE_POKEMON_FIXTURE_INCOMPLETE_BULBASAUR,
-  RESPONSE_POKEMONS_PAGINATE_FIXTURE,
-  transformResponsePokemonByName,
-  transformResponsePokemonFull,
-  transformResponsePokemonFullPokemon,
-  transformResponsePokemonSpecie,
+  ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+  ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+  ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
+  ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR,
+  ENTITY_POKEMON_INCOMPLETE_FIXTURE_CHARIZARD,
+  ENTITY_POKEMON_INCOMPLETE_FIXTURE_CHARMANDER,
+  ENTITY_POKEMON_INCOMPLETE_FIXTURE_CHARMELEON,
+  ENTITY_POKEMON_INCOMPLETE_FIXTURE_IVYSAUR,
+  ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR,
+  ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST,
+  ENTITY_POKEMONS_INCOMPLETE_FIXTURE_PAGINATE,
+  RESPONSE_POKEMON_BY_NAME_FIXTURE_BULBASAUR,
+  RESPONSE_POKEMON_BY_NAME_FIXTURE_IVYSAUR,
+  RESPONSE_POKEMON_EVOLUTIONS_FIXTURE_BULBASAUR,
+  RESPONSE_POKEMON_SPECIE_FIXTURE_BULBASAUR,
+  RESPONSE_POKEMON_SPECIE_FIXTURE_IVYSAUR,
+  RESPONSE_POKEMONS_FIXTURE_PAGINATE,
 } from './pokemon.fixture';
 import { PokemonApi } from './pokemon.api';
 import { EStatus } from './pokemon.interface';
-import { PAGINATE } from '../../fixtures';
-import {
-  RESPONSE_TYPE_FIXTURE,
-  transformResponseType,
-} from './type/type.fixture';
-import {
-  RESPONSE_STAT_FIXTURE,
-  transformResponseStat,
-} from './stat/stat.fixture';
-import {
-  RESPONSE_MOVE_FIXTURE,
-  transformResponseMove,
-} from './move/move.fixture';
-import {
-  RESPONSE_ABILITY_FIXTURE,
-  transformResponseAbility,
-} from './ability/ability.fixture';
+import { ENTITY_TYPES_FIXTURE } from './type/type.fixture';
+import { ENTITY_STATS_FIXTURE } from './stat/stat.fixture';
+import { ENTITY_MOVES_FIXTURE } from './move/move.fixture';
+import { ENTITY_ABILITIES_FIXTURE } from './ability/ability.fixture';
 
 describe('PokemonService', () => {
   let service: PokemonService;
@@ -95,6 +84,7 @@ describe('PokemonService', () => {
           useValue: {
             getAll: jest.fn(),
             getByName: jest.fn(),
+            getEvolutions: jest.fn(),
             getSpecieByName: jest.fn(),
           },
         },
@@ -114,50 +104,100 @@ describe('PokemonService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should generate a Pokémon when not found in the database', async () => {
+  it('findAll should generate a Pokémons when not found in the database', async () => {
     jest.spyOn(repository, 'count').mockResolvedValueOnce(0);
     jest
       .spyOn(pokemonApi, 'getAll')
-      .mockResolvedValueOnce(RESPONSE_POKEMONS_PAGINATE_FIXTURE);
+      .mockResolvedValueOnce(RESPONSE_POKEMONS_FIXTURE_PAGINATE);
     jest
       .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_BULBASAUR);
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR);
     jest
       .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_IVYSAUR);
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_IVYSAUR);
     jest
       .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_VENUSAUR);
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR);
     jest
       .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_CHARMANDER);
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_CHARMANDER);
     jest
       .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_CHARMELEON);
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_CHARMELEON);
     jest
       .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_CHARIZARD);
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_CHARIZARD);
     jest
       .spyOn(repository, 'find')
-      .mockResolvedValueOnce(ENTITY_POKEMONS_INCOMPLETE_LIST);
+      .mockResolvedValueOnce(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
     const result = await service.findAll({});
-    expect(result).toEqual(ENTITY_POKEMONS_INCOMPLETE_LIST);
+    expect(result).toEqual(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
   });
 
-  it('must return the findAll method with database full.', async () => {
+  it('findAll should return error when api fail', async () => {
+    jest.spyOn(repository, 'count').mockResolvedValueOnce(0);
+    await expect(service.findAll({})).rejects.toThrow();
+  });
+
+  it('findAll should return error when save fail', async () => {
+    jest.spyOn(repository, 'count').mockResolvedValueOnce(0);
+    jest
+      .spyOn(pokemonApi, 'getAll')
+      .mockResolvedValueOnce(RESPONSE_POKEMONS_FIXTURE_PAGINATE);
+    await expect(service.findAll({})).rejects.toThrow();
+  });
+
+  it('must return the findAll method without filters pokemons when found in the database.', async () => {
     jest.spyOn(repository, 'count').mockResolvedValueOnce(1302);
     jest
       .spyOn(repository, 'find')
-      .mockResolvedValueOnce(POKEMONS_INCOMPLETE_FIXTURE);
+      .mockResolvedValueOnce(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
 
-    expect(await service.findAll({})).toEqual(POKEMONS_INCOMPLETE_FIXTURE);
+    const result = await service.findAll({});
+    expect(result).toEqual(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
   });
 
-  it('must return the findAll method with database full paginate.', async () => {
+  it('must return the findAll method with filters pokemons when found in database.', async () => {
     jest.spyOn(repository, 'count').mockResolvedValueOnce(1302);
     jest
       .spyOn(repository, 'find')
-      .mockResolvedValueOnce(POKEMONS_INCOMPLETE_FIXTURE);
+      .mockResolvedValueOnce(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
+
+    const list = ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST.concat(
+      ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST,
+    )
+      .concat(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST)
+      .concat(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      where: jest.fn(),
+      orderBy: jest.fn(),
+      andWhere: jest.fn(),
+      leftJoinAndSelect: jest.fn(),
+      getManyAndCount: jest.fn().mockResolvedValueOnce([list, list.length]),
+    } as any);
+    const result = await service.findAll({
+      page: 3,
+      limit: 10,
+      desc: 'name',
+    });
+
+    expect(result).toEqual({
+      ...ENTITY_POKEMONS_INCOMPLETE_FIXTURE_PAGINATE,
+      prev: 2,
+      skip: 20,
+      next: null,
+      data: list,
+      total: list.length,
+      pages: 3,
+      current_page: 3,
+    });
+  });
+
+  it('must return the findAll method with filters pokemons when found in database error in asc and desc.', async () => {
+    jest.spyOn(repository, 'count').mockResolvedValueOnce(1302);
+    jest
+      .spyOn(repository, 'find')
+      .mockResolvedValueOnce(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
 
     jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
       where: jest.fn(),
@@ -166,94 +206,294 @@ describe('PokemonService', () => {
       leftJoinAndSelect: jest.fn(),
       getManyAndCount: jest
         .fn()
-        .mockResolvedValueOnce([[ENTITY_POKEMON_INCOMPLETE_BULBASAUR], 1]),
+        .mockResolvedValueOnce([
+          ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST,
+          ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST.length,
+        ]),
     } as any);
 
-    expect(
-      await service.findAll({
+    await expect(
+      service.findAll({
         page: 1,
         limit: 10,
-        status: EStatus.INCOMPLETE,
-        name: ENTITY_POKEMON_INCOMPLETE_BULBASAUR.name,
+        asc: 'name',
+        desc: 'name',
       }),
-    ).toEqual({
-      ...PAGINATE,
+    ).rejects.toThrow();
+  });
+
+  it('must return the findAll method with filter status incomplete pokemons when found in database.', async () => {
+    jest.spyOn(repository, 'count').mockResolvedValueOnce(1302);
+    jest
+      .spyOn(repository, 'find')
+      .mockResolvedValueOnce(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
+
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      where: jest.fn(),
+      orderBy: jest.fn(),
+      andWhere: jest.fn(),
+      leftJoinAndSelect: jest.fn(),
+      getManyAndCount: jest
+        .fn()
+        .mockResolvedValueOnce([
+          ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST.concat(
+            ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST,
+          ),
+          ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST.length +
+            ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST.length,
+        ]),
+    } as any);
+    const result = await service.findAll({
+      page: 2,
+      limit: 10,
+      status: EStatus.INCOMPLETE,
+    });
+
+    expect(result).toEqual({
+      ...ENTITY_POKEMONS_INCOMPLETE_FIXTURE_PAGINATE,
+      current_page: 2,
+      pages: 2,
+      prev: 1,
+      total: 12,
+      skip: 10,
+      data: ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST.concat(
+        ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST,
+      ),
+    });
+  });
+
+  it('must return the findAll method with filter name bulbasaur pokemons when found in database.', async () => {
+    jest.spyOn(repository, 'count').mockResolvedValueOnce(1302);
+    jest
+      .spyOn(repository, 'find')
+      .mockResolvedValueOnce(ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST);
+
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      where: jest.fn(),
+      orderBy: jest.fn(),
+      andWhere: jest.fn(),
+      leftJoinAndSelect: jest.fn(),
+      getManyAndCount: jest
+        .fn()
+        .mockResolvedValueOnce([
+          [ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR],
+          1,
+        ]),
+    } as any);
+    const result = await service.findAll({
+      page: 1,
+      limit: 10,
+      name: ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR.name,
+    });
+
+    expect(result).toEqual({
+      ...ENTITY_POKEMONS_INCOMPLETE_FIXTURE_PAGINATE,
       next: null,
-      pages: 1,
       total: 1,
-      data: [ENTITY_POKEMON_INCOMPLETE_BULBASAUR],
+      data: [ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR],
     });
   });
 
   it('must return the findOne when is incomplete and generate in the database', async () => {
-    const responsePokemonByName = transformResponsePokemonByName({
-      response: RESPONSE_POKEMON_FIXTURE_INCOMPLETE_BULBASAUR,
-    });
-    const responsePokemonBySpecie = transformResponsePokemonSpecie({
-      response: RESPONSE_POKEMON_FIXTURE_INCOMPLETE_BULBASAUR,
-    });
-    const type1 = transformResponseType(RESPONSE_TYPE_FIXTURE[0]);
-    const type2 = transformResponseType(RESPONSE_TYPE_FIXTURE[0]);
-    const stat1 = transformResponseStat(RESPONSE_STAT_FIXTURE[0]);
-    const stat2 = transformResponseStat(RESPONSE_STAT_FIXTURE[1]);
-    const stat3 = transformResponseStat(RESPONSE_STAT_FIXTURE[2]);
-    const stat4 = transformResponseStat(RESPONSE_STAT_FIXTURE[3]);
-    const move1 = transformResponseMove(RESPONSE_MOVE_FIXTURE[0]);
-    const move2 = transformResponseMove(RESPONSE_MOVE_FIXTURE[1]);
-    const ability1 = transformResponseAbility(RESPONSE_ABILITY_FIXTURE[0]);
-    const ability2 = transformResponseAbility(RESPONSE_ABILITY_FIXTURE[1]);
-    const responsePokemonFull = transformResponsePokemonFull({
-      response: RESPONSE_POKEMON_FIXTURE_INCOMPLETE_BULBASAUR,
-      responsePokemonByName: responsePokemonByName,
-      responsePokemonBySpecie: responsePokemonBySpecie,
-    });
-    const pokemon = transformResponsePokemonFullPokemon({
-      types: [type1, type2],
-      stats: [stat1, stat2, stat3, stat4],
-      moves: [move1, move2],
-      response: responsePokemonFull,
-      abilities: [ability1, ability2],
-    });
+    const pokemon = ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR;
     jest
       .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_BULBASAUR);
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR);
 
     jest
       .spyOn(pokemonApi, 'getByName')
-      .mockResolvedValueOnce(responsePokemonByName);
+      .mockResolvedValueOnce(RESPONSE_POKEMON_BY_NAME_FIXTURE_BULBASAUR);
 
     jest
       .spyOn(pokemonApi, 'getSpecieByName')
-      .mockResolvedValueOnce(responsePokemonBySpecie);
+      .mockResolvedValueOnce(RESPONSE_POKEMON_SPECIE_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(pokemonApi, 'getEvolutions')
+      .mockResolvedValueOnce(RESPONSE_POKEMON_EVOLUTIONS_FIXTURE_BULBASAUR);
 
     jest
       .spyOn(typeService, 'generate')
-      .mockReturnValueOnce(Promise.resolve([type1, type2]));
+      .mockReturnValueOnce(Promise.resolve(ENTITY_TYPES_FIXTURE));
 
     jest
       .spyOn(statService, 'generate')
-      .mockResolvedValueOnce(Promise.resolve([stat1, stat2, stat3, stat4]));
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_STATS_FIXTURE));
 
     jest
       .spyOn(moveService, 'generate')
-      .mockResolvedValueOnce(Promise.resolve([move1, move2]));
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_MOVES_FIXTURE));
 
     jest
       .spyOn(abilityService, 'generate')
-      .mockResolvedValueOnce(Promise.resolve([ability1, ability2]));
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_ABILITIES_FIXTURE));
 
-    jest.spyOn(repository, 'save').mockResolvedValueOnce(pokemon);
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_IVYSAUR);
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR);
+
+    jest
+      .spyOn(repository, 'save')
+      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR);
 
     const result = await service.findOne(
-      ENTITY_POKEMON_INCOMPLETE_BULBASAUR.name,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.name,
     );
 
     expect(result).toEqual(pokemon);
   });
 
-  it('must return the findOne when is complete in the database', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(ENTITY_POKEMON);
-    const result = await service.findOne(ENTITY_POKEMON.name);
-    expect(result).toEqual(ENTITY_POKEMON);
+  it('must return the findOne when is incomplete with error api byName', async () => {
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR);
+
+    await expect(
+      service.findOne(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.name),
+    ).rejects.toThrow();
+  });
+
+  it('must return the findOne when is incomplete with error in typeService generate', async () => {
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(pokemonApi, 'getByName')
+      .mockResolvedValueOnce(RESPONSE_POKEMON_BY_NAME_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(pokemonApi, 'getSpecieByName')
+      .mockResolvedValueOnce(RESPONSE_POKEMON_SPECIE_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(pokemonApi, 'getEvolutions')
+      .mockResolvedValueOnce(RESPONSE_POKEMON_EVOLUTIONS_FIXTURE_BULBASAUR);
+
+    jest.spyOn(typeService, 'generate').mockReturnValueOnce(null);
+
+    jest
+      .spyOn(statService, 'generate')
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_STATS_FIXTURE));
+
+    jest
+      .spyOn(moveService, 'generate')
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_MOVES_FIXTURE));
+
+    jest
+      .spyOn(abilityService, 'generate')
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_ABILITIES_FIXTURE));
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_IVYSAUR);
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR);
+
+    await expect(
+      service.findOne(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.name),
+    ).rejects.toThrow();
+  });
+
+  it('must return the findOne when is complete in the database with generate one evolution in database', async () => {
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
+      ...ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+      evolutions: [
+        ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+        ENTITY_POKEMON_INCOMPLETE_FIXTURE_IVYSAUR,
+        ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR,
+      ],
+    });
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_IVYSAUR);
+
+    jest
+      .spyOn(repository, 'findOne')
+      .mockResolvedValueOnce(ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR);
+
+    jest
+      .spyOn(pokemonApi, 'getByName')
+      .mockResolvedValueOnce(RESPONSE_POKEMON_BY_NAME_FIXTURE_IVYSAUR);
+
+    jest
+      .spyOn(pokemonApi, 'getSpecieByName')
+      .mockResolvedValueOnce(RESPONSE_POKEMON_SPECIE_FIXTURE_IVYSAUR);
+
+    jest
+      .spyOn(pokemonApi, 'getEvolutions')
+      .mockResolvedValueOnce(RESPONSE_POKEMON_EVOLUTIONS_FIXTURE_BULBASAUR);
+
+    jest
+      .spyOn(typeService, 'generate')
+      .mockReturnValueOnce(Promise.resolve(ENTITY_TYPES_FIXTURE));
+
+    jest
+      .spyOn(statService, 'generate')
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_STATS_FIXTURE));
+
+    jest
+      .spyOn(moveService, 'generate')
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_MOVES_FIXTURE));
+
+    jest
+      .spyOn(abilityService, 'generate')
+      .mockResolvedValueOnce(Promise.resolve(ENTITY_ABILITIES_FIXTURE));
+
+    jest
+      .spyOn(repository, 'save')
+      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR);
+
+    const result = await service.findOne(
+      ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.name,
+    );
+
+    const expected = {
+      ...ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+      evolutions: [
+        ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+        ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR,
+        ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+      ],
+    };
+
+    expect(result).toEqual(expected);
+  });
+
+  it('must return the findOne when is complete in the database with evolutions complete in database', async () => {
+    const expected = {
+      ...ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+      evolutions: [
+        ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+        ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+        ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
+      ],
+    };
+    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(expected);
+
+    const result = await service.findOne(
+      ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.name,
+    );
+
+    expect(result).toEqual(expected);
   });
 });

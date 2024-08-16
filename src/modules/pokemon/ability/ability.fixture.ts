@@ -1,7 +1,7 @@
 import { IResponsePokemonByName } from '../pokemon.interface';
 import { Ability } from './ability.entity';
 
-export const transformResponseAbility = (
+const transformResponseAbility = (
   response: IResponsePokemonByName['abilities'][number],
 ): Ability => ({
   id: response.ability.name,

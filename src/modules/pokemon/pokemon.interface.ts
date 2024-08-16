@@ -2,11 +2,13 @@ import { Move } from './move/move.entity';
 import { Type } from './type/type.entity';
 import { Stat } from './stat/stat.entity';
 import { Ability } from './ability/ability.entity';
+import { Pokemon } from './pokemon.entity';
 
 export enum EStatus {
   COMPLETE = 'COMPLETE',
   INCOMPLETE = 'INCOMPLETE',
 }
+
 export interface IResponsePaginate<T> {
   next: string | null;
   count: number;
@@ -302,6 +304,48 @@ export interface IResponsePokemonFull {
   has_gender_differences: IResponsePokemonSpecie['has_gender_differences'];
 }
 
+interface IResponseEvolutionDetail {
+  item: any;
+  gender: any;
+  trigger: Pick<IResponsePokemon, 'url' | 'name'>;
+  location: any;
+  min_level: number;
+  held_item: any;
+  known_move: any;
+  min_beauty: any;
+  party_type: any;
+  time_of_day: '';
+  min_affection: any;
+  min_happiness: any;
+  party_species: any;
+  trade_species: any;
+  known_move_type: any;
+  turn_upside_down: boolean;
+  needs_overworld_rain: boolean;
+  relative_physical_stats: any;
+}
+
+export interface IResponseEvolution {
+  id: number;
+  chain: {
+    is_baby: boolean;
+    species: Pick<IResponsePokemon, 'url' | 'name'>;
+    evolves_to: Array<{
+      is_baby: boolean;
+      species: Pick<IResponsePokemon, 'url' | 'name'>;
+      evolves_to: Array<{
+        is_baby: boolean;
+        species: Pick<IResponsePokemon, 'url' | 'name'>;
+        evolves_to: Array<any>;
+        evolution_details: Array<IResponseEvolutionDetail>;
+      }>;
+      evolution_details: Array<IResponseEvolutionDetail>;
+    }>;
+    evolution_details: Array<IResponseEvolutionDetail>;
+  };
+  baby_trigger_item: any;
+}
+
 export interface IPokemon {
   id: string;
   url: string;
@@ -316,6 +360,7 @@ export interface IPokemon {
   is_baby?: boolean;
   shape_url?: string;
   abilities?: Array<Ability>;
+  evolutions?: Array<Pokemon>;
   shape_name?: string;
   is_mythical?: boolean;
   gender_rate?: number;

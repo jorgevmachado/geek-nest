@@ -1,6 +1,7 @@
 import { generateOrder, Http } from '../../services';
 import { InternalServerErrorException } from '@nestjs/common';
 import {
+  IResponseEvolution,
   IResponsePaginate,
   IResponsePokemon,
   IResponsePokemonByName,
@@ -50,6 +51,19 @@ export class PokemonApi extends Http {
     } catch (error) {
       throw new InternalServerErrorException(
         `getSpecieByName => ${error.message}`,
+      );
+    }
+  }
+
+  async getEvolutions(url: string) {
+    const order = Number(
+      url.replace(`${this.url}/evolution-chain/`, '').replace('/', ''),
+    );
+    try {
+      return (await this.get(`evolution-chain/${order}`)) as IResponseEvolution;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `getEvolutionsByOrder => ${error.message}`,
       );
     }
   }
