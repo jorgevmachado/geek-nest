@@ -9,8 +9,7 @@ import { TypeService } from './type/type.service';
 import { StatService } from './stat/stat.service';
 import { MoveService } from './move/move.service';
 import { AbilityService } from './ability/ability.service';
-import {
-  EStatus,
+import type {
   IPokemon,
   IResponseEvolution,
   IResponsePokemonByName,
@@ -21,6 +20,7 @@ import { Repository } from 'typeorm';
 import { IPaginate, Service } from '../../services';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { IFilterParams } from '../../interfaces/filter.interface';
+import { EStatus } from '../../enums/status.enum';
 
 @Injectable()
 export class PokemonService extends Service<Pokemon> {

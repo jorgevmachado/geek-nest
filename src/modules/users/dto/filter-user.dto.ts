@@ -1,5 +1,6 @@
 import { QueryParametersDto } from '../../../dto/query-parameters.dto';
-import { ERole, EStatus } from '../users.interface';
+import { ERole } from '../users.interface';
+import { EStatus } from '../../../enums/status.enum';
 
 export class FilterUserDto extends QueryParametersDto {
   all?: boolean;

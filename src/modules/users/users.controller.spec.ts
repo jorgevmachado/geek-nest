@@ -7,7 +7,8 @@ import { PassportModule } from '@nestjs/passport';
 import { USER_FIXTURE, userClean } from './users.fixture';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
-import { ERole, EStatus } from './users.interface';
+import { ERole } from './users.interface';
+import { EStatus } from '../../enums/status.enum';
 
 describe('UsersController', () => {
   let controller: UsersController;

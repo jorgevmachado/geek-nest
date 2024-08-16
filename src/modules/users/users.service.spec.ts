@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { EGender, ERole, EStatus } from './users.interface';
+import { EGender, ERole } from './users.interface';
 import {
   USER_FIXTURE,
   USER_INCOMPLETE_DTO,
@@ -18,6 +18,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { EStatus } from '../../enums/status.enum';
 
 describe('UsersService', () => {
   let service: UsersService;

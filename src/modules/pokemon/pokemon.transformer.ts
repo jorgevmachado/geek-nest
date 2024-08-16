@@ -1,5 +1,4 @@
 import {
-  EStatus,
   IResponsePokemon,
   IResponsePokemonByName,
   IResponsePokemonFull,
@@ -15,6 +14,7 @@ import { RESPONSE_MOVE_FIXTURE } from './move/move.fixture';
 import { RESPONSE_STAT_FIXTURE } from './stat/stat.fixture';
 import { RESPONSE_ABILITY_FIXTURE } from './ability/ability.fixture';
 import { RESPONSE_TYPES_FIXTURE } from './type/type.fixture';
+import { EStatus } from '../../enums/status.enum';
 
 interface IToPokemonProps {
   id?: string;

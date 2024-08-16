@@ -1,11 +1,8 @@
+import { EStatus } from '../../enums/status.enum';
+
 export enum ERole {
   ADMIN = 'ADMIN',
   USER = 'USER',
-}
-export enum EStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  INCOMPLETE = 'INCOMPLETE',
 }
 
 export enum EGender {

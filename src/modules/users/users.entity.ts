@@ -9,7 +9,8 @@ import {
 
 import * as bcrypt from 'bcrypt';
 
-import { EGender, ERole, EStatus, IUser } from './users.interface';
+import { EGender, ERole, type IUser } from './users.interface';
+import { EStatus } from '../../enums/status.enum';
 
 @Entity({ name: 'users' })
 export class Users implements IUser {

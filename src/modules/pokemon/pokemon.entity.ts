@@ -1,4 +1,4 @@
-import { EStatus, IPokemon } from './pokemon.interface';
+import { type IPokemon } from './pokemon.interface';
 import { Type } from './type/type.entity';
 import { Stat } from './stat/stat.entity';
 import { Move } from './move/move.entity';
@@ -13,6 +13,7 @@ import {
   JoinTable,
   Entity,
 } from 'typeorm';
+import { EStatus } from '../../enums/status.enum';
 
 @Entity({ name: 'pokemons' })
 export class Pokemon implements IPokemon {
