@@ -9,6 +9,7 @@ import { AbilityModule } from './ability/ability.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Pokemon } from './pokemon.entity';
 import { PokemonApi } from './pokemon.api';
+import { PokedexModule } from './pokedex/pokedex.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PokemonApi } from './pokemon.api';
     StatModule,
     MoveModule,
     AbilityModule,
+    PokedexModule,
   ],
   controllers: [PokemonController],
   providers: [PokemonService, PokemonApi],

@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { USER_FIXTURE, USER_INCOMPLETE_DTO } from '../users/users.fixture';
 import { UnprocessableEntityException } from '@nestjs/common';
-import { EStatus } from '../users/users.interface';
+import { EStatus } from '../../enums/status.enum';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -1,6 +1,6 @@
 import { Repository, ObjectLiteral } from 'typeorm';
 import { QueryParametersDto } from '../../../dto/query-parameters.dto';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 
 export interface IPaginate<T> {
@@ -52,6 +52,27 @@ export abstract class Service<T extends ObjectLiteral> {
       skip,
       data,
     };
+  }
+
+  async findBy(
+    by: 'id' | 'name' | 'accountId',
+    value: string,
+    withThrow?: boolean,
+  ) {
+    const query = this.repository.createQueryBuilder(this.alias);
+    this.queryRelations(query);
+    query.andWhere(`${this.alias}.${by} = :${by}`, { [by]: value });
+    const result = await query.getOne();
+
+    if (!result) {
+      if (!withThrow) {
+        return null;
+      }
+
+      throw new NotFoundException(`${this.alias} not found`);
+    }
+
+    return result;
   }
 
   private queryOrderBy(

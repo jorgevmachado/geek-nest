@@ -52,6 +52,12 @@ export const USER_FIXTURE: Users = {
   confirmationToken: 'xpto-confirmationToken',
 };
 
+export const USER_COMPLETE_FIXTURE: Users = {
+  ...USER_FIXTURE,
+  id: 'USER_COMPLETE',
+  status: EStatus.COMPLETE,
+};
+
 export const USERS_PAGINATE = {
   ...PAGINATE,
   next: NEXT,

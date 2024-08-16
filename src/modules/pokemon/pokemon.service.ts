@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PokemonApi } from './pokemon.api';
 import { Pokemon } from './pokemon.entity';
 import { TypeService } from './type/type.service';
@@ -17,10 +13,13 @@ import type {
 } from './pokemon.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IPaginate, Service } from '../../services';
+import { IPaginate, isUUID, Service } from '../../services';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { IFilterParams } from '../../interfaces/filter.interface';
 import { EStatus } from '../../enums/status.enum';
+import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
+import { Users } from '../users/users.entity';
+import { PokedexService } from './pokedex/pokedex.service';
 
 @Injectable()
 export class PokemonService extends Service<Pokemon> {
@@ -31,6 +30,7 @@ export class PokemonService extends Service<Pokemon> {
     protected statService: StatService,
     protected moveService: MoveService,
     protected abilityService: AbilityService,
+    protected pokeDexService: PokedexService,
     protected pokemonApi: PokemonApi,
   ) {
     super(repository, 'pokemons', [
@@ -53,14 +53,55 @@ export class PokemonService extends Service<Pokemon> {
     return await this.index(filterDto);
   }
 
-  async findOne(name: string): Promise<Pokemon> {
-    const result = await this.findBy('name', name, true);
+  async findOne(value: string, withThrow: boolean = true): Promise<Pokemon> {
+    const by = isUUID(value) ? 'id' : 'name';
+    const result = await this.findBy(by, value, withThrow);
+
+    if (!withThrow && !result) {
+      return null;
+    }
 
     if (result.status === EStatus.COMPLETE) {
       return await this.completePokemonEvolution(result);
     }
 
     return await this.completePokemon(result);
+  }
+
+  async addPokemon(user: Users, pokemons: PokemonPokedexDto) {
+    if (!pokemons.ids && !pokemons.names) {
+      throw new InternalServerErrorException(
+        'You need to add one fewer Pokémon ID or name to add',
+      );
+    }
+
+    const items = pokemons.ids?.length ? pokemons.ids : pokemons.names;
+
+    const pokedex = await this.pokeDexService.findOne(user.id, false);
+
+    if (pokedex && pokedex.pokemons) {
+      const pokedexPokemonsList = this.pokeDexService.getPokedexPokemonsList(
+        pokedex,
+        items,
+      );
+
+      if (
+        pokedexPokemonsList.pokemonsExists.length > 0 &&
+        pokedexPokemonsList.pokemonsExists.length === items.length
+      ) {
+        return pokedex;
+      }
+
+      const listPokemons = await this.getListPokemons(
+        pokedexPokemonsList.pokemonsNotExists,
+      );
+
+      return await this.pokeDexService.update(user, listPokemons);
+    }
+
+    const listPokemons = await this.getListPokemons(items);
+
+    return await this.pokeDexService.create(user, listPokemons);
   }
 
   private async generatePokemon(
@@ -75,6 +116,7 @@ export class PokemonService extends Service<Pokemon> {
     ])
       .then(([types, stats, moves, abilities, evolutions]) => {
         const pokemon = new Pokemon();
+
         if (!types) {
           throw new InternalServerErrorException('Error to get types');
         }
@@ -234,39 +276,32 @@ export class PokemonService extends Service<Pokemon> {
     return filters;
   }
 
-  private async findBy(by: 'id' | 'name', value: string, withThrow?: boolean) {
-    const result = await this.repository.findOne({
-      where: { [by]: value },
-      relations: this.relations,
-    });
-
-    if (!result) {
-      if (!withThrow) {
-        return null;
-      }
-
-      throw new NotFoundException('Pokemon not found');
-    }
-
-    return result;
-  }
-
   private async generateEvolutions(url: string) {
     const response = await this.pokemonApi.getEvolutions(url);
+
     if (!response) {
       return [];
     }
+
     const name = response.chain.species.name;
+
     const evolvesToList = [
       name,
       ...this.generateNextEvolution(response.chain.evolves_to),
     ];
-    if (!evolvesToList.length) {
+
+    const evolvesToListFiltered = evolvesToList.filter(
+      (item) => item !== undefined,
+    );
+
+    if (!evolvesToListFiltered.length) {
       return [];
     }
 
     const listEntity = await Promise.all(
-      evolvesToList.map(async (name) => await this.findBy('name', name)),
+      evolvesToListFiltered.map(
+        async (name) => await this.findBy('name', name),
+      ),
     );
 
     const evolutions = listEntity.filter((item) => Boolean(item));
@@ -333,6 +368,38 @@ export class PokemonService extends Service<Pokemon> {
       firstComplete,
     ];
 
+    return result;
+  }
+
+  private async getListPokemons(items: Array<string>) {
+    if (items.length >= 4) {
+      throw new InternalServerErrorException(
+        'You can only add up to 3 Pokémon at a time',
+      );
+    }
+
+    const data = await Promise.all(
+      items.map(async (item) => {
+        const data = await this.findOne(item, false);
+        if (!data) {
+          const pokemon = new Pokemon();
+          pokemon.id = item;
+          pokemon.name = item;
+          pokemon.status = EStatus.INACTIVE;
+          return pokemon;
+        }
+        return data;
+      }),
+    );
+    const result = data.filter((item) => item.status !== EStatus.INACTIVE);
+    const pokemonsNotExists = data
+      .filter((item) => item.status === EStatus.INACTIVE)
+      .map((item) => item.name);
+    if (!result.length) {
+      throw new InternalServerErrorException(
+        `Error to get list pokemons to add, this pokemons not exists => ${pokemonsNotExists} in database`,
+      );
+    }
     return result;
   }
 }

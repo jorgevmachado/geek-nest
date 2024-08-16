@@ -3,6 +3,9 @@ import { PokemonController } from './pokemon.controller';
 import { PokemonService } from './pokemon.service';
 import { PassportModule } from '@nestjs/passport';
 import { ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER } from './pokemon.fixture';
+import { USER_COMPLETE_FIXTURE } from '../users/users.fixture';
+import { POKEDEX_FIXTURE_ACTIVE } from './pokedex/pokedex.fixture';
+import { EStatus } from '../../enums/status.enum';
 
 describe('PokemonController', () => {
   let controller: PokemonController;
@@ -18,6 +21,7 @@ describe('PokemonController', () => {
           useValue: {
             findAll: jest.fn(),
             findOne: jest.fn(),
+            addPokemon: jest.fn(),
           },
         },
       ],
@@ -47,5 +51,21 @@ describe('PokemonController', () => {
       ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER.name,
     );
     expect(result).toEqual(ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER);
+  });
+
+  it('should be addPokemon with param error', async () => {
+    jest
+      .spyOn(service, 'addPokemon')
+      .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
+    const result = await controller.addPokemon(
+      {
+        ...USER_COMPLETE_FIXTURE,
+        status: EStatus.ACTIVE,
+      },
+      {
+        names: ['Bulbasaur', 'Charmander', 'Squirtle'],
+      },
+    );
+    expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
   });
 });

@@ -1,4 +1,5 @@
 import { serialize } from '../object';
+import { validate as isUuid } from 'uuid';
 
 export function formatUrl(url: string, path: string, params = {}) {
   const query = serialize(params);
@@ -7,6 +8,10 @@ export function formatUrl(url: string, path: string, params = {}) {
   return `${filteredUrl}?${query || ''}`;
 }
 
-export const generateOrder = (url: string, urlDefault: string): number => {
+export function generateOrder(url: string, urlDefault: string): number {
   return Number(url.replace(urlDefault, '').replace('/', ''));
-};
+}
+
+export function isUUID(value: string): boolean {
+  return isUuid(value);
+}
