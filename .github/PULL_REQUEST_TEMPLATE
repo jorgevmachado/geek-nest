@@ -1,0 +1,26 @@
+**What**:
+Describe what this PR changes.
+
+**Why**:
+Describe the motivation behind the changes. What problems does this pull request solve?
+
+**Tests**:
+How did you test to make sure this PR will not break.
+
+**Preview**:
+Add images or data snippets that show what the PR does.
+
+**Checklist**:
+- [ ] I described my pull request in detail
+- [ ] Reviewed the quality of my code
+- [ ] Implemented unit and integration tests for scenarios that may have been affected
+- [ ] Confirmed that all pipeline steps passed without warnings
+- [ ] I got approval from one member of my squad
+- [ ] Resolved all comments (marked as resolved)
+- [ ] I kept my branch updated with main
+- [ ] I will only merge into main when I'm ready to complete the entire deployment process
+
+---
+
+Please, review!
+@jorgevmachado
