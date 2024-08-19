@@ -1,0 +1,37 @@
+# How to run
+
+## Getting Started
+
+This project is maintained with [npm](https://www.npmjs.com/) and [MakeFile](https://makefiletutorial.com/), so the development flow is a litte bit different.
+
+## Prerequisites
+
+- `Nodejs`
+- `Npm`
+
+## Installing
+    
+```sh
+git clone git@github.com:jorgevmachado/geek-nest
+```
+
+To setup the project, use the command
+
+- NodeJS `^v20.15.1`, see [.nvmrc](./.nvmrc)
+
+```sh
+make setup
+```
+## Running
+
+After configuring the host and completing the construction of the libraries, just run the command for each application to run locally.
+
+```sh
+make start # to run the application in development mode
+
+make lint # to run the lint in the project
+
+make unit-test # to run the tests in the project
+
+make unit-test-cov # to run the tests in the project with coverage
+```

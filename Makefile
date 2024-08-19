@@ -33,12 +33,12 @@ lint:
 	@echo ------------------------------------------------------------------------------;
 	@printf "${WARN} LINTING ${RESET}: geek-nest\n";
 	@echo ;
-	@$(RUN) lint
+	@$(RUN) run lint
 	@echo ------------------------------------------------------------------------------;
 	@printf "${SUCCESS} SUCCESS ${RESET}: geek-nest linted\n";
 	@echo ------------------------------------------------------------------------------;
 
-geek-test:
+unit-test:
 	@echo ------------------------------------------------------------------------------;
 	@printf "${WARN} TESTING ${RESET}: geek-nest\n";
 	@echo ;
@@ -47,7 +47,7 @@ geek-test:
 	@printf "${SUCCESS} SUCCESS ${RESET}: geek-nest tested\n";
 	@echo ------------------------------------------------------------------------------;
 
-geek-test-cov:
+unit-test-cov:
 	@echo ------------------------------------------------------------------------------;
 	@printf "${WARN} TESTING ${RESET}: geek-nest\n";
 	@echo ;
