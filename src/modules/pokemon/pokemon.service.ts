@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PokemonApi } from './pokemon.api';
 import { Pokemon } from './pokemon.entity';
 import { TypeService } from './type/type.service';
@@ -69,6 +73,11 @@ export class PokemonService extends Service<Pokemon> {
   }
 
   async addPokemon(user: Users, pokemons: PokemonPokedexDto) {
+    if (user.status !== EStatus.ACTIVE) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
     if (!pokemons.ids && !pokemons.names) {
       throw new InternalServerErrorException(
         'You need to add one fewer Pokémon ID or name to add',
@@ -102,6 +111,15 @@ export class PokemonService extends Service<Pokemon> {
     const listPokemons = await this.getListPokemons(items);
 
     return await this.pokeDexService.create(user, listPokemons);
+  }
+
+  async findPokedex(user: Users) {
+    if (user.status !== EStatus.ACTIVE) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+    return await this.pokeDexService.findOne(user.id);
   }
 
   private async generatePokemon(

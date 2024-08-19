@@ -22,6 +22,7 @@ describe('PokemonController', () => {
             findAll: jest.fn(),
             findOne: jest.fn(),
             addPokemon: jest.fn(),
+            findPokedex: jest.fn(),
           },
         },
       ],
@@ -53,7 +54,7 @@ describe('PokemonController', () => {
     expect(result).toEqual(ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER);
   });
 
-  it('should be addPokemon with param error', async () => {
+  it('should be addPokemon with param success', async () => {
     jest
       .spyOn(service, 'addPokemon')
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
@@ -66,6 +67,17 @@ describe('PokemonController', () => {
         names: ['Bulbasaur', 'Charmander', 'Squirtle'],
       },
     );
+    expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
+  });
+
+  it('should be findPokedex with param success', async () => {
+    jest
+      .spyOn(service, 'findPokedex')
+      .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
+    const result = await controller.findPokedex({
+      ...USER_COMPLETE_FIXTURE,
+      status: EStatus.ACTIVE,
+    });
     expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
   });
 });

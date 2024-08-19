@@ -1002,11 +1002,35 @@ describe('PokemonService', () => {
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
 
     const result = await service.addPokemon(
-      USER_COMPLETE_FIXTURE,
+      {
+        ...USER_COMPLETE_FIXTURE,
+        status: EStatus.ACTIVE,
+      },
       pokemonPokedexDto,
     );
 
     expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
+  });
+
+  it('add pokemon to pokedex with pokemons list name and pokedex to create with user different to ACTIVE', async () => {
+    const pokemonPokedexDto = {
+      names: ['bulbasaur', 'charmander', 'squirtle'],
+    };
+    const result = service.addPokemon(USER_COMPLETE_FIXTURE, pokemonPokedexDto);
+
+    await expect(result).rejects.toThrow();
+  });
+
+  it('add pokemon to pokedex with pokemons list name and pokedex to without pokemons ids or name', async () => {
+    const result = service.addPokemon(
+      {
+        ...USER_COMPLETE_FIXTURE,
+        status: EStatus.ACTIVE,
+      },
+      {},
+    );
+
+    await expect(result).rejects.toThrow();
   });
 
   it('add pokemon to pokedex with pokemons list name and pokedex created and pokemons repeats', async () => {
@@ -1025,7 +1049,10 @@ describe('PokemonService', () => {
     });
 
     const result = await service.addPokemon(
-      USER_COMPLETE_FIXTURE,
+      {
+        ...USER_COMPLETE_FIXTURE,
+        status: EStatus.ACTIVE,
+      },
       pokemonPokedexDto,
     );
 
@@ -1070,7 +1097,10 @@ describe('PokemonService', () => {
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
 
     const result = await service.addPokemon(
-      USER_COMPLETE_FIXTURE,
+      {
+        ...USER_COMPLETE_FIXTURE,
+        status: EStatus.ACTIVE,
+      },
       pokemonPokedexDto,
     );
 
@@ -1114,7 +1144,36 @@ describe('PokemonService', () => {
       getOne: jest.fn().mockResolvedValueOnce(null),
     } as any);
 
-    const result = service.addPokemon(USER_COMPLETE_FIXTURE, pokemonPokedexDto);
+    const result = service.addPokemon(
+      {
+        ...USER_COMPLETE_FIXTURE,
+        status: EStatus.ACTIVE,
+      },
+      pokemonPokedexDto,
+    );
+
+    await expect(result).rejects.toThrow();
+  });
+
+  it('must return the findOne pokedex with user success', async () => {
+    jest
+      .spyOn(pokeDexService, 'findOne')
+      .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
+
+    const result = await service.findPokedex({
+      ...USER_COMPLETE_FIXTURE,
+      status: EStatus.ACTIVE,
+    });
+
+    expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
+  });
+
+  it('must return the findOne pokedex with user status different status ACTIVE', async () => {
+    jest
+      .spyOn(pokeDexService, 'findOne')
+      .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
+
+    const result = service.findPokedex(USER_COMPLETE_FIXTURE);
 
     await expect(result).rejects.toThrow();
   });

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  ForbiddenException,
   Get,
   Param,
   Post,
@@ -15,7 +14,6 @@ import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { GetUserAuth } from '../auth/auth-user.decorator';
 import { Users } from '../users/users.entity';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
-import { EStatus } from '../../enums/status.enum';
 
 @Controller('pokemon')
 @UseGuards(AuthGuard(), AuthRoleGuards)
@@ -27,6 +25,11 @@ export class PokemonController {
     return this.pokemonService.findAll(filter);
   }
 
+  @Get('pokedex')
+  findPokedex(@GetUserAuth() user: Users) {
+    return this.pokemonService.findPokedex(user);
+  }
+
   @Get(':name')
   findOne(@Param('name') name: string) {
     return this.pokemonService.findOne(name);
@@ -34,11 +37,6 @@ export class PokemonController {
 
   @Post('pokedex')
   addPokemon(@GetUserAuth() user: Users, @Body() pokemons: PokemonPokedexDto) {
-    if (user.status !== EStatus.ACTIVE) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
     return this.pokemonService.addPokemon(user, pokemons);
   }
 }
