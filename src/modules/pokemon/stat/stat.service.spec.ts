@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { StatService } from './stat.service';
-import { Repository } from 'typeorm';
-import { Stat } from './stat.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+
+import { Repository } from 'typeorm';
+
 import { ENTITY_STATS_FIXTURE, RESPONSE_STAT_FIXTURE } from './stat.fixture';
+import { Stat } from './stat.entity';
+import { StatService } from './stat.service';
 
 describe('StatService', () => {
   let service: StatService;

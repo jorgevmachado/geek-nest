@@ -1,24 +1,30 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersService } from './users.service';
-import { Repository } from 'typeorm';
-import { Users } from './users.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import {
-  USER_FIXTURE,
-  USER_INCOMPLETE_DTO,
-  userClean,
-  USERS_PAGINATE,
-  usersClean,
-} from './users.fixture';
-import { PAGINATE } from '@/fixtures';
 import {
   BadRequestException,
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { EStatus } from '@/enums/status.enum';
+
+import {
+  USERS_PAGINATE,
+  USER_FIXTURE,
+  USER_INCOMPLETE_DTO,
+  userClean,
+  usersClean,
+} from './users.fixture';
+
+import { Test, TestingModule } from '@nestjs/testing';
+
 import { EGender, ERole } from '@/modules/users/users.enum';
+import { UsersService } from './users.service';
+
+import { Repository } from 'typeorm';
+import { Users } from './users.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+
+import { PAGINATE } from '@/fixtures';
+
+import { EStatus } from '@/enums/status.enum';
 
 describe('UsersService', () => {
   let service: UsersService;

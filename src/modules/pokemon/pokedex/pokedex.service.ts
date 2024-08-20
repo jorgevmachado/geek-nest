@@ -1,11 +1,14 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { isUUID, Service } from '@/services';
-import { Pokedex } from './pokedex.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
+import { Service, isUUID } from '@/services';
+import { EStatus } from '@/enums/status.enum';
+
+import { Pokedex } from './pokedex.entity';
+
 import { Pokemon } from '../pokemon.entity';
 import { Users } from '../../users/users.entity';
-import { EStatus } from '@/enums/status.enum';
 
 @Injectable()
 export class PokedexService extends Service<Pokedex> {

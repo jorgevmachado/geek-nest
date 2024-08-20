@@ -1,8 +1,9 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
+
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { CredentialsAuthDto } from './dto/credentials-auth.dto';
-import { JwtService } from '@nestjs/jwt';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {

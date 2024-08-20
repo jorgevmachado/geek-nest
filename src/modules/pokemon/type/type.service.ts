@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { IResponsePokemonByName } from '../pokemon.interface';
-import { Type } from './type.entity';
-import { TYPE_COLORS } from './type.constants';
-import { Service } from '@/services';
 import { Repository } from 'typeorm';
+
 import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+
+import { Service } from '@/services';
+
+import type { IResponsePokemonByName } from '../pokemon.interface';
+
+import { TYPE_COLORS } from './type.constants';
+import { Type } from './type.entity';
 
 @Injectable()
 export class TypeService extends Service<Type> {

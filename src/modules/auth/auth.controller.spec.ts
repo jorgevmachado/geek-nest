@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { PassportModule } from '@nestjs/passport';
+
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { PassportModule } from '@nestjs/passport';
-import { USER_FIXTURE } from '../users/users.fixture';
 import { CreateUserDto } from '../users/dto/create-user.dto';
+import { USER_FIXTURE } from '../users/users.fixture';
 import { UsersService } from '../users/users.service';
 
 describe('AuthController', () => {

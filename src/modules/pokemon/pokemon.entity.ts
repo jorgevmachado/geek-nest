@@ -1,19 +1,22 @@
-import { type IPokemon } from './pokemon.interface';
-import { Type } from './type/type.entity';
-import { Stat } from './stat/stat.entity';
-import { Move } from './move/move.entity';
-import { Ability } from './ability/ability.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  ManyToMany,
-  JoinTable,
-  Entity,
 } from 'typeorm';
+
 import { EStatus } from '@/enums/status.enum';
+
+import { type IPokemon } from './pokemon.interface';
+
+import { Ability } from './ability/ability.entity';
+import { Move } from './move/move.entity';
+import { Stat } from './stat/stat.entity';
+import { Type } from './type/type.entity';
 
 @Entity({ name: 'pokemons' })
 export class Pokemon implements IPokemon {

@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { IResponsePokemonByName } from '../pokemon.interface';
-import { Ability } from './ability.entity';
-import { Service } from '@/services';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+
+import { Service } from '@/services';
+
+import { Ability } from './ability.entity';
+import type { IResponsePokemonByName } from '../pokemon.interface';
+
 import { Repository } from 'typeorm';
 
 @Injectable()

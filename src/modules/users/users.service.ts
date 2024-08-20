@@ -1,3 +1,5 @@
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -8,16 +10,21 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './users.entity';
+
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
+
 import { FilterUserDto } from './dto/filter-user.dto';
 import { Service } from '@/services';
+
 import { CredentialsUserDto } from './dto/credentials-user.dto';
+
 import type { IFilterParams } from '@/interfaces/filter.interface';
+
 import { EStatus } from '@/enums/status.enum';
+
 import { ERole } from '@/modules/users/users.enum';
 
 @Injectable()

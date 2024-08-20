@@ -1,5 +1,5 @@
-import { Pokedex } from './pokedex.entity';
 import { EStatus } from '@/enums/status.enum';
+
 import {
   ENTITY_POKEMON_COMPLETE_FIXTURE_BLASTOISE,
   ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
@@ -11,6 +11,7 @@ import {
   ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
   ENTITY_POKEMON_COMPLETE_FIXTURE_WARTORTLE,
 } from '../pokemon.fixture';
+import { Pokedex } from './pokedex.entity';
 
 export const POKEDEX_FIXTURE_ACTIVE: Pokedex = {
   account: undefined,

@@ -1,9 +1,10 @@
-import { Move } from './move/move.entity';
-import { Type } from './type/type.entity';
-import { Stat } from './stat/stat.entity';
-import { Ability } from './ability/ability.entity';
-import { Pokemon } from './pokemon.entity';
 import { EStatus } from '@/enums/status.enum';
+
+import { Ability } from './ability/ability.entity';
+import { Move } from './move/move.entity';
+import { Pokemon } from './pokemon.entity';
+import { Stat } from './stat/stat.entity';
+import { Type } from './type/type.entity';
 
 export interface IResponsePaginate<T> {
   next: string | null;

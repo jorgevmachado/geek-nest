@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
-import { IResponsePokemonByName } from '../pokemon.interface';
-import { Stat } from './stat.entity';
-import { Service } from '@/services';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+
 import { Repository } from 'typeorm';
+
+import { Service } from '@/services';
+
+import type { IResponsePokemonByName } from '../pokemon.interface';
+
+import { Stat } from './stat.entity';
 
 @Injectable()
 export class StatService extends Service<Stat> {

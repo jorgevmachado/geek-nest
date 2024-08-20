@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { IResponsePokemonByName } from '../pokemon.interface';
-import { Move } from './move.entity';
-import { Service } from '@/services';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable } from '@nestjs/common';
+
 import { Repository } from 'typeorm';
+
+import { Service } from '@/services';
+
+import type { IResponsePokemonByName } from '../pokemon.interface';
+import { Move } from './move.entity';
 
 @Injectable()
 export class MoveService extends Service<Move> {

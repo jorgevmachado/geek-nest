@@ -1,8 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AbilityService } from './ability.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Ability } from './ability.entity';
+
 import { Repository } from 'typeorm';
+
+import { AbilityService } from './ability.service';
+
+import { Ability } from './ability.entity';
+
 import {
   ENTITY_ABILITIES_FIXTURE,
   RESPONSE_ABILITY_FIXTURE,

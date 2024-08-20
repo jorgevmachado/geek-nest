@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PokedexService } from './pokedex.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { Pokedex } from './pokedex.entity';
+import { PokedexService } from './pokedex.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Pokedex])],

@@ -1,3 +1,6 @@
+import { type IPaginate } from '@/services';
+import { PAGINATE } from '@/fixtures';
+
 import {
   IResponseEvolution,
   IResponsePaginate,
@@ -6,11 +9,6 @@ import {
   IResponsePokemonFull,
   IResponsePokemonSpecie,
 } from './pokemon.interface';
-import { Pokemon } from './pokemon.entity';
-import { ENTITY_MOVES_FIXTURE } from './move/move.fixture';
-import { ENTITY_STATS_FIXTURE } from './stat/stat.fixture';
-import { ENTITY_TYPES_FIXTURE } from './type/type.fixture';
-import { ENTITY_ABILITIES_FIXTURE } from './ability/ability.fixture';
 import {
   responsePokemonFullToPokemon,
   responsePokemonToPokemon,
@@ -18,8 +16,12 @@ import {
   responsePokemonToResponsePokemonSpecie,
   responsesToResponsePokemonFull,
 } from './pokemon.transformer';
-import { type IPaginate } from '@/services';
-import { PAGINATE } from '@/fixtures';
+import { Pokemon } from './pokemon.entity';
+
+import { ENTITY_ABILITIES_FIXTURE } from './ability/ability.fixture';
+import { ENTITY_MOVES_FIXTURE } from './move/move.fixture';
+import { ENTITY_STATS_FIXTURE } from './stat/stat.fixture';
+import { ENTITY_TYPES_FIXTURE } from './type/type.fixture';
 
 export const RESPONSE_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR: IResponsePokemon = {
   url: 'https://pokeapi.co/api/v2/pokemon/1/',

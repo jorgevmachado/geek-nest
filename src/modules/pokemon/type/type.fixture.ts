@@ -1,6 +1,6 @@
-import { IResponsePokemonByName } from '../pokemon.interface';
-import { Type } from './type.entity';
+import type { IResponsePokemonByName } from '../pokemon.interface';
 import { TYPE_COLORS } from './type.constants';
+import { Type } from './type.entity';
 
 const transformColor = (
   item: IResponsePokemonByName['types'][number],

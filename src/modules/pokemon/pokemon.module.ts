@@ -1,15 +1,18 @@
 import { Module } from '@nestjs/common';
-import { PokemonService } from './pokemon.service';
-import { PokemonController } from './pokemon.controller';
 import { PassportModule } from '@nestjs/passport';
-import { TypeModule } from './type/type.module';
-import { StatModule } from './stat/stat.module';
-import { MoveModule } from './move/move.module';
-import { AbilityModule } from './ability/ability.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { Pokemon } from './pokemon.entity';
 import { PokemonApi } from './pokemon.api';
+import { PokemonController } from './pokemon.controller';
+import { PokemonService } from './pokemon.service';
+
+import { AbilityModule } from './ability/ability.module';
+
+import { MoveModule } from './move/move.module';
 import { PokedexModule } from './pokedex/pokedex.module';
+import { StatModule } from './stat/stat.module';
+import { TypeModule } from './type/type.module';
 
 @Module({
   imports: [

@@ -3,27 +3,31 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PokemonApi } from './pokemon.api';
-import { Pokemon } from './pokemon.entity';
-import { TypeService } from './type/type.service';
-import { StatService } from './stat/stat.service';
-import { MoveService } from './move/move.service';
-import { AbilityService } from './ability/ability.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
+import { type IPaginate, Service, isUUID } from '@/services';
+import { EStatus } from '@/enums/status.enum';
+import type { IFilterParams } from '@/interfaces/filter.interface';
+
 import type {
   IPokemon,
   IResponseEvolution,
   IResponsePokemonByName,
   IResponsePokemonFull,
 } from './pokemon.interface';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { type IPaginate, isUUID, Service } from '@/services';
-import { FilterPokemonDto } from './dto/filter-pokemon.dto';
-import { IFilterParams } from '@/interfaces/filter.interface';
-import { EStatus } from '@/enums/status.enum';
-import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
-import { Users } from '../users/users.entity';
+import { Pokemon } from './pokemon.entity';
+import { PokemonApi } from './pokemon.api';
+
+import { AbilityService } from './ability/ability.service';
+import { MoveService } from './move/move.service';
 import { PokedexService } from './pokedex/pokedex.service';
+import { StatService } from './stat/stat.service';
+import { TypeService } from './type/type.service';
+import { Users } from '../users/users.entity';
+
+import { FilterPokemonDto } from './dto/filter-pokemon.dto';
+import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
 
 @Injectable()
 export class PokemonService extends Service<Pokemon> {

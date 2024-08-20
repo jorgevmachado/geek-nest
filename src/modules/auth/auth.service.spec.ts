@@ -1,10 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import { USER_FIXTURE, USER_INCOMPLETE_DTO } from '../users/users.fixture';
 import { UnprocessableEntityException } from '@nestjs/common';
+
 import { EStatus } from '@/enums/status.enum';
+
+import { USER_FIXTURE, USER_INCOMPLETE_DTO } from '../users/users.fixture';
+import { AuthService } from './auth.service';
+import { UsersService } from '../users/users.service';
 
 describe('AuthService', () => {
   let service: AuthService;

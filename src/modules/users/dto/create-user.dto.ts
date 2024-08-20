@@ -6,10 +6,12 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { Match } from '@/decorators/match.decorator';
-import { type IUser } from '../users.interface';
 import { Transform } from 'class-transformer';
+
 import { CPF } from '@/decorators/cpf.decorator';
+import { Match } from '@/decorators/match.decorator';
+
+import { type IUser } from '../users.interface';
 
 interface ICreateUserDto
   extends Pick<IUser, 'name' | 'email' | 'password' | 'dateOfBirth'> {

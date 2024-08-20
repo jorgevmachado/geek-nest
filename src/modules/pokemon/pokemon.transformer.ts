@@ -1,20 +1,25 @@
-import {
+import { EStatus } from '@/enums/status.enum';
+
+import type {
   IResponsePokemon,
   IResponsePokemonByName,
   IResponsePokemonFull,
   IResponsePokemonSpecie,
 } from './pokemon.interface';
 import { Pokemon } from './pokemon.entity';
-import { Move } from './move/move.entity';
-import { Type } from './type/type.entity';
-import { Stat } from './stat/stat.entity';
-import { Ability } from './ability/ability.entity';
 import { RESPONSE_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR } from './pokemon.fixture';
-import { RESPONSE_MOVE_FIXTURE } from './move/move.fixture';
-import { RESPONSE_STAT_FIXTURE } from './stat/stat.fixture';
+
+import { Ability } from './ability/ability.entity';
+import { Move } from './move/move.entity';
+import { Stat } from './stat/stat.entity';
+import { Type } from './type/type.entity';
+
 import { RESPONSE_ABILITY_FIXTURE } from './ability/ability.fixture';
+import { RESPONSE_MOVE_FIXTURE } from './move/move.fixture';
+
+import { RESPONSE_STAT_FIXTURE } from './stat/stat.fixture';
+
 import { RESPONSE_TYPES_FIXTURE } from './type/type.fixture';
-import { EStatus } from '@/enums/status.enum';
 
 interface IToPokemonProps {
   id?: string;

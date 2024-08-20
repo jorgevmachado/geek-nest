@@ -1,19 +1,21 @@
 import {
-  Entity,
-  OneToOne,
-  JoinTable,
-  ManyToMany,
-  JoinColumn,
+  Column,
   CreateDateColumn,
   DeleteDateColumn,
-  UpdateDateColumn,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
-  Column,
+  UpdateDateColumn,
 } from 'typeorm';
-import type { IPokeDex } from './pokedex.interface';
-import { Users } from '../../users/users.entity';
-import { Pokemon } from '../pokemon.entity';
+
 import { EStatus } from '@/enums/status.enum';
+
+import type { IPokeDex } from './pokedex.interface';
+import { Pokemon } from '../pokemon.entity';
+import { Users } from '../../users/users.entity';
 
 @Entity('pokedex')
 export class Pokedex implements IPokeDex {

@@ -1,5 +1,5 @@
-import { serialize } from '../object';
 import { validate as isUuid } from 'uuid';
+import { serialize } from '../object';
 
 export function formatUrl(url: string, path: string, params = {}) {
   const query = serialize(params);

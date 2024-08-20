@@ -1,6 +1,8 @@
-import { Repository, ObjectLiteral } from 'typeorm';
-import { QueryParametersDto } from '@/dto/query-parameters.dto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ObjectLiteral, Repository } from 'typeorm';
+
+import { QueryParametersDto } from '@/dto/query-parameters.dto';
+
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 
 export interface IPaginate<T> {

@@ -1,5 +1,5 @@
-import { PokemonApi } from './pokemon.api';
 import { InternalServerErrorException } from '@nestjs/common';
+import { PokemonApi } from './pokemon.api';
 
 describe('PokemonApi', () => {
   let pokemonApi: PokemonApi;

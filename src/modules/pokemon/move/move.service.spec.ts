@@ -1,8 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MoveService } from './move.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Move } from './move.entity';
+
 import { Repository } from 'typeorm';
+
+import { Move } from './move.entity';
+import { MoveService } from './move.service';
+
 import { ENTITY_MOVES_FIXTURE, RESPONSE_MOVE_FIXTURE } from './move.fixture';
 
 describe('MoveService', () => {

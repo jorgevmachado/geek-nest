@@ -7,12 +7,15 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PokemonService } from './pokemon.service';
 import { AuthGuard } from '@nestjs/passport';
+
+import { PokemonService } from './pokemon.service';
+
+import { Users } from '../users/users.entity';
+
 import { AuthRoleGuards } from '../auth/auth-role.guards';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { GetUserAuth } from '../auth/auth-user.decorator';
-import { Users } from '../users/users.entity';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
 
 @Controller('pokemon')

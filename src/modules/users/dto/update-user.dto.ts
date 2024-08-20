@@ -1,3 +1,4 @@
+import { EGender, ERole } from '@/modules/users/users.enum';
 import {
   IsDate,
   IsEmail,
@@ -6,9 +7,8 @@ import {
   MaxDate,
   MaxLength,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
 import { CPF } from '@/decorators/cpf.decorator';
-import { EGender, ERole } from '@/modules/users/users.enum';
+import { Transform } from 'class-transformer';
 
 export class UpdateUserDto {
   @IsOptional()

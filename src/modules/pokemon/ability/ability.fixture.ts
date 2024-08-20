@@ -1,5 +1,5 @@
-import { IResponsePokemonByName } from '../pokemon.interface';
 import { Ability } from './ability.entity';
+import { type IResponsePokemonByName } from '../pokemon.interface';
 
 const transformResponseAbility = (
   response: IResponsePokemonByName['abilities'][number],

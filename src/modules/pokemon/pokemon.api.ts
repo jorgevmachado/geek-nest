@@ -1,6 +1,7 @@
-import { generateOrder, Http } from '@/services';
+import { Http, generateOrder } from '@/services';
 import { InternalServerErrorException } from '@nestjs/common';
-import {
+
+import type {
   IResponseEvolution,
   IResponsePaginate,
   IResponsePokemon,

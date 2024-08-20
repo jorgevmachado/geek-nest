@@ -1,8 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PokedexService } from './pokedex.service';
 import { Repository } from 'typeorm';
-import { Pokedex } from './pokedex.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+
+import { Pokedex } from './pokedex.entity';
+import { PokedexService } from './pokedex.service';
+
 import { POKEDEX_FIXTURE_ACTIVE } from './pokedex.fixture';
 import { USER_COMPLETE_FIXTURE } from '../../users/users.fixture';
 

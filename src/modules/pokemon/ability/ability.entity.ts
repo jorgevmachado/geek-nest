@@ -1,4 +1,3 @@
-import { IAbility } from './ability.interface';
 import {
   Column,
   CreateDateColumn,
@@ -7,6 +6,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import type { IAbility } from './ability.interface';
 
 @Entity({ name: 'abilities' })
 export class Ability implements IAbility {

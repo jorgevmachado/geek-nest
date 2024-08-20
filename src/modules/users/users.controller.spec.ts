@@ -1,14 +1,20 @@
+import { Repository } from 'typeorm';
+
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { PassportModule } from '@nestjs/passport';
+
+import { USER_FIXTURE, userClean } from './users.fixture';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Users } from './users.entity';
-import { PassportModule } from '@nestjs/passport';
-import { USER_FIXTURE, userClean } from './users.fixture';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { Repository } from 'typeorm';
+
 import { EStatus } from '@/enums/status.enum';
+
 import { ERole } from '@/modules/users/users.enum';
+import { Users } from './users.entity';
+
+import { UpdateUserDto } from './dto/update-user.dto';
 
 describe('UsersController', () => {
   let controller: UsersController;

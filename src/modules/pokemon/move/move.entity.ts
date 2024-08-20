@@ -1,4 +1,3 @@
-import { IMove } from './move.interface';
 import {
   Column,
   CreateDateColumn,
@@ -7,6 +6,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import type { IMove } from './move.interface';
 
 @Entity({ name: 'moves' })
 export class Move implements IMove {

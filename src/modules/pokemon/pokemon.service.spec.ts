@@ -1,17 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PokemonService } from './pokemon.service';
-import { Repository } from 'typeorm';
-import { Pokemon } from './pokemon.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TypeService } from './type/type.service';
-import { MoveService } from './move/move.service';
-import { StatService } from './stat/stat.service';
-import { AbilityService } from './ability/ability.service';
-import { Type } from './type/type.entity';
-import { Stat } from './stat/stat.entity';
-import { Move } from './move/move.entity';
-import { Ability } from './ability/ability.entity';
+
+import { Repository } from 'typeorm';
+
+import { EStatus } from '@/enums/status.enum';
+
 import {
+  ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST,
+  ENTITY_POKEMONS_INCOMPLETE_FIXTURE_PAGINATE,
   ENTITY_POKEMON_COMPLETE_FIXTURE_BLASTOISE,
   ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
   ENTITY_POKEMON_COMPLETE_FIXTURE_CHARIZARD,
@@ -27,25 +23,36 @@ import {
   ENTITY_POKEMON_INCOMPLETE_FIXTURE_CHARMELEON,
   ENTITY_POKEMON_INCOMPLETE_FIXTURE_IVYSAUR,
   ENTITY_POKEMON_INCOMPLETE_FIXTURE_VENUSAUR,
-  ENTITY_POKEMONS_INCOMPLETE_FIXTURE_LIST,
-  ENTITY_POKEMONS_INCOMPLETE_FIXTURE_PAGINATE,
+  RESPONSE_POKEMONS_FIXTURE_PAGINATE,
   RESPONSE_POKEMON_BY_NAME_FIXTURE_BULBASAUR,
   RESPONSE_POKEMON_BY_NAME_FIXTURE_IVYSAUR,
   RESPONSE_POKEMON_EVOLUTIONS_FIXTURE_BULBASAUR,
   RESPONSE_POKEMON_SPECIE_FIXTURE_BULBASAUR,
   RESPONSE_POKEMON_SPECIE_FIXTURE_IVYSAUR,
-  RESPONSE_POKEMONS_FIXTURE_PAGINATE,
 } from './pokemon.fixture';
+import { Pokemon } from './pokemon.entity';
 import { PokemonApi } from './pokemon.api';
+import { PokemonService } from './pokemon.service';
+
+import { AbilityService } from './ability/ability.service';
+import { MoveService } from './move/move.service';
 import { Pokedex } from './pokedex/pokedex.entity';
+import { StatService } from './stat/stat.service';
+import { TypeService } from './type/type.service';
+
 import { PokedexService } from './pokedex/pokedex.service';
-import { USER_COMPLETE_FIXTURE } from '../users/users.fixture';
-import { POKEDEX_FIXTURE_ACTIVE } from './pokedex/pokedex.fixture';
+
+import { Ability } from './ability/ability.entity';
+import { Move } from './move/move.entity';
+import { Stat } from './stat/stat.entity';
+import { Type } from './type/type.entity';
+
 import { ENTITY_ABILITIES_FIXTURE } from './ability/ability.fixture';
 import { ENTITY_MOVES_FIXTURE } from './move/move.fixture';
 import { ENTITY_STATS_FIXTURE } from './stat/stat.fixture';
 import { ENTITY_TYPES_FIXTURE } from './type/type.fixture';
-import { EStatus } from '@/enums/status.enum';
+import { POKEDEX_FIXTURE_ACTIVE } from './pokedex/pokedex.fixture';
+import { USER_COMPLETE_FIXTURE } from '../users/users.fixture';
 
 describe('PokemonService', () => {
   let service: PokemonService;

@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { TypeService } from './type.service';
-import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Type } from './type.entity';
+
+import { Repository } from 'typeorm';
+
 import { ENTITY_TYPES_FIXTURE, RESPONSE_TYPES_FIXTURE } from './type.fixture';
+import { Type } from './type.entity';
+import { TypeService } from './type.service';
 
 describe('TypeService', () => {
   let service: TypeService;
