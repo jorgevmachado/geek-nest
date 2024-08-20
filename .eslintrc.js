@@ -24,6 +24,12 @@ module.exports = {
     "no-redeclare": "off",
     "no-unused-vars": "off",
     "object-curly-spacing": ["error", "always"],
+    'keyword-spacing': ['error', { 'before': true, 'after': true }],
+    'space-before-function-paren': ['error', {
+      'anonymous': 'always',
+      'named': 'never',
+      'asyncArrow': 'always'
+    }],
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
