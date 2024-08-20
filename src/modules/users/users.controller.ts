@@ -16,9 +16,9 @@ import { FilterUserDto } from './dto/filter-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthRoleGuards } from '../auth/auth-role.guards';
 import { Role } from '../auth/auth-role.decorator';
-import { ERole } from './users.interface';
 import { GetUserAuth } from '../auth/auth-user.decorator';
 import { Users } from './users.entity';
+import { ERole } from '@/modules/users/users.enum';
 
 @Controller('users')
 @UseGuards(AuthGuard(), AuthRoleGuards)

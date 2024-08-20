@@ -3,7 +3,6 @@ import { UsersService } from './users.service';
 import { Repository } from 'typeorm';
 import { Users } from './users.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { EGender, ERole } from './users.interface';
 import {
   USER_FIXTURE,
   USER_INCOMPLETE_DTO,
@@ -11,14 +10,15 @@ import {
   USERS_PAGINATE,
   usersClean,
 } from './users.fixture';
-import { PAGINATE } from '../../fixtures';
+import { PAGINATE } from '@/fixtures';
 import {
   BadRequestException,
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { EStatus } from '../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
+import { EGender, ERole } from '@/modules/users/users.enum';
 
 describe('UsersService', () => {
   let service: UsersService;

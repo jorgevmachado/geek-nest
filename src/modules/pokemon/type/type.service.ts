@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IResponsePokemonByName } from '../pokemon.interface';
 import { Type } from './type.entity';
 import { TYPE_COLORS } from './type.constants';
-import { Service } from '../../../services';
+import { Service } from '@/services';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 

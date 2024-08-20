@@ -13,7 +13,7 @@ import {
 import type { IPokeDex } from './pokedex.interface';
 import { Users } from '../../users/users.entity';
 import { Pokemon } from '../pokemon.entity';
-import { EStatus } from '../../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
 
 @Entity('pokedex')
 export class Pokedex implements IPokeDex {

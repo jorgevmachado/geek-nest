@@ -3,7 +3,7 @@ import { Type } from './type/type.entity';
 import { Stat } from './stat/stat.entity';
 import { Ability } from './ability/ability.entity';
 import { Pokemon } from './pokemon.entity';
-import { EStatus } from '../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
 
 export interface IResponsePaginate<T> {
   next: string | null;

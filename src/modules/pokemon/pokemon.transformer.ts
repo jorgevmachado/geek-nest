@@ -14,7 +14,7 @@ import { RESPONSE_MOVE_FIXTURE } from './move/move.fixture';
 import { RESPONSE_STAT_FIXTURE } from './stat/stat.fixture';
 import { RESPONSE_ABILITY_FIXTURE } from './ability/ability.fixture';
 import { RESPONSE_TYPES_FIXTURE } from './type/type.fixture';
-import { EStatus } from '../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
 
 interface IToPokemonProps {
   id?: string;
@@ -557,110 +557,4 @@ export function responsesToResponsePokemonFull({
     evolves_from_species: responsePokemonSpecie.evolves_from_species,
     has_gender_differences: responsePokemonSpecie.has_gender_differences,
   };
-}
-
-export function MatchPokemons(result: Pokemon, expected: Pokemon) {
-  console.log('# => match => id => ', result.id === expected.id);
-  console.log('# => match => url => ', result.url === expected.url);
-  console.log('# => match => name => ', result.name === expected.name);
-  console.log('# => match => image => ', result.image === expected.image);
-  console.log(
-    '# => match => moves.length => ',
-    result.moves.length === expected.moves.length,
-  );
-  console.log('# => match => order => ', result.order === expected.order);
-
-  console.log(
-    '# => match => types => has => ',
-    Boolean(result.types) === Boolean(expected.types),
-  );
-  console.log(
-    '# => match => types.length => ',
-    result.types.length === expected.types.length,
-  );
-  console.log(
-    '# => match => stats => has => ',
-    Boolean(result.stats) === Boolean(expected.stats),
-  );
-  console.log(
-    '# => match => stats.length => ',
-    result.stats.length === expected.stats.length,
-  );
-
-  console.log('# => match => status => ', result.status === expected.status);
-  console.log('# => match => habitat => ', result.habitat === expected.habitat);
-  console.log('# => match => is_baby => ', result.is_baby === expected.is_baby);
-  console.log(
-    '# => match => shape_url => ',
-    result.shape_url === expected.shape_url,
-  );
-  console.log(
-    '# => match => abilities => has => ',
-    Boolean(result.abilities) === Boolean(expected.abilities),
-  );
-  console.log(
-    '# => match => abilities.length => ',
-    result.abilities.length === expected.abilities.length,
-  );
-  console.log(
-    '# => match => evolutions => has => ',
-    Boolean(result.evolutions) === Boolean(expected.evolutions),
-  );
-  console.log(
-    '# => match => evolutions.length => ',
-    result.evolutions.length === expected.evolutions.length,
-  );
-
-  console.log(
-    '# => match => shape_name => ',
-    result.shape_name === expected.shape_name,
-  );
-  console.log(
-    '# => match => is_mythical => ',
-    result.is_mythical === expected.is_mythical,
-  );
-  console.log(
-    '# => match => gender_rate => ',
-    result.gender_rate === expected.gender_rate,
-  );
-  console.log(
-    '# => match => is_legendary => ',
-    result.is_legendary === expected.is_legendary,
-  );
-  console.log(
-    '# => match => capture_rate => ',
-    result.capture_rate === expected.capture_rate,
-  );
-  console.log(
-    '# => match => hatch_counter => ',
-    result.hatch_counter === expected.hatch_counter,
-  );
-  console.log(
-    '# => match => base_happiness => ',
-    result.base_happiness === expected.base_happiness,
-  );
-  console.log(
-    '# => match => evolution_chain_url => ',
-    result.evolution_chain_url === expected.evolution_chain_url,
-  );
-  console.log(
-    '# => match => evolves_from_species => ',
-    result.evolves_from_species === expected.evolves_from_species,
-  );
-  console.log(
-    '# => match => has_gender_differences => ',
-    result.has_gender_differences === expected.has_gender_differences,
-  );
-  console.log(
-    '# => match => createdAt => ',
-    result.createdAt === expected.createdAt,
-  );
-  console.log(
-    '# => match => updatedAt => ',
-    result.updatedAt === expected.updatedAt,
-  );
-  console.log(
-    '# => match => deletedAt => ',
-    result.deletedAt === expected.deletedAt,
-  );
 }

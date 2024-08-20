@@ -13,12 +13,12 @@ import { Users } from './users.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { ERole } from './users.interface';
 import { FilterUserDto } from './dto/filter-user.dto';
-import { Service } from '../../services';
+import { Service } from '@/services';
 import { CredentialsUserDto } from './dto/credentials-user.dto';
-import { IFilterParams } from '../../interfaces/filter.interface';
-import { EStatus } from '../../enums/status.enum';
+import type { IFilterParams } from '@/interfaces/filter.interface';
+import { EStatus } from '@/enums/status.enum';
+import { ERole } from '@/modules/users/users.enum';
 
 @Injectable()
 export class UsersService extends Service<Users> {

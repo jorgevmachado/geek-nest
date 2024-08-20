@@ -1,5 +1,5 @@
 import { Repository, ObjectLiteral } from 'typeorm';
-import { QueryParametersDto } from '../../../dto/query-parameters.dto';
+import { QueryParametersDto } from '@/dto/query-parameters.dto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 

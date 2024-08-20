@@ -1,14 +1,6 @@
-import { EStatus } from '../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
+import { EGender, ERole } from '@/modules/users/users.enum';
 
-export enum ERole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-}
-
-export enum EGender {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-}
 export interface IUser {
   id: string;
   cpf: string;

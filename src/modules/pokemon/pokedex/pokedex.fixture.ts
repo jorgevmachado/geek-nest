@@ -1,5 +1,5 @@
 import { Pokedex } from './pokedex.entity';
-import { EStatus } from '../../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
 import {
   ENTITY_POKEMON_COMPLETE_FIXTURE_BLASTOISE,
   ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,

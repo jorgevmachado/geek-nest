@@ -17,10 +17,10 @@ import type {
 } from './pokemon.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IPaginate, isUUID, Service } from '../../services';
+import { type IPaginate, isUUID, Service } from '@/services';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
-import { IFilterParams } from '../../interfaces/filter.interface';
-import { EStatus } from '../../enums/status.enum';
+import { IFilterParams } from '@/interfaces/filter.interface';
+import { EStatus } from '@/enums/status.enum';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
 import { Users } from '../users/users.entity';
 import { PokedexService } from './pokedex/pokedex.service';

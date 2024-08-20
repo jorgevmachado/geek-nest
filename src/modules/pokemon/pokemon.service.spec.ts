@@ -45,7 +45,7 @@ import { ENTITY_ABILITIES_FIXTURE } from './ability/ability.fixture';
 import { ENTITY_MOVES_FIXTURE } from './move/move.fixture';
 import { ENTITY_STATS_FIXTURE } from './stat/stat.fixture';
 import { ENTITY_TYPES_FIXTURE } from './type/type.fixture';
-import { EStatus } from '../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
 
 describe('PokemonService', () => {
   let service: PokemonService;

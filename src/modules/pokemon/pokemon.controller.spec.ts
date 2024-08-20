@@ -5,7 +5,7 @@ import { PassportModule } from '@nestjs/passport';
 import { ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER } from './pokemon.fixture';
 import { USER_COMPLETE_FIXTURE } from '../users/users.fixture';
 import { POKEDEX_FIXTURE_ACTIVE } from './pokedex/pokedex.fixture';
-import { EStatus } from '../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
 
 describe('PokemonController', () => {
   let controller: PokemonController;

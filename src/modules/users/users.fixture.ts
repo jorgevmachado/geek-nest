@@ -1,8 +1,8 @@
 import { Users } from './users.entity';
-import { ERole } from './users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
-import { NEXT, PAGES, PAGINATE, TOTAL } from '../../fixtures';
-import { EStatus } from '../../enums/status.enum';
+import { NEXT, PAGES, PAGINATE, TOTAL } from '@/fixtures';
+import { EStatus } from '@/enums/status.enum';
+import { ERole } from '@/modules/users/users.enum';
 
 export const usersClean = (users: Array<Users>) => {
   return users.map((user) => userClean(user));

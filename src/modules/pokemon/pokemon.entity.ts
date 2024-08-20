@@ -13,7 +13,7 @@ import {
   JoinTable,
   Entity,
 } from 'typeorm';
-import { EStatus } from '../../enums/status.enum';
+import { EStatus } from '@/enums/status.enum';
 
 @Entity({ name: 'pokemons' })
 export class Pokemon implements IPokemon {

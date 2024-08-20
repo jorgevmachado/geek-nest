@@ -18,8 +18,8 @@ import {
   responsePokemonToResponsePokemonSpecie,
   responsesToResponsePokemonFull,
 } from './pokemon.transformer';
-import { IPaginate } from '../../services';
-import { PAGINATE } from '../../fixtures';
+import { type IPaginate } from '@/services';
+import { PAGINATE } from '@/fixtures';
 
 export const RESPONSE_POKEMON_INCOMPLETE_FIXTURE_BULBASAUR: IResponsePokemon = {
   url: 'https://pokeapi.co/api/v2/pokemon/1/',
