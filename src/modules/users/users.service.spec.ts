@@ -65,7 +65,7 @@ describe('UsersService', () => {
   it('must return the findOne method.', async () => {
     const user = USER_FIXTURE;
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
-    expect(await service.findOne(user.id)).toEqual(userClean(user));
+    expect(await service.findOne(user.id, user)).toEqual(userClean(user));
   });
 
   it('must return the findOne method with user removed.', async () => {
@@ -75,13 +75,15 @@ describe('UsersService', () => {
       deletedAt: new Date(),
     };
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(user);
-    expect(await service.findOne(user.id, true)).toEqual(userClean(user));
+    expect(await service.findOne(user.id, user, true)).toEqual(userClean(user));
   });
 
   it('must return the findOne method not found.', async () => {
     const user = USER_FIXTURE;
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
-    await expect(service.findOne(user.id)).rejects.toThrow(NotFoundException);
+    await expect(service.findOne(user.id, user)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('must return the checkCredentials method failed.', async () => {
@@ -198,7 +200,11 @@ describe('UsersService', () => {
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
     jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
     expect(
-      await service.update(USER_FIXTURE.id, { gender: userComplete.gender }),
+      await service.update(
+        USER_FIXTURE.id,
+        { gender: userComplete.gender },
+        USER_FIXTURE,
+      ),
     ).toEqual(userClean(userComplete));
   });
 
@@ -212,7 +218,11 @@ describe('UsersService', () => {
     };
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
     await expect(
-      service.update(USER_FIXTURE.id, { gender: userComplete.gender }),
+      service.update(
+        USER_FIXTURE.id,
+        { gender: userComplete.gender },
+        USER_FIXTURE,
+      ),
     ).rejects.toThrow(InternalServerErrorException);
   });
 
@@ -229,7 +239,7 @@ describe('UsersService', () => {
     });
     jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
     await expect(
-      service.update(USER_FIXTURE.id, { cpf: userComplete.cpf }),
+      service.update(USER_FIXTURE.id, { cpf: userComplete.cpf }, USER_FIXTURE),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -246,7 +256,11 @@ describe('UsersService', () => {
     });
     jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
     await expect(
-      service.update(USER_FIXTURE.id, { email: userComplete.email }),
+      service.update(
+        USER_FIXTURE.id,
+        { email: userComplete.email },
+        USER_FIXTURE,
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -261,7 +275,7 @@ describe('UsersService', () => {
     });
     jest.spyOn(repository, 'save').mockResolvedValueOnce(userComplete);
     await expect(
-      service.update(USER_FIXTURE.id, { role: ERole.ADMIN }),
+      service.update(USER_FIXTURE.id, { role: ERole.ADMIN }, USER_FIXTURE),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -449,7 +463,7 @@ describe('UsersService', () => {
     };
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
     jest.spyOn(repository, 'save').mockResolvedValueOnce(userRemoved);
-    expect(await service.remove(USER_FIXTURE.id)).toEqual({
+    expect(await service.remove(USER_FIXTURE.id, USER_FIXTURE)).toEqual({
       message: 'User with id USER_INCOMPLETE successfully removed',
     });
   });

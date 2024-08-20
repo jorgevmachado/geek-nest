@@ -1,9 +1,7 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -22,7 +20,9 @@ import { GetUserAuth } from '../auth/auth-user.decorator';
 import { Role } from '../auth/auth-role.decorator';
 
 import { Users } from './users.entity';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller('users')
 @UseGuards(AuthGuard(), AuthRoleGuards)
 export class UsersController {
@@ -40,36 +40,20 @@ export class UsersController {
     @Param('id') id: string,
     @Query() all: boolean,
   ) {
-    if (user.role !== ERole.ADMIN && user.id.toString() !== id) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
     if (all && user.role === ERole.ADMIN) {
-      return this.usersService.findOne(id, true);
+      return this.usersService.findOne(id, user, all);
     }
-    return this.usersService.findOne(id);
+    return this.usersService.findOne(id, user);
   }
 
   @Patch(':id')
+  @ApiBody({ type: UpdateUserDto })
   update(
     @GetUserAuth() user: Users,
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    if (user.role !== ERole.ADMIN && user.id.toString() !== id) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
-
-    if (user.role !== ERole.ADMIN && updateUserDto.role) {
-      throw new ForbiddenException(
-        'You are not authorized to change the user role',
-      );
-    }
-
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.update(id, updateUserDto, user);
   }
 
   @Patch('promote/:id')
@@ -79,14 +63,6 @@ export class UsersController {
 
   @Delete(':id')
   remove(@GetUserAuth() user: Users, @Param('id') id: string) {
-    if (user.role !== ERole.ADMIN) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
-    if (user.id === id) {
-      throw new BadRequestException('You cannot delete yourself');
-    }
-    return this.usersService.remove(id);
+    return this.usersService.remove(id, user);
   }
 }

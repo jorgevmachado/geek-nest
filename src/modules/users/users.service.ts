@@ -153,23 +153,41 @@ export class UsersService extends Service<Users> {
     return null;
   }
 
-  async findOne(id: string, all?: boolean) {
-    const user = await this.findUserBy('id', id, true, all);
-    return this.cleanUser(user);
+  async findOne(id: string, user: Users, all?: boolean) {
+    if (user.role !== ERole.ADMIN && user.id !== id) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+    const currentUser = await this.findUserBy('id', id, true, all);
+    return this.cleanUser(currentUser);
   }
 
   async update(
     id: string,
     { cpf, name, email, role, gender, dateOfBirth }: UpdateUserDto,
+    user: Users,
   ) {
-    const user = await this.findUserBy('id', id, true);
+    if (user.role !== ERole.ADMIN && user.id !== id) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+
+    if (user.role !== ERole.ADMIN && role) {
+      throw new ForbiddenException(
+        'You are not authorized to change the user role',
+      );
+    }
+
+    const currentUser = await this.findUserBy('id', id, true);
 
     if (cpf) {
       const userCpf = await this.findUserBy('cpf', cpf);
 
-      user.cpf = cpf;
+      currentUser.cpf = cpf;
 
-      if (userCpf && userCpf.id !== user.id) {
+      if (userCpf && userCpf.id !== currentUser.id) {
         throw new BadRequestException('CPF already exists');
       }
     }
@@ -177,25 +195,27 @@ export class UsersService extends Service<Users> {
     if (email) {
       const userEmail = await this.findUserBy('email', email);
 
-      user.email = email;
+      currentUser.email = email;
 
-      if (userEmail && userEmail.id !== user.id) {
+      if (userEmail && userEmail.id !== currentUser.id) {
         throw new BadRequestException('Email already exists');
       }
     }
 
     if (role) {
-      if (user.status !== EStatus.ACTIVE) {
+      if (currentUser.status !== EStatus.ACTIVE) {
         throw new BadRequestException(
           'the user cannot be an administrator because it is not active',
         );
       }
-      user.role = role;
+      currentUser.role = role;
     }
 
-    user.name = name ? name : user.name;
-    user.gender = gender ? gender : user.gender;
-    user.dateOfBirth = dateOfBirth ? dateOfBirth : user.dateOfBirth;
+    currentUser.name = name ? name : currentUser.name;
+    currentUser.gender = gender ? gender : currentUser.gender;
+    currentUser.dateOfBirth = dateOfBirth
+      ? dateOfBirth
+      : currentUser.dateOfBirth;
 
     try {
       user.status = this.validateStatus(user);
@@ -239,11 +259,19 @@ export class UsersService extends Service<Users> {
     return await this.promoteUser(user);
   }
 
-  async remove(id: string) {
-    const user = await this.findUserBy('id', id, true);
-    user.deletedAt = new Date();
-    user.status = EStatus.INACTIVE;
-    await this.repository.save(user);
+  async remove(id: string, user: Users) {
+    if (user.role !== ERole.ADMIN) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
+    }
+    if (user.id === id) {
+      throw new BadRequestException('You cannot delete yourself');
+    }
+    const currentUser = await this.findUserBy('id', id, true);
+    currentUser.deletedAt = new Date();
+    currentUser.status = EStatus.INACTIVE;
+    await this.repository.save(currentUser);
     return {
       message: `User with id ${id} successfully removed`,
     };
@@ -307,9 +335,13 @@ export class UsersService extends Service<Users> {
 
   private async promoteUser(user: Users) {
     try {
-      await this.update(user.id, {
-        role: ERole.ADMIN,
-      });
+      await this.update(
+        user.id,
+        {
+          role: ERole.ADMIN,
+        },
+        user,
+      );
       return { message: 'User promoted to administrator successfully' };
     } catch (error) {
       throw new InternalServerErrorException('Error promoting user');

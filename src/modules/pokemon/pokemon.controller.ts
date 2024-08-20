@@ -17,7 +17,9 @@ import { AuthRoleGuards } from '../auth/auth-role.guards';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { GetUserAuth } from '../auth/auth-user.decorator';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('pokemon')
 @Controller('pokemon')
 @UseGuards(AuthGuard(), AuthRoleGuards)
 export class PokemonController {
