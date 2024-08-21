@@ -7,8 +7,10 @@ import {
 import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { UsersService } from './users.service';
-import { Users } from './users.entity';
+
+import { EGender, ERole } from '@/modules/users/users.enum';
+import { EStatus } from '@/enums/status.enum';
+
 import {
   USERS_PAGINATE,
   USER_FIXTURE,
@@ -16,8 +18,8 @@ import {
   userClean,
   usersClean,
 } from './users.fixture';
-import { EGender, ERole } from '@/modules/users/users.enum';
-import { EStatus } from '@/enums/status.enum';
+import { Users } from './users.entity';
+import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -323,7 +325,7 @@ describe('UsersService', () => {
     await expect(result).rejects.toThrow(InternalServerErrorException);
   });
 
-  it('should throw error when a non-admin user tries to perform action on another user\'s data', async () => {
+  it('should throw error when a non-admin user tries to perform action on another users data', async () => {
     jest.spyOn(repository, 'findAndCount').mockResolvedValueOnce([
       [
         { ...USER_FIXTURE, id: 'FIRST_OTHER_USER_NON_ADMIN' },

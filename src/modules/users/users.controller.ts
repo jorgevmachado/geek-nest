@@ -1,3 +1,4 @@
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -20,7 +21,6 @@ import { GetUserAuth } from '../auth/auth-user.decorator';
 import { Role } from '../auth/auth-role.decorator';
 
 import { Users } from './users.entity';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller('users')

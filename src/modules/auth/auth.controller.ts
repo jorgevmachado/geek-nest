@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
 import { AuthService } from './auth.service';
@@ -6,7 +7,6 @@ import { CreateUserDto } from '../users/dto/create-user.dto';
 import { CredentialsAuthDto } from './dto/credentials-auth.dto';
 import { GetUserAuth } from './auth-user.decorator';
 import { Users } from '../users/users.entity';
-import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')

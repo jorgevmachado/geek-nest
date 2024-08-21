@@ -7,6 +7,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
 import { PokemonService } from './pokemon.service';
@@ -17,7 +18,6 @@ import { AuthRoleGuards } from '../auth/auth-role.guards';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { GetUserAuth } from '../auth/auth-user.decorator';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
-import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('pokemon')
 @Controller('pokemon')
