@@ -56,6 +56,7 @@ export class UsersService extends Service<Users> {
       delete result.gender;
       delete result.updatedAt;
       delete result.deletedAt;
+      delete result.confirmationToken;
       return result;
     } catch (error) {
       if (Number(error.code) === 23505) {
@@ -154,11 +155,7 @@ export class UsersService extends Service<Users> {
   }
 
   async findOne(id: string, user: Users, all?: boolean) {
-    if (user.role !== ERole.ADMIN && user.id !== id) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
+    this.validateCurrentUser(user, id);
     const currentUser = await this.findUserBy('id', id, true, all);
     return this.cleanUser(currentUser);
   }
@@ -166,15 +163,13 @@ export class UsersService extends Service<Users> {
   async update(
     id: string,
     { cpf, name, email, role, gender, dateOfBirth }: UpdateUserDto,
-    user: Users,
+    authUser?: Users,
   ) {
-    if (user.role !== ERole.ADMIN && user.id !== id) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
+    if (Boolean(authUser)) {
+      this.validateCurrentUser(authUser, id);
     }
 
-    if (user.role !== ERole.ADMIN && role) {
+    if (Boolean(authUser) && authUser.role !== ERole.ADMIN && Boolean(role)) {
       throw new ForbiddenException(
         'You are not authorized to change the user role',
       );
@@ -187,7 +182,7 @@ export class UsersService extends Service<Users> {
 
       currentUser.cpf = cpf;
 
-      if (userCpf && userCpf.id !== currentUser.id) {
+      if (Boolean(userCpf) && userCpf.id !== currentUser.id) {
         throw new BadRequestException('CPF already exists');
       }
     }
@@ -218,8 +213,8 @@ export class UsersService extends Service<Users> {
       : currentUser.dateOfBirth;
 
     try {
-      user.status = this.validateStatus(user);
-      const result = await this.repository.save(user);
+      currentUser.status = this.validateStatus(currentUser);
+      const result = await this.repository.save(currentUser);
       return this.cleanUser(result);
     } catch (error) {
       throw new InternalServerErrorException(
@@ -231,6 +226,7 @@ export class UsersService extends Service<Users> {
   async promote(id: string, authUser: Users) {
     const [users, total] = await this.repository.findAndCount();
     const onlyUser = users[0];
+
     if (
       total === 1 &&
       onlyUser.id === id &&
@@ -335,16 +331,20 @@ export class UsersService extends Service<Users> {
 
   private async promoteUser(user: Users) {
     try {
-      await this.update(
-        user.id,
-        {
-          role: ERole.ADMIN,
-        },
-        user,
-      );
+      await this.update(user.id, {
+        role: ERole.ADMIN,
+      });
       return { message: 'User promoted to administrator successfully' };
     } catch (error) {
       throw new InternalServerErrorException('Error promoting user');
+    }
+  }
+
+  private validateCurrentUser(user: Users, id: string) {
+    if (user.role !== ERole.ADMIN && user.id !== id) {
+      throw new ForbiddenException(
+        'You are not authorized to access this feature',
+      );
     }
   }
 }
