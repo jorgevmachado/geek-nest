@@ -43,14 +43,14 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  it('must return the signUp method success.', async () => {
+  it('should return signUp successfully.', async () => {
     jest.spyOn(userService, 'create').mockResolvedValueOnce(USER_FIXTURE);
     expect(await service.signUp(USER_INCOMPLETE_DTO)).toEqual({
       message: 'Registration Completed Successfully!',
     });
   });
 
-  it('must return the signIn method success.', async () => {
+  it('should return signIn successfully.', async () => {
     const user = USER_FIXTURE;
     jest.spyOn(userService, 'checkCredentials').mockResolvedValueOnce({
       id: user.id,
@@ -79,7 +79,7 @@ describe('AuthService', () => {
     ).toEqual({ token: 'token' });
   });
 
-  it('must return the signIn method failed.', async () => {
+  it('should throw error when signIn.', async () => {
     jest.spyOn(userService, 'checkCredentials').mockResolvedValueOnce(null);
 
     await expect(
