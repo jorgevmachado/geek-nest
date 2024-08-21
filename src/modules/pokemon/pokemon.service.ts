@@ -62,8 +62,11 @@ export class PokemonService extends Service<Pokemon> {
   }
 
   async findOne(value: string, withThrow: boolean = true): Promise<Pokemon> {
-    const by = isUUID(value) ? 'id' : 'name';
-    const result = await this.findBy(by, value, withThrow);
+    const result = await this.findBy({
+      by: isUUID(value) ? 'id' : 'name',
+      value,
+      withThrow,
+    });
 
     if (!withThrow && !result) {
       return null;
@@ -322,7 +325,7 @@ export class PokemonService extends Service<Pokemon> {
 
     const listEntity = await Promise.all(
       evolvesToListFiltered.map(
-        async (name) => await this.findBy('name', name),
+        async (name) => await this.findBy({ by: 'name', value: name }),
       ),
     );
 

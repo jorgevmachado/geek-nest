@@ -19,7 +19,11 @@ export class PokedexService extends Service<Pokedex> {
     super(repository, 'pokedex', ['pokemons']);
   }
   async findOne(accountId: string, withThrow: boolean = true) {
-    return this.findBy('accountId', accountId, withThrow);
+    return this.findBy({
+      by: 'accountId',
+      value: accountId,
+      withThrow,
+    });
   }
 
   async create(account: Users, pokemons: Array<Pokemon>) {

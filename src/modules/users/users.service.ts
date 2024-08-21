@@ -6,7 +6,6 @@ import {
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -156,7 +155,12 @@ export class UsersService extends Service<Users> {
 
   async findOne(id: string, user: Users, all?: boolean) {
     this.validateCurrentUser(user, id);
-    const currentUser = await this.findUserBy('id', id, true, all);
+    const currentUser = await this.findBy({
+      by: 'id',
+      value: id,
+      withThrow: true,
+      all,
+    });
     return this.cleanUser(currentUser);
   }
 
@@ -175,10 +179,17 @@ export class UsersService extends Service<Users> {
       );
     }
 
-    const currentUser = await this.findUserBy('id', id, true);
+    const currentUser = await this.findBy({
+      by: 'id',
+      value: id,
+      withThrow: true,
+    });
 
     if (cpf) {
-      const userCpf = await this.findUserBy('cpf', cpf);
+      const userCpf = await this.findBy({
+        by: 'cpf',
+        value: cpf,
+      });
 
       currentUser.cpf = cpf;
 
@@ -188,7 +199,10 @@ export class UsersService extends Service<Users> {
     }
 
     if (email) {
-      const userEmail = await this.findUserBy('email', email);
+      const userEmail = await this.findBy({
+        by: 'email',
+        value: email,
+      });
 
       currentUser.email = email;
 
@@ -242,7 +256,11 @@ export class UsersService extends Service<Users> {
       );
     }
 
-    const user = await this.findUserBy('id', id, true);
+    const user = await this.findBy({
+      by: 'id',
+      value: id,
+      withThrow: true,
+    });
 
     if (user.role !== ERole.USER || user.status !== EStatus.ACTIVE) {
       const message =
@@ -264,7 +282,11 @@ export class UsersService extends Service<Users> {
     if (user.id === id) {
       throw new BadRequestException('You cannot delete yourself');
     }
-    const currentUser = await this.findUserBy('id', id, true);
+    const currentUser = await this.findBy({
+      by: 'id',
+      value: id,
+      withThrow: true,
+    });
     currentUser.deletedAt = new Date();
     currentUser.status = EStatus.INACTIVE;
     await this.repository.save(currentUser);
@@ -278,26 +300,6 @@ export class UsersService extends Service<Users> {
       return EStatus.INCOMPLETE;
     }
     return EStatus.ACTIVE;
-  }
-
-  private async findUserBy(
-    by: 'id' | 'cpf' | 'email',
-    value: string,
-    withThrow?: boolean,
-    all?: boolean,
-  ) {
-    const options = !all
-      ? { where: { [by]: value } }
-      : { withDeleted: true, where: { [by]: value } };
-    const user = await this.repository.findOne(options);
-
-    if (!user) {
-      if (!withThrow) {
-        return null;
-      }
-      throw new NotFoundException('User not found');
-    }
-    return user;
   }
 
   private hashPassword(password: string, salt: string) {

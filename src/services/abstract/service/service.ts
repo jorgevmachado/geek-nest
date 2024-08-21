@@ -1,6 +1,7 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ObjectLiteral, Repository } from 'typeorm';
 
+import type { IFindByParams } from '@/services';
 import { QueryParametersDto } from '@/dto/query-parameters.dto';
 
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
@@ -56,14 +57,13 @@ export abstract class Service<T extends ObjectLiteral> {
     };
   }
 
-  async findBy(
-    by: 'id' | 'name' | 'accountId',
-    value: string,
-    withThrow?: boolean,
-  ) {
+  async findBy({ by, all = false, value, withThrow = false }: IFindByParams) {
     const query = this.repository.createQueryBuilder(this.alias);
     this.queryRelations(query);
     query.andWhere(`${this.alias}.${by} = :${by}`, { [by]: value });
+    if (all) {
+      query.withDeleted();
+    }
     const result = await query.getOne();
 
     if (!result) {

@@ -24,6 +24,15 @@ import { UsersService } from './users.service';
 describe('UsersService', () => {
   let service: UsersService;
   let repository: Repository<Users>;
+  const createQueryBuilderMock = {
+    where: jest.fn(),
+    getOne: jest.fn(),
+    orderBy: jest.fn(),
+    andWhere: jest.fn(),
+    withDeleted: jest.fn(),
+    getManyAndCount: jest.fn(),
+    leftJoinAndSelect: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,9 +70,7 @@ describe('UsersService', () => {
 
   it('should return users with filter successfully', async () => {
     jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      orderBy: jest.fn(),
-      andWhere: jest.fn(),
+      ...createQueryBuilderMock,
       getManyAndCount: jest.fn().mockResolvedValueOnce([[USER_FIXTURE], 1]),
     } as any);
     const result = await service.findAll({
@@ -131,13 +138,19 @@ describe('UsersService', () => {
   });
 
   it('should return user successfully', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(USER_FIXTURE),
+    } as any);
     const result = await service.findOne(USER_FIXTURE.id, USER_FIXTURE);
     expect(result).toEqual(userClean(USER_FIXTURE));
   });
 
   it('should throw error when user not found', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(null),
+    } as any);
     const result = service.findOne(USER_FIXTURE.id, USER_FIXTURE);
     await expect(result).rejects.toThrow(NotFoundException);
   });
@@ -154,11 +167,14 @@ describe('UsersService', () => {
     await expect(result).rejects.toThrow(ForbiddenException);
   });
 
-  it('should generate an error when updating the role user without active status', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
-      ...USER_FIXTURE,
-      status: EStatus.INCOMPLETE,
-    });
+  it('should throw error when updating the role user without active status', async () => {
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce({
+        ...USER_FIXTURE,
+        status: EStatus.INCOMPLETE,
+      }),
+    } as any);
 
     const result = service.update(
       USER_FIXTURE.id,
@@ -179,12 +195,15 @@ describe('UsersService', () => {
       gender: EGender.FEMALE,
       dateOfBirth: new Date('1987-01-01'),
     };
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(UPDATE_USER_SUCCESSFULLY);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(UPDATE_USER_SUCCESSFULLY),
+    } as any);
+
     jest
       .spyOn(repository, 'save')
       .mockResolvedValueOnce(UPDATE_USER_SUCCESSFULLY);
+
     const result = await service.update(
       UPDATE_USER_SUCCESSFULLY.id,
       {
@@ -205,7 +224,10 @@ describe('UsersService', () => {
       gender: EGender.FEMALE,
       dateOfBirth: new Date('1987-01-01'),
     };
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(UPDATE_USER_ERROR);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(UPDATE_USER_ERROR),
+    } as any);
 
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
@@ -222,19 +244,35 @@ describe('UsersService', () => {
   });
 
   it('should throw error when CPF already exists', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce({ ...USER_FIXTURE, id: 'OTHER_USER' });
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(USER_FIXTURE),
+    } as any);
+
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest
+        .fn()
+        .mockResolvedValueOnce({ ...USER_FIXTURE, id: 'OTHER_USER' }),
+    } as any);
+
     const result = service.update(USER_FIXTURE.id, { cpf: USER_FIXTURE.cpf });
     await expect(result).rejects.toThrow(BadRequestException);
   });
 
   it('should throw error when EMAIL already exists', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce({ ...USER_FIXTURE, id: 'USER_EMAIL_EQUAL' });
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(USER_FIXTURE),
+    } as any);
+
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest
+        .fn()
+        .mockResolvedValueOnce({ ...USER_FIXTURE, id: 'USER_EMAIL_EQUAL' }),
+    } as any);
+
     const result = service.update(USER_FIXTURE.id, {
       email: USER_FIXTURE.email,
     });
@@ -242,18 +280,26 @@ describe('UsersService', () => {
   });
 
   it('should remove user successfully', async () => {
-    const removedUser = {
+    const REMOVED_USER = {
       ...USER_FIXTURE,
+      id: 'REMOVED_USER',
       status: EStatus.INACTIVE,
       deletedAt: new Date(),
     };
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_FIXTURE);
-    jest.spyOn(repository, 'save').mockResolvedValueOnce(removedUser);
+
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(USER_FIXTURE),
+    } as any);
+
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(REMOVED_USER);
+
     const result = await service.remove(USER_FIXTURE.id, {
       ...USER_FIXTURE,
       id: 'AUTH_USER',
       role: ERole.ADMIN,
     });
+
     expect(result).toEqual({
       message: 'User with id USER_INCOMPLETE successfully removed',
     });
@@ -270,10 +316,13 @@ describe('UsersService', () => {
       1,
     ]);
 
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
-      ...USER_FIXTURE,
-      status: EStatus.ACTIVE,
-    });
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce({
+        ...USER_FIXTURE,
+        status: EStatus.ACTIVE,
+      }),
+    } as any);
 
     jest.spyOn(repository, 'save').mockResolvedValueOnce({
       ...USER_FIXTURE,
@@ -307,11 +356,14 @@ describe('UsersService', () => {
       2,
     ]);
 
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce({
-      ...USER_FIXTURE,
-      id: 'FIRST_PROMOTE_USER',
-      status: EStatus.ACTIVE,
-    });
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce({
+        ...USER_FIXTURE,
+        id: 'FIRST_PROMOTE_USER',
+        status: EStatus.ACTIVE,
+      }),
+    } as any);
 
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
@@ -376,9 +428,12 @@ describe('UsersService', () => {
       2,
     ]);
 
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(FIRST_OTHER_USER_NON_ADMIN_INCOMPLETE);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest
+        .fn()
+        .mockResolvedValueOnce(FIRST_OTHER_USER_NON_ADMIN_INCOMPLETE),
+    } as any);
 
     const result = service.promote(FIRST_OTHER_USER_NON_ADMIN_INCOMPLETE.id, {
       ...USER_FIXTURE,
@@ -409,9 +464,10 @@ describe('UsersService', () => {
       2,
     ]);
 
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(FIRST_OTHER_USER_ADMIN_ACTIVE);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(FIRST_OTHER_USER_ADMIN_ACTIVE),
+    } as any);
 
     const result = service.promote(FIRST_OTHER_USER_ADMIN_ACTIVE.id, {
       ...USER_FIXTURE,
@@ -428,7 +484,11 @@ describe('UsersService', () => {
       id: 'USER_REMOVED',
       deletedAt: new Date(),
     };
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(USER_REMOVED);
+
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(USER_REMOVED),
+    } as any);
 
     const result = await service.findOne(
       USER_REMOVED.id,
