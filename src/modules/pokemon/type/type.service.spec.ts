@@ -26,7 +26,7 @@ describe('TypeService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should generate a type when not found in the database', async () => {
+  it('should return a type when not found in the database', async () => {
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
     jest
       .spyOn(repository, 'save')

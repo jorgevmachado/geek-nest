@@ -28,7 +28,7 @@ describe('MoveService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should generate a move when not found in the database', async () => {
+  it('should return a move when not found in the database', async () => {
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
     jest
       .spyOn(repository, 'save')

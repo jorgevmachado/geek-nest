@@ -31,7 +31,7 @@ describe('AbilityService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should generate a ability when not found in the database', async () => {
+  it('should return ability when not found in the database', async () => {
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
     jest
       .spyOn(repository, 'save')

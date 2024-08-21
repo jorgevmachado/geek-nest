@@ -29,7 +29,7 @@ describe('PokedexService', () => {
     expect(repository).toBeDefined();
   });
 
-  it('should findOne pokedex', async () => {
+  it('should return pokedex successfully', async () => {
     jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
       where: jest.fn(),
       orderBy: jest.fn(),
@@ -43,7 +43,7 @@ describe('PokedexService', () => {
     expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
   });
 
-  it('should create pokedex', async () => {
+  it('should return create pokedex successfully', async () => {
     jest.spyOn(repository, 'save').mockResolvedValueOnce({
       ...POKEDEX_FIXTURE_ACTIVE,
       account: USER_COMPLETE_FIXTURE,
@@ -60,7 +60,7 @@ describe('PokedexService', () => {
     });
   });
 
-  it('should create pokedex error', async () => {
+  it('should throw error when create pokedex', async () => {
     const result = service.create(
       USER_COMPLETE_FIXTURE,
       POKEDEX_FIXTURE_ACTIVE.pokemons,
@@ -69,7 +69,7 @@ describe('PokedexService', () => {
     await expect(result).rejects.toThrow();
   });
 
-  it('should update pokedex', async () => {
+  it('should return update pokedex successfully', async () => {
     jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
       where: jest.fn(),
       orderBy: jest.fn(),
@@ -97,7 +97,7 @@ describe('PokedexService', () => {
     });
   });
 
-  it('should update pokedex with error', async () => {
+  it('should throw error when update pokedex', async () => {
     jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
       where: jest.fn(),
       orderBy: jest.fn(),
@@ -117,7 +117,7 @@ describe('PokedexService', () => {
     await expect(result).rejects.toThrow();
   });
 
-  it('should getPokedexPokemonsList by name pokedex', async () => {
+  it('should return list of pokemons from a pokedex by name pokedex successfully', async () => {
     const result = service.getPokedexPokemonsList(
       {
         ...POKEDEX_FIXTURE_ACTIVE,
@@ -133,7 +133,7 @@ describe('PokedexService', () => {
     });
   });
 
-  it('should getPokedexPokemonsList by id pokedex', async () => {
+  it('should return list of pokemons from a pokedex by id pokedex successfully', async () => {
     const result = service.getPokedexPokemonsList(
       {
         ...POKEDEX_FIXTURE_ACTIVE,

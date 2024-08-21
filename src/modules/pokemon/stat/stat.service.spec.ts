@@ -26,7 +26,7 @@ describe('StatService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should generate a stat when not found in the database', async () => {
+  it('should return a stat when not found in the database', async () => {
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
     jest
       .spyOn(repository, 'save')
