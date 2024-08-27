@@ -20,18 +20,20 @@ export interface IResponsePokemon {
 }
 
 interface IResponseSpritesUrl {
-  back_gray: string;
-  front_gray: string;
-  back_shiny: string;
-  front_shiny: string;
-  back_female: string;
-  front_female: string;
-  back_default: string;
-  front_default: string;
-  back_transparent: string;
-  front_transparent: string;
-  back_shiny_female: string;
-  front_shiny_female: string;
+  back_gray?: string;
+  front_gray?: string;
+  back_shiny?: string;
+  front_shiny?: string;
+  back_female?: string;
+  front_female?: string;
+  back_default?: string;
+  front_default?: string;
+  back_transparent?: string;
+  front_transparent?: string;
+  back_shiny_female?: string;
+  front_shiny_female?: string;
+  back_shiny_transparent?: string;
+  front_shiny_transparent?: string;
 }
 
 export interface IResponsePokemonByName {
@@ -51,7 +53,7 @@ export interface IResponsePokemonByName {
       move_learn_method: Pick<IResponsePokemon, 'url' | 'name'>;
     }>;
   }>;
-  forms: Pick<IResponsePokemon, 'url' | 'name'>;
+  forms: Array<Pick<IResponsePokemon, 'url' | 'name'>>;
   stats: Array<{
     stat: Pick<IResponsePokemon, 'url' | 'name'>;
     order: number;
@@ -66,99 +68,36 @@ export interface IResponsePokemonByName {
   weight: number;
   height: number;
   species: Pick<IResponsePokemon, 'url' | 'name'>;
-  sprites: {
+  sprites?: {
     other: {
-      home: Pick<
-        IResponseSpritesUrl,
-        'front_shiny' | 'front_female' | 'front_default' | 'front_shiny_female'
-      >;
-      showdown: Omit<
-        IResponseSpritesUrl,
-        'back_gray' | 'front_gray' | 'back_transparent' | 'front_transparent'
-      >;
-      dream_world: Pick<IResponseSpritesUrl, 'front_female' | 'front_default'>;
-      'official-artwork': Pick<
-        IResponseSpritesUrl,
-        'front_shiny' | 'front_default'
-      >;
+      home: IResponseSpritesUrl;
+      showdown: IResponseSpritesUrl;
+      dream_world: IResponseSpritesUrl;
+      'official-artwork': IResponseSpritesUrl;
     };
     versions: {
       'generation-i': {
-        'red-blue': Pick<
-          IResponseSpritesUrl,
-          | 'back_gray'
-          | 'front_gray'
-          | 'back_default'
-          | 'front_default'
-          | 'back_transparent'
-          | 'front_transparent'
-        >;
-        yellow: Pick<
-          IResponseSpritesUrl,
-          | 'back_gray'
-          | 'front_gray'
-          | 'back_default'
-          | 'front_default'
-          | 'back_transparent'
-          | 'front_transparent'
-        >;
+        'red-blue': IResponseSpritesUrl;
+        yellow: IResponseSpritesUrl;
       };
       'generation-ii': {
-        crystal: Omit<
-          IResponseSpritesUrl,
-          'back_gray' | 'front_gray' | 'back_female' | 'front_female'
-        >;
-        gold: Pick<
-          IResponseSpritesUrl,
-          | 'back_shiny'
-          | 'front_shiny'
-          | 'back_default'
-          | 'front_default'
-          | 'front_transparent'
-        >;
-        silver: Pick<
-          IResponseSpritesUrl,
-          | 'back_shiny'
-          | 'front_shiny'
-          | 'back_default'
-          | 'front_default'
-          | 'front_transparent'
-        >;
+        crystal: IResponseSpritesUrl;
+        gold: IResponseSpritesUrl;
+        silver: IResponseSpritesUrl;
       };
       'generation-iii': {
-        emerald: Pick<IResponseSpritesUrl, 'front_shiny' | 'front_default'>;
-        'ruby-sapphire': Pick<
-          IResponseSpritesUrl,
-          'back_shiny' | 'front_shiny' | 'back_default' | 'front_default'
-        >;
-        'firered-leafgreen': Pick<
-          IResponseSpritesUrl,
-          'back_shiny' | 'front_shiny' | 'back_default' | 'front_default'
-        >;
+        emerald: IResponseSpritesUrl;
+        'ruby-sapphire': IResponseSpritesUrl;
+        'firered-leafgreen': IResponseSpritesUrl;
       };
       'generation-iv': {
-        platinum: Omit<
-          IResponseSpritesUrl,
-          'back_gray' | 'front_gray' | 'back_transparent' | 'front_transparent'
-        >;
-        'diamond-pearl': Omit<
-          IResponseSpritesUrl,
-          'back_gray' | 'front_gray' | 'back_transparent' | 'front_transparent'
-        >;
-        'heartgold-soulsilver': Omit<
-          IResponseSpritesUrl,
-          'back_gray' | 'front_gray' | 'back_transparent' | 'front_transparent'
-        >;
+        platinum: IResponseSpritesUrl;
+        'diamond-pearl': IResponseSpritesUrl;
+        'heartgold-soulsilver': IResponseSpritesUrl;
       };
       'generation-v': {
         'black-white': {
-          animated: Omit<
-            IResponseSpritesUrl,
-            | 'back_gray'
-            | 'front_gray'
-            | 'back_transparent'
-            | 'front_transparent'
-          >;
+          animated: IResponseSpritesUrl;
           back_shiny: string;
           front_shiny: string;
           back_female: string;
@@ -170,33 +109,15 @@ export interface IResponsePokemonByName {
         };
       };
       'generation-vi': {
-        'x-y': Pick<
-          IResponseSpritesUrl,
-          | 'front_shiny'
-          | 'front_female'
-          | 'front_default'
-          | 'front_shiny_female'
-        >;
-        'omegaruby-alphasapphire': Pick<
-          IResponseSpritesUrl,
-          | 'front_shiny'
-          | 'front_female'
-          | 'front_default'
-          | 'front_shiny_female'
-        >;
+        'x-y': IResponseSpritesUrl;
+        'omegaruby-alphasapphire': IResponseSpritesUrl;
       };
       'generation-vii': {
-        icons: Pick<IResponseSpritesUrl, 'front_female' | 'front_default'>;
-        'ultra-sun-ultra-moon': Pick<
-          IResponseSpritesUrl,
-          | 'front_shiny'
-          | 'front_female'
-          | 'front_default'
-          | 'front_shiny_female'
-        >;
+        icons: IResponseSpritesUrl;
+        'ultra-sun-ultra-moon': IResponseSpritesUrl;
       };
       'generation-viii': {
-        icons: Pick<IResponseSpritesUrl, 'front_female' | 'front_default'>;
+        icons: IResponseSpritesUrl;
       };
     };
     back_shiny: string;
@@ -301,7 +222,7 @@ export interface IResponsePokemonFull {
   has_gender_differences: IResponsePokemonSpecie['has_gender_differences'];
 }
 
-interface IResponseEvolutionDetail {
+export interface IResponseEvolutionDetail {
   item: any;
   gender: any;
   trigger: Pick<IResponsePokemon, 'url' | 'name'>;
@@ -347,7 +268,7 @@ export interface IPokemon {
   id: string;
   url: string;
   name?: string;
-  image: string;
+  image?: string;
   moves?: Array<Move>;
   order: number;
   types?: Array<Type>;

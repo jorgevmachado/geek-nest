@@ -35,3 +35,9 @@ make unit-test # to run the tests in the project
 
 make unit-test-cov # to run the tests in the project with coverage
 ```
+
+Unit Tests
+```sh
+npm run test -- --findRelatedTests src/modules/pokemon/pokemon.service.spec.ts
+
+```

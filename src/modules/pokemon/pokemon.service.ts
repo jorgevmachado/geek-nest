@@ -8,11 +8,9 @@ import { Repository } from 'typeorm';
 
 import { type IPaginate, Service, isUUID } from '@/services';
 import { EStatus } from '@/enums/status.enum';
-import type { IFilterParams } from '@/interfaces/filter.interface';
 
 import type {
   IPokemon,
-  IResponseEvolution,
   IResponsePokemonByName,
   IResponsePokemonFull,
 } from './pokemon.interface';
@@ -20,6 +18,7 @@ import { Pokemon } from './pokemon.entity';
 import { PokemonApi } from './pokemon.api';
 
 import { AbilityService } from './ability/ability.service';
+import { EvolutionsService } from '@/modules/pokemon/evolutions/evolutions.service';
 import { MoveService } from './move/move.service';
 import { PokedexService } from './pokedex/pokedex.service';
 import { StatService } from './stat/stat.service';
@@ -39,6 +38,7 @@ export class PokemonService extends Service<Pokemon> {
     protected moveService: MoveService,
     protected abilityService: AbilityService,
     protected pokeDexService: PokedexService,
+    protected evolutionService: EvolutionsService,
     protected pokemonApi: PokemonApi,
   ) {
     super(repository, 'pokemons', [
@@ -50,18 +50,24 @@ export class PokemonService extends Service<Pokemon> {
     ]);
   }
   private _totalPokemon: number = 1302;
+  // private _totalPokemon: number = 3;
 
-  async findAll(filterDto: FilterPokemonDto): Promise<any> {
+  async findAll(
+    parameters: FilterPokemonDto,
+  ): Promise<Array<Pokemon> | IPaginate<Pokemon>> {
     const total = await this.repository.count();
 
     if (total === 0 || total !== this._totalPokemon) {
-      return this.generate(filterDto);
+      return this.generate(parameters);
     }
-
-    return await this.index(filterDto);
+    return await this.index({ parameters });
   }
 
-  async findOne(value: string, withThrow: boolean = true): Promise<Pokemon> {
+  async findOne(
+    value: string,
+    withThrow: boolean = true,
+    complete: boolean = true,
+  ): Promise<Pokemon> {
     const result = await this.findBy({
       by: isUUID(value) ? 'id' : 'name',
       value,
@@ -72,6 +78,10 @@ export class PokemonService extends Service<Pokemon> {
       return null;
     }
 
+    if (!complete) {
+      return result;
+    }
+
     if (result.status === EStatus.COMPLETE) {
       return await this.completePokemonEvolution(result);
     }
@@ -80,44 +90,31 @@ export class PokemonService extends Service<Pokemon> {
   }
 
   async addPokemon(user: Users, pokemons: PokemonPokedexDto) {
+    const items = pokemons.ids?.length ? pokemons.ids : pokemons.names;
+
     if (user.status !== EStatus.ACTIVE) {
       throw new ForbiddenException(
         'You are not authorized to access this feature',
       );
     }
+
     if (!pokemons.ids && !pokemons.names) {
       throw new InternalServerErrorException(
         'You need to add one fewer Pokémon ID or name to add',
       );
     }
 
-    const items = pokemons.ids?.length ? pokemons.ids : pokemons.names;
-
-    const pokedex = await this.pokeDexService.findOne(user.id, false);
-
-    if (pokedex && pokedex.pokemons) {
-      const pokedexPokemonsList = this.pokeDexService.getPokedexPokemonsList(
-        pokedex,
-        items,
+    if (items.length >= 4) {
+      throw new InternalServerErrorException(
+        'You can only add up to 3 Pokémon at a time',
       );
-
-      if (
-        pokedexPokemonsList.pokemonsExists.length > 0 &&
-        pokedexPokemonsList.pokemonsExists.length === items.length
-      ) {
-        return pokedex;
-      }
-
-      const listPokemons = await this.getListPokemons(
-        pokedexPokemonsList.pokemonsNotExists,
-      );
-
-      return await this.pokeDexService.update(user, listPokemons);
     }
 
-    const listPokemons = await this.getListPokemons(items);
+    const pokemonList = await Promise.all(
+      items.map(async (item) => await this.findOne(item, false)),
+    ).then((data) => data.filter((item) => item));
 
-    return await this.pokeDexService.create(user, listPokemons);
+    return await this.pokeDexService.addInPokeDex(user, pokemonList);
   }
 
   async findPokedex(user: Users) {
@@ -129,6 +126,43 @@ export class PokemonService extends Service<Pokemon> {
     return await this.pokeDexService.findOne(user.id);
   }
 
+  private async generate(filterDto: FilterPokemonDto) {
+    const response = await this.pokemonApi.getAll(0, this._totalPokemon);
+
+    if (!response) {
+      throw new InternalServerErrorException(
+        'Error When Querying External Api Please Try Again Later!',
+      );
+    }
+
+    return await Promise.all(
+      response.results.map(async (item) => {
+        const pokemon = new Pokemon();
+        pokemon.name = item.name;
+        pokemon.url = item.url;
+        pokemon.order = item.order;
+        pokemon.status = EStatus.INCOMPLETE;
+        return this.repository.save(pokemon);
+      }),
+    )
+      .then(async (data) => {
+        const resultData = data.filter((item) => Boolean(item));
+
+        if (!resultData || resultData.length === 0) {
+          throw new InternalServerErrorException(
+            'Error to save pokemons in database',
+          );
+        }
+
+        return await this.index({ parameters: filterDto });
+      })
+      .catch(() => {
+        throw new InternalServerErrorException(
+          'Error saving generate pokemon to database',
+        );
+      });
+  }
+
   private async generatePokemon(
     response: IResponsePokemonFull,
   ): Promise<IPokemon> {
@@ -137,14 +171,11 @@ export class PokemonService extends Service<Pokemon> {
       await this.statService.generate(response.stats),
       await this.moveService.generate(response.moves),
       await this.abilityService.generate(response.abilities),
-      await this.generateEvolutions(response.evolution_chain_url),
+      await this.evolutionService.generate(response.evolution_chain_url),
     ])
       .then(([types, stats, moves, abilities, evolutions]) => {
         const pokemon = new Pokemon();
 
-        if (!types) {
-          throw new InternalServerErrorException('Error to get types');
-        }
         pokemon.id = response.id;
         pokemon.url = response.url;
         pokemon.name = response.name;
@@ -221,40 +252,6 @@ export class PokemonService extends Service<Pokemon> {
       });
   }
 
-  private async generate(filterDto: FilterPokemonDto) {
-    const response = await this.pokemonApi.getAll(0, this._totalPokemon);
-
-    if (!response) {
-      throw new InternalServerErrorException(
-        'Error When Querying External Api Please Try Again Later!',
-      );
-    }
-
-    try {
-      const data = await Promise.all(
-        response.results.map(async (item) => {
-          const pokemon = new Pokemon();
-          pokemon.name = item.name;
-          pokemon.url = item.url;
-          pokemon.order = item.order;
-          pokemon.status = EStatus.INCOMPLETE;
-          return this.repository.save(pokemon);
-        }),
-      );
-
-      if (!data || data.length === 0) {
-        return Error;
-      }
-
-      return await this.index(filterDto);
-    } catch (error) {
-      console.error(`# => pokemon => generate => error => ${error}`);
-      throw new InternalServerErrorException(
-        'Error saving generate pokemon to database',
-      );
-    }
-  }
-
   private generateImage(sprites: IResponsePokemonByName['sprites']): string {
     if (!sprites) {
       return '';
@@ -262,92 +259,6 @@ export class PokemonService extends Service<Pokemon> {
     const frontDefault = sprites.front_default;
     const dreamWorld = sprites.other.dream_world.front_default;
     return frontDefault || dreamWorld;
-  }
-
-  private async index(
-    filterDto: FilterPokemonDto,
-  ): Promise<Array<Pokemon> | IPaginate<Pokemon>> {
-    if (!filterDto.limit || !filterDto.page) {
-      return await this.repository.find({ order: { order: 'ASC' } });
-    }
-    const filters: Array<IFilterParams> = this.generateFilters(filterDto);
-
-    if (!filterDto.asc && !filterDto.desc) {
-      filterDto.asc = 'order';
-    }
-
-    return await this.paginate(filterDto, filters);
-  }
-
-  private generateFilters(filterDto: FilterPokemonDto) {
-    const filters: Array<IFilterParams> = [];
-
-    if (filterDto.status) {
-      filters.push({
-        param: 'status',
-        condition: '=',
-        value: filterDto.status.toUpperCase(),
-      });
-    }
-
-    if (filterDto.name) {
-      filters.push({
-        param: 'name',
-        condition: 'LIKE',
-        value: `%${filterDto.name}%`,
-      });
-    }
-
-    return filters;
-  }
-
-  private async generateEvolutions(url: string) {
-    const response = await this.pokemonApi.getEvolutions(url);
-
-    if (!response) {
-      return [];
-    }
-
-    const name = response.chain.species.name;
-
-    const evolvesToList = [
-      name,
-      ...this.generateNextEvolution(response.chain.evolves_to),
-    ];
-
-    const evolvesToListFiltered = evolvesToList.filter(
-      (item) => item !== undefined,
-    );
-
-    if (!evolvesToListFiltered.length) {
-      return [];
-    }
-
-    const listEntity = await Promise.all(
-      evolvesToListFiltered.map(
-        async (name) => await this.findBy({ by: 'name', value: name }),
-      ),
-    );
-
-    const evolutions = listEntity.filter((item) => Boolean(item));
-
-    if (!evolutions.length) {
-      return [];
-    }
-
-    return evolutions;
-  }
-
-  private generateNextEvolution(
-    evolvesTo: IResponseEvolution['chain']['evolves_to'],
-  ) {
-    return evolvesTo
-      .map((item) =>
-        [item.species.name].concat(
-          ...this.generateNextEvolution(item.evolves_to),
-        ),
-      )
-      .reduce((arr, curr) => [...arr, ...curr], []);
   }
 
   private async completePokemon(entity: Pokemon) {
@@ -358,6 +269,10 @@ export class PokemonService extends Service<Pokemon> {
     }
 
     const pokemon = await this.generatePokemon(responsePokemonFull);
+
+    pokemon.evolutions = await Promise.all(
+      pokemon.evolutions.map((item) => this.findOne(item.name, false, false)),
+    );
 
     if (!pokemon) {
       return null;
@@ -374,6 +289,7 @@ export class PokemonService extends Service<Pokemon> {
 
   private async completePokemonEvolution(result: Pokemon) {
     const evolutions = result.evolutions;
+
     const firstNotComplete = evolutions
       .sort((a, b) => a.order - b.order)
       .find((item) => item.status !== EStatus.COMPLETE);
@@ -389,42 +305,10 @@ export class PokemonService extends Service<Pokemon> {
     }
 
     result.evolutions = [
-      ...evolutions.filter((item) => item.id !== firstNotComplete.id),
+      ...evolutions.filter((item) => item.name !== firstComplete.name),
       firstComplete,
-    ];
+    ].sort((a, b) => a.order - b.order);
 
-    return result;
-  }
-
-  private async getListPokemons(items: Array<string>) {
-    if (items.length >= 4) {
-      throw new InternalServerErrorException(
-        'You can only add up to 3 Pokémon at a time',
-      );
-    }
-
-    const data = await Promise.all(
-      items.map(async (item) => {
-        const data = await this.findOne(item, false);
-        if (!data) {
-          const pokemon = new Pokemon();
-          pokemon.id = item;
-          pokemon.name = item;
-          pokemon.status = EStatus.INACTIVE;
-          return pokemon;
-        }
-        return data;
-      }),
-    );
-    const result = data.filter((item) => item.status !== EStatus.INACTIVE);
-    const pokemonsNotExists = data
-      .filter((item) => item.status === EStatus.INACTIVE)
-      .map((item) => item.name);
-    if (!result.length) {
-      throw new InternalServerErrorException(
-        `Error to get list pokemons to add, this pokemons not exists => ${pokemonsNotExists} in database`,
-      );
-    }
     return result;
   }
 }

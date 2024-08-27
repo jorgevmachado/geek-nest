@@ -7,10 +7,8 @@ import { AbilityService } from './ability.service';
 
 import { Ability } from './ability.entity';
 
-import {
-  ENTITY_ABILITIES_FIXTURE,
-  RESPONSE_ABILITY_FIXTURE,
-} from './ability.fixture';
+import { ENTITIES_ABILITIES_FIXTURE } from './ability.fixture';
+import { RESPONSE_ABILITIES_FIXTURE } from '@/modules/pokemon/fixtures';
 
 describe('AbilityService', () => {
   let service: AbilityService;
@@ -29,31 +27,29 @@ describe('AbilityService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+    expect(repository).toBeDefined();
   });
 
   it('should return ability when not found in the database', async () => {
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
-    jest
-      .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_ABILITIES_FIXTURE[0]);
+
+    ENTITIES_ABILITIES_FIXTURE.forEach((ability) => {
+      jest.spyOn(repository, 'save').mockResolvedValueOnce(ability);
+    });
+
     jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
-    jest
-      .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_ABILITIES_FIXTURE[1]);
-    const result = await service.generate(RESPONSE_ABILITY_FIXTURE);
-    expect(result).toEqual(ENTITY_ABILITIES_FIXTURE);
+
+    const result = await service.generate(RESPONSE_ABILITIES_FIXTURE);
+    expect(result).toEqual(ENTITIES_ABILITIES_FIXTURE);
   });
 
   it('should return a ability when found in the database', async () => {
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(ENTITY_ABILITIES_FIXTURE[0]);
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(ENTITY_ABILITIES_FIXTURE[1]);
+    ENTITIES_ABILITIES_FIXTURE.forEach((ability) => {
+      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(ability);
+    });
 
-    const result = await service.generate(RESPONSE_ABILITY_FIXTURE);
+    const result = await service.generate(RESPONSE_ABILITIES_FIXTURE);
 
-    expect(result).toEqual(ENTITY_ABILITIES_FIXTURE);
+    expect(result).toEqual(ENTITIES_ABILITIES_FIXTURE);
   });
 });

@@ -1,40 +1,27 @@
 import { Ability } from './ability.entity';
-import { type IResponsePokemonByName } from '../pokemon.interface';
+import { RESPONSE_ABILITIES_FIXTURE } from '@/modules/pokemon/fixtures';
 
-const transformResponseAbility = (
-  response: IResponsePokemonByName['abilities'][number],
-): Ability => ({
-  id: response.ability.name,
-  url: response.ability.url,
-  slot: response.slot,
-  order: response.order,
-  name: response.ability.name,
-  is_hidden: response.is_hidden,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  deletedAt: null,
-});
-
-export const RESPONSE_ABILITY_FIXTURE: IResponsePokemonByName['abilities'] = [
+export const ENTITIES_ABILITIES_FIXTURE: Array<Ability> = [
   {
-    slot: 1,
-    order: 1,
-    ability: {
-      url: 'https://pokeapi.co/api/v2/ability/65/',
-      name: 'overgrow',
-    },
-    is_hidden: false,
+    id: '899f0537-0bbd-4ecf-9ae4-a2e0d19bcedf',
+    url: RESPONSE_ABILITIES_FIXTURE[0].ability.url,
+    slot: RESPONSE_ABILITIES_FIXTURE[0].slot,
+    order: RESPONSE_ABILITIES_FIXTURE[0].order,
+    name: RESPONSE_ABILITIES_FIXTURE[0].ability.name,
+    is_hidden: RESPONSE_ABILITIES_FIXTURE[0].is_hidden,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
   },
   {
-    slot: 2,
-    order: 2,
-    ability: {
-      url: 'https://pokeapi.co/api/v2/ability/34/',
-      name: 'chlorophyll',
-    },
-    is_hidden: true,
+    id: 'ffd64ad6-37a8-4689-ba15-eed51e8c8524',
+    url: RESPONSE_ABILITIES_FIXTURE[1].ability.url,
+    slot: RESPONSE_ABILITIES_FIXTURE[1].slot,
+    order: RESPONSE_ABILITIES_FIXTURE[1].order,
+    name: RESPONSE_ABILITIES_FIXTURE[1].ability.name,
+    is_hidden: RESPONSE_ABILITIES_FIXTURE[1].is_hidden,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
   },
 ];
-
-export const ENTITY_ABILITIES_FIXTURE: Array<Ability> =
-  RESPONSE_ABILITY_FIXTURE.map((item) => transformResponseAbility(item));

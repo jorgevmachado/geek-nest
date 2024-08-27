@@ -1,9 +1,9 @@
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ObjectLiteral, Repository } from 'typeorm';
 
+import type { IFilterParams } from '@/interfaces/filter.interface';
 import type { IFindByParams } from '@/services';
 import { QueryParametersDto } from '@/dto/query-parameters.dto';
-
 import { SelectQueryBuilder } from 'typeorm/query-builder/SelectQueryBuilder';
 
 export interface IPaginate<T> {
@@ -17,6 +17,13 @@ export interface IPaginate<T> {
   data: Array<T>;
 }
 
+interface IIndexParams {
+  filters?: Array<IFilterParams>;
+  parameters: QueryParametersDto;
+  withDeleted?: boolean;
+  withRelations?: boolean;
+}
+
 export abstract class Service<T extends ObjectLiteral> {
   protected constructor(
     protected readonly repository: Repository<T>,
@@ -24,37 +31,29 @@ export abstract class Service<T extends ObjectLiteral> {
     protected readonly relations: Array<string>,
   ) {}
 
-  async paginate(
-    { page, limit, asc, desc }: QueryParametersDto,
-    filters: Array<any>,
-  ): Promise<IPaginate<T>> {
-    page = page < 1 ? 1 : page;
-    limit = limit > 100 ? 100 : limit;
-
+  async index({
+    filters = [],
+    parameters,
+    withDeleted = false,
+    withRelations = true,
+  }: IIndexParams): Promise<Array<T> | IPaginate<T>> {
     const query = this.repository.createQueryBuilder(this.alias);
 
-    this.queryOrderBy(query, asc, desc);
+    this.queryOrderBy(query, parameters.asc, parameters.desc);
 
-    this.queryFilters(query, filters);
+    if (withDeleted) {
+      query.withDeleted();
+    }
 
-    this.queryRelations(query);
+    if (withRelations) {
+      this.queryRelations(query);
+    }
 
-    const [data, total] = await query.getManyAndCount();
+    if (!parameters.limit || !parameters.page) {
+      return await query.getMany();
+    }
 
-    const currentPage = page === 0 ? 1 : Number(page);
-    const skip = this.paginateSkip(currentPage, limit);
-    const pages = Math.ceil(total / Number(limit));
-
-    return {
-      next: currentPage === pages ? null : currentPage + 1,
-      prev: currentPage === 1 ? null : currentPage - 1,
-      total,
-      pages,
-      per_page: limit === 0 ? total : limit,
-      current_page: currentPage,
-      skip,
-      data,
-    };
+    return await this.paginate(query, parameters, filters);
   }
 
   async findBy({ by, all = false, value, withThrow = false }: IFindByParams) {
@@ -77,6 +76,34 @@ export abstract class Service<T extends ObjectLiteral> {
     return result;
   }
 
+  private async paginate(
+    query: SelectQueryBuilder<T>,
+    queryParameters: QueryParametersDto,
+    filters: Array<IFilterParams>,
+  ): Promise<IPaginate<T>> {
+    const page = queryParameters.page < 1 ? 1 : queryParameters.page;
+    const limit = queryParameters.limit > 100 ? 100 : queryParameters.limit;
+
+    this.queryFilters(query, filters, queryParameters);
+
+    const [data, total] = await query.getManyAndCount();
+
+    const currentPage = page === 0 ? 1 : Number(page);
+    const skip = this.paginateSkip(currentPage, limit);
+    const pages = Math.ceil(total / Number(limit));
+
+    return {
+      next: currentPage === pages ? null : currentPage + 1,
+      prev: currentPage === 1 ? null : currentPage - 1,
+      total,
+      pages,
+      per_page: limit === 0 ? total : limit,
+      current_page: currentPage,
+      skip,
+      data,
+    };
+  }
+
   private queryOrderBy(
     query: SelectQueryBuilder<T>,
     asc: string,
@@ -95,7 +122,14 @@ export abstract class Service<T extends ObjectLiteral> {
     }
   }
 
-  private queryFilters(query: SelectQueryBuilder<T>, filters: Array<any>) {
+  private queryFilters(
+    query: SelectQueryBuilder<T>,
+    filters: Array<IFilterParams>,
+    queryParameters: QueryParametersDto,
+  ) {
+    if (!filters.length) {
+      filters = this.transformFilters(queryParameters);
+    }
     if (filters.length) {
       filters.forEach((filter) => {
         query.andWhere(
@@ -124,5 +158,27 @@ export abstract class Service<T extends ObjectLiteral> {
       return perPage;
     }
     return currentPage * perPage - perPage;
+  }
+
+  private transformFilters(filterDto: QueryParametersDto) {
+    const filters: Array<IFilterParams> = [];
+
+    if (filterDto.status) {
+      filters.push({
+        param: 'status',
+        condition: '=',
+        value: filterDto.status.toUpperCase(),
+      });
+    }
+
+    if (filterDto.name) {
+      filters.push({
+        param: 'name',
+        condition: 'LIKE',
+        value: `%${filterDto.name}%`,
+      });
+    }
+
+    return filters;
   }
 }

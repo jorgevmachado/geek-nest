@@ -1,8 +1,5 @@
-import { EStatus } from '@/enums/status.enum';
+import { PartialType } from '@nestjs/mapped-types';
 
 import { QueryParametersDto } from '@/dto/query-parameters.dto';
 
-export class FilterPokemonDto extends QueryParametersDto {
-  name?: string;
-  status?: EStatus;
-}
+export class FilterPokemonDto extends PartialType(QueryParametersDto) {}

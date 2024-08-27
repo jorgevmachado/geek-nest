@@ -1,50 +1,28 @@
-import type { IResponsePokemonByName } from '../pokemon.interface';
-import { TYPE_COLORS } from './type.constants';
 import { Type } from './type.entity';
 
-const transformColor = (
-  item: IResponsePokemonByName['types'][number],
-): { textColor: string; backgroundColor: string } => {
-  const typeColor = TYPE_COLORS.find((color) => color.name === item.type.name);
+import { RESPONSE_TYPES_FIXTURE } from '@/modules/pokemon/fixtures';
 
-  return {
-    textColor: !typeColor ? '#FFF' : typeColor.textColor,
-    backgroundColor: !typeColor ? '#000' : typeColor.backgroundColor,
-  };
-};
-
-const transformResponseType = (
-  response: IResponsePokemonByName['types'][number],
-): Type => ({
-  id: response.type.name,
-  url: response.type.url,
-  name: response.type.name,
-  order: response.order,
-  ...transformColor(response),
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  deletedAt: null,
-});
-
-export const RESPONSE_TYPES_FIXTURE: IResponsePokemonByName['types'] = [
+export const ENTITIES_TYPES_FIXTURE: Array<Type> = [
   {
-    slot: 1,
-    order: 1,
-    type: {
-      url: 'https://pokeapi.co/api/v2/type/12/',
-      name: 'grass',
-    },
+    id: 'ec655500-f15e-40f3-a546-426c7d56833a',
+    url: RESPONSE_TYPES_FIXTURE[0].type.url,
+    name: RESPONSE_TYPES_FIXTURE[0].type.name,
+    order: RESPONSE_TYPES_FIXTURE[0].order,
+    textColor: '#8b4513',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    backgroundColor: '#b9cc50',
   },
   {
-    slot: 2,
-    order: 2,
-    type: {
-      url: 'https://pokeapi.co/api/v2/type/4/',
-      name: 'poison',
-    },
+    id: '4200c144-bf14-4012-a001-6e8c7ff18b11',
+    url: RESPONSE_TYPES_FIXTURE[1].type.url,
+    name: RESPONSE_TYPES_FIXTURE[1].type.name,
+    order: RESPONSE_TYPES_FIXTURE[1].order,
+    textColor: '#f5f5f5',
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+    backgroundColor: '#8b008b',
   },
 ];
-
-export const ENTITY_TYPES_FIXTURE: Array<Type> = RESPONSE_TYPES_FIXTURE.map(
-  (item) => transformResponseType(item),
-);

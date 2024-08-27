@@ -5,8 +5,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Pokedex } from './pokedex.entity';
 import { PokedexService } from './pokedex.service';
 
-import { POKEDEX_FIXTURE_ACTIVE } from './pokedex.fixture';
-import { USER_COMPLETE_FIXTURE } from '../../users/users.fixture';
+import {
+  ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+  ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+  ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
+} from '@/modules/pokemon/pokemon.fixture';
+import { POKEDEX_FIXTURE_ACTIVE } from '@/modules/pokemon/pokedex/pokedex.fixture';
+import { USER_COMPLETE_FIXTURE } from '@/modules/users/users.fixture';
 
 describe('PokedexService', () => {
   let service: PokedexService;
@@ -118,60 +123,69 @@ describe('PokedexService', () => {
   });
 
   it('should return list of pokemons from a pokedex by name pokedex successfully', async () => {
-    const result = service.getPokedexPokemonsList(
-      {
-        ...POKEDEX_FIXTURE_ACTIVE,
-        account: USER_COMPLETE_FIXTURE,
-      },
-      ['Bulbasaur', 'Charmander', 'Squirtle'],
-    );
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      where: jest.fn(),
+      orderBy: jest.fn(),
+      andWhere: jest.fn(),
+      leftJoinAndSelect: jest.fn(),
+      getOne: jest.fn().mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE),
+    } as any);
+
+    const result = await service.addInPokeDex(USER_COMPLETE_FIXTURE, [
+      ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
+    ]);
 
     expect(result).toEqual({
-      items: ['Bulbasaur', 'Charmander', 'Squirtle'],
-      pokemonsExists: [],
-      pokemonsNotExists: ['Bulbasaur', 'Charmander', 'Squirtle'],
+      ...POKEDEX_FIXTURE_ACTIVE,
     });
   });
 
-  it('should return list of pokemons from a pokedex by id pokedex successfully', async () => {
-    const result = service.getPokedexPokemonsList(
-      {
+  it('should add list of pokemons from a pokedex by name pokedex successfully', async () => {
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      where: jest.fn(),
+      orderBy: jest.fn(),
+      andWhere: jest.fn(),
+      leftJoinAndSelect: jest.fn(),
+      getOne: jest.fn().mockResolvedValueOnce({
         ...POKEDEX_FIXTURE_ACTIVE,
-        account: USER_COMPLETE_FIXTURE,
-        pokemons: [
-          {
-            ...POKEDEX_FIXTURE_ACTIVE.pokemons[0],
-            id: '739fb465-efb9-42b8-b8b1-9a5b61087fc2',
-          },
-          {
-            ...POKEDEX_FIXTURE_ACTIVE.pokemons[1],
-            id: '78577b5d-2635-4cd8-84fe-4d5cedd622ff',
-          },
-          {
-            ...POKEDEX_FIXTURE_ACTIVE.pokemons[2],
-            id: '4c08aa4d-df83-4107-a8e5-b6f4a9cbef6e',
-          },
-        ],
-      },
-      [
-        '739fb465-efb9-42b8-b8b1-9a5b61087fc2',
-        '78577b5d-2635-4cd8-84fe-4d5cedd622ff',
-        '4c08aa4d-df83-4107-a8e5-b6f4a9cbef6e',
-      ],
-    );
+        pokemons: [ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR],
+      }),
+    } as any);
 
-    expect(result).toEqual({
-      items: [
-        '739fb465-efb9-42b8-b8b1-9a5b61087fc2',
-        '78577b5d-2635-4cd8-84fe-4d5cedd622ff',
-        '4c08aa4d-df83-4107-a8e5-b6f4a9cbef6e',
-      ],
-      pokemonsExists: [
-        '739fb465-efb9-42b8-b8b1-9a5b61087fc2',
-        '78577b5d-2635-4cd8-84fe-4d5cedd622ff',
-        '4c08aa4d-df83-4107-a8e5-b6f4a9cbef6e',
-      ],
-      pokemonsNotExists: [],
-    });
+    jest
+      .spyOn(repository, 'save')
+      .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
+
+    const result = await service.addInPokeDex(USER_COMPLETE_FIXTURE, [
+      ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
+    ]);
+
+    expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
+  });
+
+  it('should create a pokedex if not exist and list of pokemons from a pokedex by name pokedex successfully', async () => {
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      where: jest.fn(),
+      orderBy: jest.fn(),
+      andWhere: jest.fn(),
+      leftJoinAndSelect: jest.fn(),
+      getOne: jest.fn().mockResolvedValueOnce(null),
+    } as any);
+
+    jest
+      .spyOn(repository, 'save')
+      .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
+
+    const result = await service.addInPokeDex(USER_COMPLETE_FIXTURE, [
+      ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
+    ]);
+
+    expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
   });
 });

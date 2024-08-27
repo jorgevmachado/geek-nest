@@ -1,237 +1,66 @@
-import { IResponsePokemonByName } from '../pokemon.interface';
 import { Move } from './move.entity';
 
-const transformResponseMove = (
-  response: IResponsePokemonByName['moves'][number],
-): Move => ({
-  id: response.move.name,
-  url: response.move.url,
-  order: response.order,
-  name: response.move.name,
+import {
+  RESPONSE_MOVE_FIXTURE_BIND,
+  RESPONSE_MOVE_FIXTURE_CUT,
+  RESPONSE_MOVE_FIXTURE_RAZOR_WIND,
+  RESPONSE_MOVE_FIXTURE_SWORDS_DANCE,
+} from '@/modules/pokemon/fixtures/response/by-name/pokemon.response.pokemon-by-name-moves.fixture';
+
+const ENTITY_MOVE_FIXTURE_RAZOR_WIND: Move = {
+  id: 'bbdc2bf6-ccda-47bc-8ce4-142f187bcece',
+  url: RESPONSE_MOVE_FIXTURE_RAZOR_WIND.move.url,
+  order: RESPONSE_MOVE_FIXTURE_RAZOR_WIND.order,
+  name: RESPONSE_MOVE_FIXTURE_RAZOR_WIND.move.name,
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
-});
+};
 
-export const RESPONSE_MOVE_FIXTURE: IResponsePokemonByName['moves'] = [
-  {
-    order: 1,
-    move: {
-      url: 'https://pokeapi.co/api/v2/move/13/',
-      name: 'razor-wind',
-    },
-    version_group_details: [
-      {
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/3/',
-          name: 'gold-silver',
-        },
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/2/',
-          name: 'egg',
-        },
-      },
-      {
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/4/',
-          name: 'crystal',
-        },
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/2/',
-          name: 'egg',
-        },
-      },
-    ],
-  },
-  {
-    order: 2,
-    move: {
-      url: 'https://pokeapi.co/api/v2/move/14/',
-      name: 'swords-dance',
-    },
-    version_group_details: [
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/1/',
-          name: 'red-blue',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/2/',
-          name: 'yellow',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/3/',
-          name: 'tutor',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/6/',
-          name: 'emerald',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/3/',
-          name: 'tutor',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/7/',
-          name: 'firered-leafgreen',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/8/',
-          name: 'diamond-pearl',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/9/',
-          name: 'platinum',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/10/',
-          name: 'heartgold-soulsilver',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/11/',
-          name: 'black-white',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/14/',
-          name: 'black-2-white-2',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/15/',
-          name: 'x-y',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/16/',
-          name: 'omega-ruby-alpha-sapphire',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/17/',
-          name: 'sun-moon',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/18/',
-          name: 'ultra-sun-ultra-moon',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/20/',
-          name: 'sword-shield',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/23/',
-          name: 'brilliant-diamond-and-shining-pearl',
-        },
-      },
-      {
-        level_learned_at: 0,
-        move_learn_method: {
-          url: 'https://pokeapi.co/api/v2/move-learn-method/4/',
-          name: 'machine',
-        },
-        version_group: {
-          url: 'https://pokeapi.co/api/v2/version-group/25/',
-          name: 'scarlet-violet',
-        },
-      },
-    ],
-  },
+const ENTITY_MOVE_FIXTURE_SWORDS_DANCE: Move = {
+  id: 'ccd54ec0-7e63-4ae6-b464-84cd5b5d8f86',
+  url: RESPONSE_MOVE_FIXTURE_SWORDS_DANCE.move.url,
+  order: RESPONSE_MOVE_FIXTURE_SWORDS_DANCE.order,
+  name: RESPONSE_MOVE_FIXTURE_SWORDS_DANCE.move.name,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+};
+
+const ENTITY_MOVE_FIXTURE_CUT: Move = {
+  id: '302bfcf3-9474-4681-8ca5-ef7dc4019161',
+  url: RESPONSE_MOVE_FIXTURE_CUT.move.url,
+  order: RESPONSE_MOVE_FIXTURE_CUT.order,
+  name: RESPONSE_MOVE_FIXTURE_CUT.move.name,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+};
+
+const ENTITY_MOVE_FIXTURE_BIND: Move = {
+  id: '2b513fda-4d88-4b61-bdbf-bd35e9f4c0b9',
+  url: RESPONSE_MOVE_FIXTURE_BIND.move.url,
+  order: RESPONSE_MOVE_FIXTURE_BIND.order,
+  name: RESPONSE_MOVE_FIXTURE_BIND.move.name,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  deletedAt: null,
+};
+
+export const ENTITIES_MOVES_FIXTURE_BULBASAUR: Array<Move> = [
+  ENTITY_MOVE_FIXTURE_RAZOR_WIND,
+  ENTITY_MOVE_FIXTURE_SWORDS_DANCE,
+  ENTITY_MOVE_FIXTURE_CUT,
 ];
 
-export const ENTITY_MOVES_FIXTURE: Array<Move> = RESPONSE_MOVE_FIXTURE.map(
-  (item) => transformResponseMove(item),
-);
+export const ENTITIES_MOVES_FIXTURE_IVYSAUR: Array<Move> = [
+  ENTITY_MOVE_FIXTURE_SWORDS_DANCE,
+  ENTITY_MOVE_FIXTURE_CUT,
+  ENTITY_MOVE_FIXTURE_BIND,
+];
+
+export const ENTITIES_MOVES_FIXTURE_VENUSAUR: Array<Move> = [
+  ENTITY_MOVE_FIXTURE_SWORDS_DANCE,
+  ENTITY_MOVE_FIXTURE_CUT,
+  ENTITY_MOVE_FIXTURE_BIND,
+];

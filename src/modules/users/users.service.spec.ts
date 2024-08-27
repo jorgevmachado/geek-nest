@@ -63,7 +63,10 @@ describe('UsersService', () => {
   });
 
   it('should return users without filter successfully', async () => {
-    jest.spyOn(repository, 'find').mockResolvedValueOnce([USER_FIXTURE]);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getMany: jest.fn().mockResolvedValueOnce([USER_FIXTURE]),
+    } as any);
     const result = await service.findAll({});
     expect(result).toEqual(usersClean([USER_FIXTURE]));
   });
@@ -95,7 +98,11 @@ describe('UsersService', () => {
       status: EStatus.INACTIVE,
       deletedAt: new Date(),
     };
-    jest.spyOn(repository, 'find').mockResolvedValueOnce([user]);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getMany: jest.fn().mockResolvedValueOnce([user]),
+    } as any);
+
     const result = await service.findAll({ all: true });
     expect(result).toEqual(usersClean([user]));
   });

@@ -25,6 +25,7 @@ import type { IFilterParams } from '@/interfaces/filter.interface';
 import { EStatus } from '@/enums/status.enum';
 
 import { ERole } from '@/modules/users/users.enum';
+import { isArray } from 'class-validator';
 
 @Injectable()
 export class UsersService extends Service<Users> {
@@ -67,57 +68,19 @@ export class UsersService extends Service<Users> {
   }
 
   async findAll(filterDto: FilterUserDto) {
-    if (!filterDto.limit || !filterDto.page) {
-      const params = !filterDto.all ? {} : { withDeleted: true };
-      return this.cleanUsers(await this.repository.find(params));
+    const filters = this.generateFilters(filterDto);
+    const result = await this.index({
+      filters,
+      parameters: filterDto,
+      withDeleted: filterDto.all,
+    });
+    if (isArray(result)) {
+      return this.cleanUsers(result);
     }
 
-    const filters: Array<IFilterParams> = [];
-
-    if (filterDto.role) {
-      filters.push({
-        param: 'role',
-        condition: '=',
-        value: filterDto.role.toUpperCase(),
-      });
-    }
-
-    if (filterDto.status) {
-      filters.push({
-        param: 'status',
-        condition: '=',
-        value: filterDto.status.toUpperCase(),
-      });
-    }
-
-    if (filterDto.name) {
-      filters.push({
-        param: 'name',
-        condition: 'LIKE',
-        value: `%${filterDto.name}%`,
-      });
-    }
-
-    if (filterDto.email) {
-      filters.push({
-        param: 'email',
-        condition: 'LIKE',
-        value: `%${filterDto.email}%`,
-      });
-    }
-
-    if (filterDto.cpf) {
-      filters.push({
-        param: 'cpf',
-        condition: 'LIKE',
-        value: `%${filterDto.cpf}%`,
-      });
-    }
-
-    const listUsersPaginate = await this.paginate(filterDto, filters);
     return {
-      ...listUsersPaginate,
-      data: this.cleanUsers(listUsersPaginate.data),
+      ...result,
+      data: this.cleanUsers(result.data),
     };
   }
 
@@ -348,5 +311,51 @@ export class UsersService extends Service<Users> {
         'You are not authorized to access this feature',
       );
     }
+  }
+
+  private generateFilters(filterDto: FilterUserDto): Array<IFilterParams> {
+    const filters: Array<IFilterParams> = [];
+
+    if (filterDto.role) {
+      filters.push({
+        param: 'role',
+        condition: '=',
+        value: filterDto.role.toUpperCase(),
+      });
+    }
+
+    if (filterDto.status) {
+      filters.push({
+        param: 'status',
+        condition: '=',
+        value: filterDto.status.toUpperCase(),
+      });
+    }
+
+    if (filterDto.name) {
+      filters.push({
+        param: 'name',
+        condition: 'LIKE',
+        value: `%${filterDto.name}%`,
+      });
+    }
+
+    if (filterDto.email) {
+      filters.push({
+        param: 'email',
+        condition: 'LIKE',
+        value: `%${filterDto.email}%`,
+      });
+    }
+
+    if (filterDto.cpf) {
+      filters.push({
+        param: 'cpf',
+        condition: 'LIKE',
+        value: `%${filterDto.cpf}%`,
+      });
+    }
+
+    return filters;
   }
 }

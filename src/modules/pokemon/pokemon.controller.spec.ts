@@ -3,12 +3,15 @@ import { PassportModule } from '@nestjs/passport';
 
 import { EStatus } from '@/enums/status.enum';
 
-import { ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER } from './pokemon.fixture';
 import { PokemonController } from './pokemon.controller';
 import { PokemonService } from './pokemon.service';
 
-import { POKEDEX_FIXTURE_ACTIVE } from './pokedex/pokedex.fixture';
-import { USER_COMPLETE_FIXTURE } from '../users/users.fixture';
+import {
+  ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR,
+  ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
+} from '@/modules/pokemon/pokemon.fixture';
+import { POKEDEX_FIXTURE_ACTIVE } from '@/modules/pokemon/pokedex/pokedex.fixture';
+import { USER_COMPLETE_FIXTURE } from '@/modules/users/users.fixture';
 
 describe('PokemonController', () => {
   let controller: PokemonController;
@@ -37,24 +40,27 @@ describe('PokemonController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 
   it('should be get success', async () => {
     jest
       .spyOn(service, 'findAll')
-      .mockResolvedValueOnce([ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER]);
+      .mockResolvedValueOnce([ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR]);
+
     const result = await controller.findAll({});
-    expect(result).toEqual([ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER]);
+
+    expect(result).toEqual([ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR]);
   });
 
   it('should be get with param success', async () => {
     jest
       .spyOn(service, 'findOne')
-      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER);
+      .mockResolvedValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR);
     const result = await controller.findOne(
-      ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER.name,
+      ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR.name,
     );
-    expect(result).toEqual(ENTITY_POKEMON_COMPLETE_FIXTURE_CHARMANDER);
+    expect(result).toEqual(ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR);
   });
 
   it('should be addPokemon with param success', async () => {

@@ -3,7 +3,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 
-import { ENTITY_STATS_FIXTURE, RESPONSE_STAT_FIXTURE } from './stat.fixture';
+import { ENTITIES_STATS_FIXTURE } from './stat.fixture';
+import { RESPONSE_STATS_FIXTURE } from '@/modules/pokemon/fixtures';
 import { Stat } from './stat.entity';
 import { StatService } from './stat.service';
 
@@ -27,43 +28,22 @@ describe('StatService', () => {
   });
 
   it('should return a stat when not found in the database', async () => {
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
-    jest
-      .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[0]);
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
-    jest
-      .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[1]);
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
-    jest
-      .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[2]);
-    jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
-    jest
-      .spyOn(repository, 'save')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[3]);
+    ENTITIES_STATS_FIXTURE.forEach((stat) => {
+      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
+      jest.spyOn(repository, 'save').mockResolvedValueOnce(stat);
+    });
 
-    const result = await service.generate(RESPONSE_STAT_FIXTURE);
-    expect(result).toEqual(ENTITY_STATS_FIXTURE);
+    const result = await service.generate(RESPONSE_STATS_FIXTURE);
+    expect(result).toEqual(ENTITIES_STATS_FIXTURE);
   });
 
   it('should return a stat when found in the database', async () => {
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[0]);
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[1]);
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[2]);
-    jest
-      .spyOn(repository, 'findOne')
-      .mockResolvedValueOnce(ENTITY_STATS_FIXTURE[3]);
+    ENTITIES_STATS_FIXTURE.forEach((stat) => {
+      jest.spyOn(repository, 'findOne').mockResolvedValueOnce(stat);
+    });
 
-    const result = await service.generate(RESPONSE_STAT_FIXTURE);
+    const result = await service.generate(RESPONSE_STATS_FIXTURE);
 
-    expect(result).toEqual(ENTITY_STATS_FIXTURE);
+    expect(result).toEqual(ENTITIES_STATS_FIXTURE);
   });
 });

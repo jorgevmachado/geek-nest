@@ -30,7 +30,7 @@ export class Pokemon implements IPokemon {
   name: string;
 
   @Column({ nullable: true, length: 200 })
-  image: string;
+  image?: string;
 
   @ManyToMany(() => Move, { nullable: true })
   @JoinTable()

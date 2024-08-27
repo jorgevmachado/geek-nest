@@ -1,9 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
 
-import { Service, isUUID } from '@/services';
 import { EStatus } from '@/enums/status.enum';
+
+import { Service } from '@/services';
 
 import { Pokedex } from './pokedex.entity';
 
@@ -18,6 +20,32 @@ export class PokedexService extends Service<Pokedex> {
   ) {
     super(repository, 'pokedex', ['pokemons']);
   }
+
+  async addInPokeDex(user: Users, pokemons: Array<Pokemon>) {
+    const pokedex = await this.findOne(user.id, false);
+    if (!pokedex) {
+      return await this.create(user, pokemons);
+    }
+
+    const { pokemonsExists, pokemonsNotExists } = this.pokemonList(
+      pokedex,
+      pokemons.map((item) => item.id),
+    );
+
+    if (
+      pokemonsExists.length > 0 &&
+      pokemonsExists.length === pokemons.length
+    ) {
+      return pokedex;
+    }
+
+    const newPokemons = pokemons.filter((item) =>
+      pokemonsNotExists.includes(item.id),
+    );
+
+    return await this.update(user, newPokemons, pokedex);
+  }
+
   async findOne(accountId: string, withThrow: boolean = true) {
     return this.findBy({
       by: 'accountId',
@@ -44,7 +72,9 @@ export class PokedexService extends Service<Pokedex> {
     if (!pokedex) {
       pokedex = await this.findOne(account.id);
     }
-    pokedex.pokemons = pokemons.concat(pokedex.pokemons);
+
+    pokedex.pokemons = pokedex.pokemons.concat(pokemons);
+
     try {
       return await this.repository.save(pokedex);
     } catch (error) {
@@ -54,12 +84,8 @@ export class PokedexService extends Service<Pokedex> {
     }
   }
 
-  getPokedexPokemonsList(pokedex: Pokedex, items: Array<string>) {
-    const isListUuid = items.every((item) => isUUID(item));
-    const pokemons = pokedex.pokemons.map((item) =>
-      !isListUuid ? item.name : item.id,
-    );
-
+  private pokemonList(pokedex: Pokedex, items: Array<string>) {
+    const pokemons = pokedex.pokemons.map((item) => item.id);
     const pokemonsExists = pokemons.filter((item) => items.includes(item));
     const pokemonsNotExists = items.filter((item) => !pokemons.includes(item));
     return {

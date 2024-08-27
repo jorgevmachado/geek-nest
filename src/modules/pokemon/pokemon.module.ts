@@ -9,6 +9,7 @@ import { PokemonService } from './pokemon.service';
 
 import { AbilityModule } from './ability/ability.module';
 
+import { EvolutionsModule } from './evolutions/evolutions.module';
 import { MoveModule } from './move/move.module';
 import { PokedexModule } from './pokedex/pokedex.module';
 import { StatModule } from './stat/stat.module';
@@ -23,6 +24,7 @@ import { TypeModule } from './type/type.module';
     MoveModule,
     AbilityModule,
     PokedexModule,
+    EvolutionsModule,
   ],
   controllers: [PokemonController],
   providers: [PokemonService, PokemonApi],
