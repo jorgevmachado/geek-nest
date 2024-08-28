@@ -202,8 +202,7 @@ export class PokemonService extends Service<Pokemon> {
         pokemon.has_gender_differences = response.has_gender_differences;
         return pokemon;
       })
-      .catch((error) => {
-        console.error(`# => error => ${error}`);
+      .catch(() => {
         throw new InternalServerErrorException(
           `Error to get pokemon by ${response.name}`,
         );
@@ -244,8 +243,7 @@ export class PokemonService extends Service<Pokemon> {
           : null,
         has_gender_differences: responseSpecie.has_gender_differences,
       }))
-      .catch((error) => {
-        console.error('# => error => ', error);
+      .catch(() => {
         throw new InternalServerErrorException(
           `Error to get pokemon by ${name}`,
         );
@@ -279,8 +277,7 @@ export class PokemonService extends Service<Pokemon> {
     }
     try {
       return await this.repository.save(pokemon);
-    } catch (error) {
-      console.error(`# => error => ${error}`);
+    } catch (_) {
       throw new InternalServerErrorException(
         `Error to complete pokemon by ${entity.name}`,
       );

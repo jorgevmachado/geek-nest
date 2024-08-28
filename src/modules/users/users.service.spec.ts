@@ -51,12 +51,28 @@ describe('UsersService', () => {
   });
 
   it('should create a user successfully', async () => {
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(null),
+    } as any);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(null),
+    } as any);
     jest.spyOn(repository, 'save').mockResolvedValueOnce(USER_FIXTURE);
     const result = await service.create(USER_INCOMPLETE_DTO);
     expect(result).toEqual(userClean(USER_FIXTURE));
   });
 
   it('should throw an error when failing to save user in database', async () => {
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(null),
+    } as any);
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      ...createQueryBuilderMock,
+      getOne: jest.fn().mockResolvedValueOnce(null),
+    } as any);
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
     const result = service.create(USER_INCOMPLETE_DTO);
     await expect(result).rejects.toThrow(InternalServerErrorException);
@@ -397,14 +413,6 @@ describe('UsersService', () => {
       id: 'AUTH_USER_OTHER',
     });
 
-    await expect(result).rejects.toThrow(ForbiddenException);
-  });
-
-  it('should throw error when a non-admin user tries to remove another user', async () => {
-    const result = service.remove(USER_FIXTURE.id, {
-      ...USER_FIXTURE,
-      id: 'AUTH_USER',
-    });
     await expect(result).rejects.toThrow(ForbiddenException);
   });
 

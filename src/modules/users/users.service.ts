@@ -36,6 +36,27 @@ export class UsersService extends Service<Users> {
   }
 
   async create({ cpf, name, email, dateOfBirth, password }: CreateUserDto) {
+    const userCpf = await this.findBy({
+      by: 'cpf',
+      all: true,
+      value: cpf,
+    });
+
+    const userEmail = await this.findBy({
+      by: 'email',
+      all: true,
+      value: email,
+    });
+
+    if (
+      (userCpf && userCpf.deletedAt !== null) ||
+      (userEmail && userEmail.deletedAt !== null)
+    ) {
+      throw new InternalServerErrorException(
+        'Inactive user, please contact administrator.',
+      );
+    }
+
     const user = new Users();
     user.cpf = cpf;
     user.salt = await bcrypt.genSalt();
@@ -237,11 +258,6 @@ export class UsersService extends Service<Users> {
   }
 
   async remove(id: string, user: Users) {
-    if (user.role !== ERole.ADMIN) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
     if (user.id === id) {
       throw new BadRequestException('You cannot delete yourself');
     }
