@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
@@ -50,7 +51,6 @@ export class PokemonService extends Service<Pokemon> {
     ]);
   }
   private _totalPokemon: number = 1302;
-  // private _totalPokemon: number = 3;
 
   async findAll(
     parameters: FilterPokemonDto,
@@ -92,20 +92,14 @@ export class PokemonService extends Service<Pokemon> {
   async addPokemon(user: Users, pokemons: PokemonPokedexDto) {
     const items = pokemons.ids?.length ? pokemons.ids : pokemons.names;
 
-    if (user.status !== EStatus.ACTIVE) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
-
     if (!pokemons.ids && !pokemons.names) {
-      throw new InternalServerErrorException(
+      throw new BadRequestException(
         'You need to add one fewer Pokémon ID or name to add',
       );
     }
 
     if (items.length >= 4) {
-      throw new InternalServerErrorException(
+      throw new BadRequestException(
         'You can only add up to 3 Pokémon at a time',
       );
     }
@@ -118,11 +112,6 @@ export class PokemonService extends Service<Pokemon> {
   }
 
   async findPokedex(user: Users) {
-    if (user.status !== EStatus.ACTIVE) {
-      throw new ForbiddenException(
-        'You are not authorized to access this feature',
-      );
-    }
     return await this.pokeDexService.findOne(user.id);
   }
 

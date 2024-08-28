@@ -1,5 +1,3 @@
-import { Observable } from 'rxjs';
-
 import {
   CanActivate,
   ExecutionContext,
@@ -7,11 +5,10 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ERole } from '@/modules/users/users.enum';
-import { Role } from '@/modules/auth/auth-role.decorator';
+import { Observable } from 'rxjs';
 
 @Injectable()
-export class AuthRoleGuards implements CanActivate {
+export class AuthStatusGuards implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(
@@ -19,18 +16,18 @@ export class AuthRoleGuards implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
 
-    const userRole = request.user.role;
+    const userStatus = request.user.status;
 
-    const requiredRoles = this.reflector.get<Array<string>>(
-      'role',
+    const requiredStatus = this.reflector.get<Array<string>>(
+      'status',
       context.getHandler(),
     );
 
-    if (!requiredRoles) {
+    if (!requiredStatus) {
       return true;
     }
 
-    if (!requiredRoles.some((role) => role === userRole)) {
+    if (!requiredStatus.some((status) => status === userStatus)) {
       throw new ForbiddenException(
         'You do not have permission to access this resource',
       );

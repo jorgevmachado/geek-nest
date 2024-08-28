@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
@@ -626,18 +627,10 @@ describe('PokemonService', () => {
   // findOne ------------------------------------------------------------------------------------------------------- END
 
   // addPokemon----------------------------------------------------------------------------------------------------BEGIN
-  it('should throw error when try to add pokemon with user not active', async () => {
-    const result = service.addPokemon(USER_FIXTURE, {
-      names: [ENTITY_POKEMON_FIXTURE_BULBASAUR.name],
-    });
-
-    await expect(result).rejects.toThrow(ForbiddenException);
-  });
-
   it('should throw error when try to add pokemon with names and ids empty', async () => {
     const result = service.addPokemon(USER_FIXTURE_ACTIVE, {});
 
-    await expect(result).rejects.toThrow(InternalServerErrorException);
+    await expect(result).rejects.toThrow(BadRequestException);
   });
 
   it('should throw error when try to add pokemon with more then 4', async () => {
@@ -650,7 +643,7 @@ describe('PokemonService', () => {
       ],
     });
 
-    await expect(result).rejects.toThrow(InternalServerErrorException);
+    await expect(result).rejects.toThrow(BadRequestException);
   });
 
   it('should create a pokedex with 3 pokemons', async () => {
@@ -686,12 +679,6 @@ describe('PokemonService', () => {
   // addPokemon------------------------------------------------------------------------------------------------------END
 
   // findPokedex---------------------------------------------------------------------------------------------------BEGIN
-  it('should throw error when try to get pokedex with user not active', async () => {
-    const result = service.findPokedex(USER_FIXTURE);
-
-    await expect(result).rejects.toThrow(ForbiddenException);
-  });
-
   it('should return a pokedex with user active', async () => {
     jest
       .spyOn(pokeDexService, 'findOne')

@@ -1,5 +1,6 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { PokemonApi } from './pokemon.api';
+import { RESPONSE_EVOLUTION_FIXTURE } from '@/modules/pokemon/fixtures';
 
 describe('PokemonApi', () => {
   let pokemonApi: PokemonApi;
@@ -70,5 +71,25 @@ describe('PokemonApi', () => {
     await expect(pokemonApi.getSpecieByName('bulbasaur')).rejects.toThrow(
       InternalServerErrorException,
     );
+  });
+
+  it('should return Pokémon evolution chain by url when GET request is successful', async () => {
+    jest
+      .spyOn(pokemonApi, 'get')
+      .mockResolvedValueOnce(RESPONSE_EVOLUTION_FIXTURE);
+
+    const result = await pokemonApi.getEvolutions(
+      'https://pokeapi.co/api/v2/pokemon-species/1/',
+    );
+
+    expect(result).toEqual(RESPONSE_EVOLUTION_FIXTURE);
+  });
+
+  it('should throw error when GET request fails in getEvolutions', async () => {
+    jest.spyOn(pokemonApi, 'get').mockRejectedValueOnce(new Error('GET error'));
+
+    await expect(
+      pokemonApi.getEvolutions('https://pokeapi.co/api/v2/pokemon-species/1/'),
+    ).rejects.toThrow(InternalServerErrorException);
   });
 });

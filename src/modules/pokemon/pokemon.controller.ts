@@ -18,10 +18,13 @@ import { AuthRoleGuards } from '../auth/auth-role.guards';
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { GetUserAuth } from '../auth/auth-user.decorator';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
+import { AuthStatusGuards } from '@/modules/auth/auth-status.guards';
+import { Status } from '@/modules/auth/auth-status.decorator';
+import { EStatus } from '@/enums/status.enum';
 
 @ApiTags('pokemon')
 @Controller('pokemon')
-@UseGuards(AuthGuard(), AuthRoleGuards)
+@UseGuards(AuthGuard(), AuthRoleGuards, AuthStatusGuards)
 export class PokemonController {
   constructor(private readonly pokemonService: PokemonService) {}
 
@@ -31,6 +34,7 @@ export class PokemonController {
   }
 
   @Get('pokedex')
+  @Status(EStatus.ACTIVE, EStatus.COMPLETE)
   findPokedex(@GetUserAuth() user: Users) {
     return this.pokemonService.findPokedex(user);
   }
@@ -41,6 +45,7 @@ export class PokemonController {
   }
 
   @Post('pokedex')
+  @Status(EStatus.ACTIVE, EStatus.COMPLETE)
   addPokemon(@GetUserAuth() user: Users, @Body() pokemons: PokemonPokedexDto) {
     return this.pokemonService.addPokemon(user, pokemons);
   }
