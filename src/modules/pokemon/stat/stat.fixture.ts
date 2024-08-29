@@ -1,72 +1,10 @@
-import { Stat } from './stat.entity';
+import type { IStat } from '@/modules/pokemon/stat/stat.interface';
 
-import { RESPONSE_STATS_FIXTURE } from '@/modules/pokemon/fixtures';
-
-export const ENTITIES_STATS_FIXTURE: Array<Stat> = [
-  {
-    id: 'd316be6d-aca3-42f6-b310-56af9a5adb40',
-    url: RESPONSE_STATS_FIXTURE[0].stat.url,
-    name: RESPONSE_STATS_FIXTURE[0].stat.name,
-    order: RESPONSE_STATS_FIXTURE[0].order,
-    effort: RESPONSE_STATS_FIXTURE[0].effort,
-    base_stat: RESPONSE_STATS_FIXTURE[0].base_stat,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  },
-  {
-    id: '55db4b6e-34e8-4438-b868-80333e87af29',
-    url: RESPONSE_STATS_FIXTURE[1].stat.url,
-    name: RESPONSE_STATS_FIXTURE[1].stat.name,
-    order: RESPONSE_STATS_FIXTURE[1].order,
-    effort: RESPONSE_STATS_FIXTURE[1].effort,
-    base_stat: RESPONSE_STATS_FIXTURE[1].base_stat,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  },
-  {
-    id: 'c743e785-3919-44ff-8744-271e3857511f',
-    url: RESPONSE_STATS_FIXTURE[2].stat.url,
-    name: RESPONSE_STATS_FIXTURE[2].stat.name,
-    order: RESPONSE_STATS_FIXTURE[2].order,
-    effort: RESPONSE_STATS_FIXTURE[2].effort,
-    base_stat: RESPONSE_STATS_FIXTURE[2].base_stat,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  },
-  {
-    id: '9854c57f-c4bf-4ae4-96d3-ae178a1f3169',
-    url: RESPONSE_STATS_FIXTURE[3].stat.url,
-    name: RESPONSE_STATS_FIXTURE[3].stat.name,
-    order: RESPONSE_STATS_FIXTURE[3].order,
-    effort: RESPONSE_STATS_FIXTURE[3].effort,
-    base_stat: RESPONSE_STATS_FIXTURE[3].base_stat,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  },
-  {
-    id: 'e4fe75f6-751e-4217-9d62-5c187d2bc274',
-    url: RESPONSE_STATS_FIXTURE[4].stat.url,
-    name: RESPONSE_STATS_FIXTURE[4].stat.name,
-    order: RESPONSE_STATS_FIXTURE[4].order,
-    effort: RESPONSE_STATS_FIXTURE[4].effort,
-    base_stat: RESPONSE_STATS_FIXTURE[4].base_stat,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  },
-  {
-    id: '7e53c0b0-148c-4d5f-a915-7d5a22e438e5',
-    url: RESPONSE_STATS_FIXTURE[5].stat.url,
-    name: RESPONSE_STATS_FIXTURE[5].stat.name,
-    order: RESPONSE_STATS_FIXTURE[5].order,
-    effort: RESPONSE_STATS_FIXTURE[5].effort,
-    base_stat: RESPONSE_STATS_FIXTURE[5].base_stat,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    deletedAt: null,
-  },
-];
+export const STAT_FIXTURE: IStat = {
+  hp: 45,
+  speed: 45,
+  attack: 49,
+  defense: 49,
+  special_attack: 65,
+  special_defense: 65,
+};

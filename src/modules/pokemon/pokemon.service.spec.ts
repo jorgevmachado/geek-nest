@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,7 +12,6 @@ import { Ability } from './ability/ability.entity';
 import { Move } from './move/move.entity';
 import { Pokedex } from './pokedex/pokedex.entity';
 import { Pokemon } from './pokemon.entity';
-import { Stat } from './stat/stat.entity';
 import { Type } from './type/type.entity';
 
 import { PokemonApi } from './pokemon.api';
@@ -43,10 +41,7 @@ import {
   generateEntities,
   generateResponse,
 } from '@/modules/pokemon/fixtures';
-import {
-  USER_FIXTURE,
-  USER_FIXTURE_ACTIVE,
-} from '@/modules/users/users.fixture';
+import { USER_FIXTURE_ACTIVE } from '@/modules/users/users.fixture';
 import { POKEDEX_FIXTURE_ACTIVE } from '@/modules/pokemon/pokedex/pokedex.fixture';
 
 import { EStatus } from '@/enums/status.enum';
@@ -98,7 +93,9 @@ describe('PokemonService', () => {
         entity.order,
         entity.resolve,
       );
-      jest.spyOn(entity.service, 'generate').mockResolvedValueOnce(result);
+      jest
+        .spyOn(entity.service, 'generate')
+        .mockResolvedValueOnce(result as any);
     });
   };
 
@@ -136,7 +133,6 @@ describe('PokemonService', () => {
         PokemonService,
         { provide: getRepositoryToken(Pokemon), useClass: Repository },
         { provide: getRepositoryToken(Type), useClass: Repository },
-        { provide: getRepositoryToken(Stat), useClass: Repository },
         { provide: getRepositoryToken(Move), useClass: Repository },
         { provide: getRepositoryToken(Ability), useClass: Repository },
         { provide: getRepositoryToken(Pokedex), useClass: Repository },

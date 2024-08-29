@@ -11,17 +11,17 @@ import {
 
 import { EStatus } from '@/enums/status.enum';
 
-import { type IPokemon } from './pokemon.interface';
-
 import { Ability } from './ability/ability.entity';
 import { Move } from './move/move.entity';
-import { Stat } from './stat/stat.entity';
 import { Type } from './type/type.entity';
 
 @Entity({ name: 'pokemons' })
-export class Pokemon implements IPokemon {
+export class Pokemon {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ nullable: true })
+  hp?: number;
 
   @Column({ nullable: false, length: 50 })
   url: string;
@@ -31,6 +31,9 @@ export class Pokemon implements IPokemon {
 
   @Column({ nullable: true, length: 200 })
   image?: string;
+
+  @Column({ nullable: true })
+  speed?: number;
 
   @ManyToMany(() => Move, { nullable: true })
   @JoinTable()
@@ -43,12 +46,14 @@ export class Pokemon implements IPokemon {
   @JoinTable()
   types?: Array<Type>;
 
-  @ManyToMany(() => Stat, { nullable: true })
-  @JoinTable()
-  stats?: Array<Stat>;
-
   @Column({ nullable: false, default: 'INCOMPLETE' })
   status: EStatus;
+
+  @Column({ nullable: true })
+  attack?: number;
+
+  @Column({ nullable: true })
+  defense?: number;
 
   @Column({ nullable: true, length: 50 })
   habitat?: string;
@@ -87,6 +92,12 @@ export class Pokemon implements IPokemon {
 
   @Column({ nullable: true })
   base_happiness?: number;
+
+  @Column({ nullable: true })
+  special_attack?: number;
+
+  @Column({ nullable: true })
+  special_defense?: number;
 
   @Column({ nullable: true, length: 200 })
   evolution_chain_url?: string;

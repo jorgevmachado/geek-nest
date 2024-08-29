@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -11,7 +10,6 @@ import { type IPaginate, Service, isUUID } from '@/services';
 import { EStatus } from '@/enums/status.enum';
 
 import type {
-  IPokemon,
   IResponsePokemonByName,
   IResponsePokemonFull,
 } from './pokemon.interface';
@@ -44,7 +42,6 @@ export class PokemonService extends Service<Pokemon> {
   ) {
     super(repository, 'pokemons', [
       'moves',
-      'stats',
       'types',
       'abilities',
       'evolutions',
@@ -154,26 +151,28 @@ export class PokemonService extends Service<Pokemon> {
 
   private async generatePokemon(
     response: IResponsePokemonFull,
-  ): Promise<IPokemon> {
+  ): Promise<Pokemon> {
     return await Promise.all([
       await this.typeService.generate(response.types),
-      await this.statService.generate(response.stats),
+      this.statService.generate(response.stats),
       await this.moveService.generate(response.moves),
       await this.abilityService.generate(response.abilities),
       await this.evolutionService.generate(response.evolution_chain_url),
     ])
       .then(([types, stats, moves, abilities, evolutions]) => {
         const pokemon = new Pokemon();
-
         pokemon.id = response.id;
+        pokemon.hp = stats.hp;
         pokemon.url = response.url;
         pokemon.name = response.name;
         pokemon.image = response.image;
+        pokemon.speed = stats.speed;
         pokemon.moves = moves;
         pokemon.order = response.order;
         pokemon.types = types;
-        pokemon.stats = stats;
         pokemon.status = EStatus.COMPLETE;
+        pokemon.attack = stats.attack;
+        pokemon.defense = stats.defense;
         pokemon.habitat = response.habitat;
         pokemon.is_baby = response.is_baby;
         pokemon.shape_url = response.shape_url;
@@ -186,6 +185,8 @@ export class PokemonService extends Service<Pokemon> {
         pokemon.capture_rate = response.capture_rate;
         pokemon.hatch_counter = response.hatch_counter;
         pokemon.base_happiness = response.base_happiness;
+        pokemon.special_attack = stats.special_attack;
+        pokemon.special_defense = stats.special_defense;
         pokemon.evolution_chain_url = response.evolution_chain_url;
         pokemon.evolves_from_species = response.evolves_from_species;
         pokemon.has_gender_differences = response.has_gender_differences;
@@ -264,6 +265,7 @@ export class PokemonService extends Service<Pokemon> {
     if (!pokemon) {
       return null;
     }
+
     try {
       return await this.repository.save(pokemon);
     } catch (_) {

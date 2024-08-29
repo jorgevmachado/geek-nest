@@ -3,7 +3,6 @@ import { EStatus } from '@/enums/status.enum';
 import { Ability } from './ability/ability.entity';
 import { Move } from './move/move.entity';
 import { Pokemon } from './pokemon.entity';
-import { Stat } from './stat/stat.entity';
 import { Type } from './type/type.entity';
 
 export interface IResponsePaginate<T> {
@@ -264,7 +263,7 @@ export interface IResponseEvolution {
   baby_trigger_item: any;
 }
 
-export interface IPokemon {
+export interface IPokemonXPTO {
   id: string;
   url: string;
   name?: string;
@@ -272,7 +271,6 @@ export interface IPokemon {
   moves?: Array<Move>;
   order: number;
   types?: Array<Type>;
-  stats?: Array<Stat>;
   status: EStatus;
   habitat?: string;
   is_baby?: boolean;
