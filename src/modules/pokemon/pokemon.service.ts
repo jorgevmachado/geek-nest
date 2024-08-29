@@ -26,6 +26,7 @@ import { Users } from '../users/users.entity';
 
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
+import { isArray } from 'class-validator';
 
 @Injectable()
 export class PokemonService extends Service<Pokemon> {
@@ -55,9 +56,10 @@ export class PokemonService extends Service<Pokemon> {
     const total = await this.repository.count();
 
     if (total === 0 || total !== this._totalPokemon) {
-      return this.generate(parameters);
+      return this.cleanEntities(await this.generate(parameters));
     }
-    return await this.index({ parameters });
+
+    return this.cleanEntities(await this.index({ parameters }));
   }
 
   async findOne(
@@ -76,14 +78,14 @@ export class PokemonService extends Service<Pokemon> {
     }
 
     if (!complete) {
-      return result;
+      return this.cleanEntity(result);
     }
 
     if (result.status === EStatus.COMPLETE) {
-      return await this.completePokemonEvolution(result);
+      return this.cleanEntity(await this.completePokemonEvolution(result));
     }
 
-    return await this.completePokemon(result);
+    return this.cleanEntity(await this.completePokemon(result));
   }
 
   async addPokemon(user: Users, pokemons: PokemonPokedexDto) {
@@ -298,5 +300,25 @@ export class PokemonService extends Service<Pokemon> {
     ].sort((a, b) => a.order - b.order);
 
     return result;
+  }
+
+  private cleanEntity(entity: Pokemon) {
+    const moves = Boolean(entity.moves.length)
+      ? this.moveService.cleanMoves(entity.moves)
+      : entity.moves;
+    return {
+      ...entity,
+      moves,
+    };
+  }
+
+  private cleanEntities(entities: Array<Pokemon> | IPaginate<Pokemon>) {
+    if (isArray(entities)) {
+      return entities.map((entity) => this.cleanEntity(entity));
+    }
+    return {
+      ...entities,
+      data: entities.data.map((entity) => this.cleanEntity(entity)),
+    };
   }
 }

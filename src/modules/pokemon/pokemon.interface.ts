@@ -263,6 +263,66 @@ export interface IResponseEvolution {
   baby_trigger_item: any;
 }
 
+export interface IResponseMove {
+  id: number;
+  pp: number;
+  type: Pick<IResponsePokemon, 'url' | 'name'>;
+  name: string;
+  meta: {
+    drain: number;
+    healing: number;
+    ailment: Pick<IResponsePokemon, 'url' | 'name'>;
+    category: Pick<IResponsePokemon, 'url' | 'name'>;
+    max_hits: any;
+    max_turns: any;
+    min_hits: any;
+    min_turns: any;
+    crit_rate: number;
+    stat_chance: number;
+    flinch_chance: number;
+    ailment_chance: number;
+  };
+  names: Array<{
+    name: string;
+    language: Pick<IResponsePokemon, 'url' | 'name'>;
+  }>;
+  power: number;
+  target: Pick<IResponsePokemon, 'url' | 'name'>;
+  accuracy: number;
+  machines: Array<any>;
+  priority: number;
+  generation: Pick<IResponsePokemon, 'url' | 'name'>;
+  past_values: Array<any>;
+  stat_changes: Array<any>;
+  contest_type: Pick<IResponsePokemon, 'url' | 'name'>;
+  damage_class: Pick<IResponsePokemon, 'url' | 'name'>;
+  effect_chance: any;
+  contest_combos: {
+    super: {
+      use_after: any;
+      use_before: any;
+    };
+    normal: {
+      use_after: any;
+      use_before: Array<Pick<IResponsePokemon, 'url' | 'name'>>;
+    };
+  };
+  contest_effect: Pick<IResponsePokemon, 'url'>;
+  effect_changes: Array<any>;
+  effect_entries: Array<{
+    effect: string;
+    language: Pick<IResponsePokemon, 'url' | 'name'>;
+    short_effect: string;
+  }>;
+  learned_by_pokemon: Array<Pick<IResponsePokemon, 'url' | 'name'>>;
+  flavor_text_entries: Array<{
+    language: Pick<IResponsePokemon, 'url' | 'name'>;
+    flavor_text: string;
+    version_group: Pick<IResponsePokemon, 'url' | 'name'>;
+  }>;
+  super_contest_effect: Pick<IResponsePokemon, 'url'>;
+}
+
 export interface IPokemonXPTO {
   id: string;
   url: string;

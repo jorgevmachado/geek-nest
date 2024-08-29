@@ -146,6 +146,7 @@ describe('PokemonService', () => {
           provide: MoveService,
           useValue: {
             generate: jest.fn(),
+            cleanMoves: jest.fn(),
           },
         },
         {
@@ -406,6 +407,10 @@ describe('PokemonService', () => {
       ],
     };
 
+    jest
+      .spyOn(moveService, 'cleanMoves')
+      .mockReturnValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.moves);
+
     generateRepositoryCreateQueryBuilder([
       {
         type: 'getOne',
@@ -453,6 +458,10 @@ describe('PokemonService', () => {
         service: evolutionService,
       },
     ]);
+
+    jest
+      .spyOn(moveService, 'cleanMoves')
+      .mockReturnValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.moves);
 
     generateRepositoryCreateQueryBuilder([
       {
@@ -561,6 +570,10 @@ describe('PokemonService', () => {
         service: evolutionService,
       },
     ]);
+
+    jest
+      .spyOn(moveService, 'cleanMoves')
+      .mockReturnValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.moves);
 
     generateRepositorySave([ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR]);
 

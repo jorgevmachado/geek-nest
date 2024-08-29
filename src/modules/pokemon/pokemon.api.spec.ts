@@ -1,6 +1,9 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { PokemonApi } from './pokemon.api';
-import { RESPONSE_EVOLUTION_FIXTURE } from '@/modules/pokemon/fixtures';
+import {
+  RESPONSE_EVOLUTION_FIXTURE,
+  RESPONSE_MOVE_FIXTURE,
+} from '@/modules/pokemon/fixtures';
 
 describe('PokemonApi', () => {
   let pokemonApi: PokemonApi;
@@ -90,6 +93,47 @@ describe('PokemonApi', () => {
 
     await expect(
       pokemonApi.getEvolutions('https://pokeapi.co/api/v2/pokemon-species/1/'),
+    ).rejects.toThrow(InternalServerErrorException);
+  });
+
+  it('should return Pokémon move by url when GET request is successful', async () => {
+    jest.spyOn(pokemonApi, 'get').mockResolvedValueOnce(RESPONSE_MOVE_FIXTURE);
+
+    const result = await pokemonApi.getMove(
+      'https://pokeapi.co/api/v2/move/1/',
+    );
+    expect(result).toEqual(RESPONSE_MOVE_FIXTURE);
+  });
+
+  it('should return Pokémon move by url when GET request is successful with effect_entries empty', async () => {
+    jest.spyOn(pokemonApi, 'get').mockResolvedValueOnce({
+      ...RESPONSE_MOVE_FIXTURE,
+      effect_entries: [],
+    });
+
+    const result = await pokemonApi.getMove(
+      'https://pokeapi.co/api/v2/move/1/',
+    );
+    expect(result).toEqual({
+      ...RESPONSE_MOVE_FIXTURE,
+      effect_entries: [
+        {
+          effect: 'inflicts regular damage.',
+          language: {
+            name: 'en',
+            url: 'https://pokeapi.co/api/v2/language/9/',
+          },
+          short_effect: 'inflicts regular damage with additional effects.',
+        },
+      ],
+    });
+  });
+
+  it('should throw error when GET request fails in getMove', async () => {
+    jest.spyOn(pokemonApi, 'get').mockRejectedValueOnce(new Error('GET error'));
+
+    await expect(
+      pokemonApi.getMove('https://pokeapi.co/api/v2/move/1/'),
     ).rejects.toThrow(InternalServerErrorException);
   });
 });

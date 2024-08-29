@@ -3,6 +3,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 
 import type {
   IResponseEvolution,
+  IResponseMove,
   IResponsePaginate,
   IResponsePokemon,
   IResponsePokemonByName,
@@ -66,6 +67,32 @@ export class PokemonApi extends Http {
       throw new InternalServerErrorException(
         `getEvolutionsByOrder => ${error.message}`,
       );
+    }
+  }
+
+  async getMove(url: string) {
+    const order = Number(url.replace(`${this.url}/move/`, '').replace('/', ''));
+    try {
+      const response = (await this.get(`move/${order}`)) as IResponseMove;
+      if (
+        !response.effect_entries.length ||
+        response.effect_entries.length <= 0
+      ) {
+        response.effect_entries = [
+          {
+            effect: 'inflicts regular damage.',
+            language: {
+              name: 'en',
+              url: 'https://pokeapi.co/api/v2/language/9/',
+            },
+            short_effect: 'inflicts regular damage with additional effects.',
+          },
+        ];
+      }
+
+      return response;
+    } catch (error) {
+      throw new InternalServerErrorException(`getMove => ${error.message}`);
     }
   }
 
