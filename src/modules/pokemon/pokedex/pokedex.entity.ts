@@ -29,9 +29,9 @@ export class Pokedex implements IPokeDex {
   @JoinColumn()
   account: Users;
 
-  @ManyToMany(() => Pokemon)
+  @ManyToMany(() => Pokemon, { nullable: true })
   @JoinTable()
-  pokemons: Array<Pokemon>;
+  pokemons?: Array<Pokemon>;
 
   @CreateDateColumn()
   created_at: Date;
