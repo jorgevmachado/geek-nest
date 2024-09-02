@@ -39,9 +39,9 @@ export class PokemonController {
     return this.pokemonService.findPokedex(user);
   }
 
-  @Get(':name')
-  findOne(@Param('name') name: string) {
-    return this.pokemonService.findOne(name);
+  @Get(':param')
+  findOne(@Param('param') param: string) {
+    return this.pokemonService.findOne(param);
   }
 
   @Post('pokedex')
