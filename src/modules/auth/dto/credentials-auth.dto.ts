@@ -1,5 +1,19 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
 
-import { CredentialsUserDto } from '../../users/dto/credentials-user.dto';
+export class CredentialsAuthDto {
+  /**
+   * The email of the User
+   * @example john.doe@mail.com
+   */
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 
-export class CredentialsAuthDto extends PartialType(CredentialsUserDto) {}
+  /**
+   * The password of the User
+   * @example 123456
+   */
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
+}

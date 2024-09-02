@@ -106,11 +106,12 @@ export class UsersService extends Service<Users> {
   }
 
   async checkCredentials({ email, password }: CredentialsUserDto) {
-    const user = await this.repository.findOne({
-      where: { email: email },
+    const user = await this.findBy({
+      by: 'email',
+      value: email,
     });
 
-    if (user.status === EStatus.INACTIVE) {
+    if (user?.status === EStatus.INACTIVE) {
       return null;
     }
 
