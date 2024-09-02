@@ -88,7 +88,7 @@ export class PokemonService extends Service<Pokemon> {
     return this.cleanEntity(await this.completePokemon(result));
   }
 
-  async addPokemon(user: Users, pokemons: PokemonPokedexDto) {
+  async addPokemonToPokedex(user: Users, pokemons: PokemonPokedexDto) {
     const items = pokemons.ids?.length ? pokemons.ids : pokemons.names;
 
     if (!pokemons.ids && !pokemons.names) {

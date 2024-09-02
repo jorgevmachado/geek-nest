@@ -46,7 +46,10 @@ export class PokemonController {
 
   @Post('pokedex')
   @Status(EStatus.ACTIVE, EStatus.COMPLETE)
-  addPokemon(@GetUserAuth() user: Users, @Body() pokemons: PokemonPokedexDto) {
-    return this.pokemonService.addPokemon(user, pokemons);
+  addPokemonToPokedex(
+    @GetUserAuth() user: Users,
+    @Body() pokemons: PokemonPokedexDto,
+  ) {
+    return this.pokemonService.addPokemonToPokedex(user, pokemons);
   }
 }
