@@ -56,7 +56,7 @@ export class PokemonService extends Service<Pokemon> {
     const total = await this.repository.count();
 
     if (total === 0 || total !== this._totalPokemon) {
-      return this.cleanEntities(await this.generate(parameters));
+      return this.cleanEntities(await this.generate(total, parameters));
     }
 
     return this.cleanEntities(await this.index({ parameters }));
@@ -114,7 +114,7 @@ export class PokemonService extends Service<Pokemon> {
     return await this.pokeDexService.findOne(user.id);
   }
 
-  private async generate(filterDto: FilterPokemonDto) {
+  private async generate(total: number, filterDto: FilterPokemonDto) {
     const response = await this.pokemonApi.getAll(0, this._totalPokemon);
 
     if (!response) {
@@ -123,8 +123,14 @@ export class PokemonService extends Service<Pokemon> {
       );
     }
 
+    const entities = total !== 0 ? await this.repository.find() : [];
+
+    const results = response.results.filter(
+      (item) => !entities.find((entity) => entity.name === item.name),
+    );
+
     return await Promise.all(
-      response.results.map(async (item) => {
+      results.map(async (item) => {
         const pokemon = new Pokemon();
         pokemon.name = item.name;
         pokemon.url = item.url;
