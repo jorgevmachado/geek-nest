@@ -29,19 +29,23 @@ export class PokemonApi extends Http {
           order: generateOrder(item.url, `${this.url}/pokemon/`),
         })),
       };
-    } catch (error) {
-      throw new InternalServerErrorException(`getAll => ${error}`);
+    } catch (_) {
+      throw new InternalServerErrorException(
+        'Error When Querying External Api getAll Please Try Again Later!',
+      );
     }
   }
 
   async getByName(name: string) {
     try {
       const response: IResponsePokemonByName = await this.get(
-        `pokemon/${name}`,
+        `pokemonx/${name}`,
       );
       return this.generateOrderList(response);
-    } catch (error) {
-      throw new InternalServerErrorException(`getByName => ${error.message}`);
+    } catch (_) {
+      throw new InternalServerErrorException(
+        'Error When Querying External Api getName Please Try Again Later!',
+      );
     }
   }
 
@@ -50,9 +54,9 @@ export class PokemonApi extends Http {
       return (await this.get(
         `pokemon-species/${name}`,
       )) as IResponsePokemonSpecie;
-    } catch (error) {
+    } catch (_) {
       throw new InternalServerErrorException(
-        `getSpecieByName => ${error.message}`,
+        'Error When Querying External Api getSpecieByName Please Try Again Later!',
       );
     }
   }
@@ -65,7 +69,7 @@ export class PokemonApi extends Http {
       return (await this.get(`evolution-chain/${order}`)) as IResponseEvolution;
     } catch (error) {
       throw new InternalServerErrorException(
-        `getEvolutionsByOrder => ${error.message}`,
+        'Error When Querying External Api getEvolutions Please Try Again Later!',
       );
     }
   }
@@ -92,7 +96,9 @@ export class PokemonApi extends Http {
 
       return response;
     } catch (error) {
-      throw new InternalServerErrorException(`getMove => ${error.message}`);
+      throw new InternalServerErrorException(
+        'Error When Querying External Api getMove Please Try Again Later!',
+      );
     }
   }
 
