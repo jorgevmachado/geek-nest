@@ -139,7 +139,11 @@ export class UsersService extends Service<Users> {
     };
   }
 
-  async findOne(id: string, withDeleted?: boolean, mustCleanUser?: boolean) {
+  async findOne(
+    id: string,
+    withDeleted?: boolean,
+    mustCleanUser: boolean = true,
+  ) {
     const currentUser = await this.findBy({
       by: 'id',
       value: id,
@@ -147,9 +151,10 @@ export class UsersService extends Service<Users> {
       withDeleted,
     });
     if (mustCleanUser) {
-      return currentUser;
+      return this.cleanUser(currentUser);
     }
-    return this.cleanUser(currentUser);
+
+    return currentUser;
   }
 
   async remove(id: string) {
@@ -186,11 +191,16 @@ export class UsersService extends Service<Users> {
     return null;
   }
 
-  private cleanUser(user?: Users) {
-    if (!user) {
-      return user;
+  async promote(userId: Users['id']) {
+    try {
+      await this.update(userId, { role: ERole.ADMIN });
+      return { message: 'User promoted to administrator successfully' };
+    } catch (_) {
+      throw new InternalServerErrorException('Error promoting user');
     }
+  }
 
+  private cleanUser(user: Users) {
     return {
       id: user.id,
       cpf: user.cpf,
@@ -329,14 +339,5 @@ export class UsersService extends Service<Users> {
   ) {
     const hash = await bcrypt.hash(password, salt);
     return hash === userPassword;
-  }
-
-  async promote(user: Users) {
-    try {
-      await this.update(user.id, { role: ERole.ADMIN });
-      return { message: 'User promoted to administrator successfully' };
-    } catch (_) {
-      throw new InternalServerErrorException('Error promoting user');
-    }
   }
 }

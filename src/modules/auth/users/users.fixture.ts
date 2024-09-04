@@ -17,7 +17,7 @@ const USER: Users = {
   status: EStatus.INCOMPLETE,
   gender: undefined,
   password: '123456',
-  createdAt: undefined,
+  createdAt: new Date('2024-09-09'),
   deletedAt: undefined,
   updatedAt: undefined,
   dateOfBirth: new Date('1990-01-01'),
@@ -36,6 +36,13 @@ export const USER_COMPLETE_FIXTURE: Users = {
 
 export const USER_ACTIVE_FIXTURE: Users = {
   ...USER_COMPLETE_FIXTURE,
+  id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
+  status: EStatus.ACTIVE,
+};
+
+export const USER_ADMIN_FIXTURE: Users = {
+  ...USER_COMPLETE_FIXTURE,
+  role: ERole.ADMIN,
   status: EStatus.ACTIVE,
 };
 

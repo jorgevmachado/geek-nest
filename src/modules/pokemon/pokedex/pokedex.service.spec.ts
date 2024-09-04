@@ -11,7 +11,7 @@ import {
   ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR,
 } from '@/modules/pokemon/pokemon.fixture';
 import { POKEDEX_FIXTURE_ACTIVE } from '@/modules/pokemon/pokedex/pokedex.fixture';
-import { USER_COMPLETE_FIXTURE } from '@/modules/users/users.fixture';
+import { USER_COMPLETE_FIXTURE } from '@/modules/auth/users/users.fixture';
 
 describe('PokedexService', () => {
   let service: PokedexService;

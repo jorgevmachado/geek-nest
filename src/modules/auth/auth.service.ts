@@ -63,7 +63,7 @@ export class AuthService {
     return await this.userService.update(id, updateAuthDto);
   }
 
-  async findAll(filterDto: FilterAuthDto) {
+  async findAll(filterDto?: FilterAuthDto) {
     return await this.userService.findAll(filterDto);
   }
 
@@ -89,7 +89,7 @@ export class AuthService {
       onlyUser.role === ERole.USER &&
       onlyUser.status === EStatus.ACTIVE
     ) {
-      return await this.userService.promote(onlyUser);
+      return await this.userService.promote(onlyUser.id);
     }
 
     if (authUser.role !== ERole.ADMIN) {
@@ -107,7 +107,7 @@ export class AuthService {
           : 'User cannot be promoted';
       throw new BadRequestException(message);
     }
-    return await this.userService.promote(user);
+    return await this.userService.promote(user.id);
   }
 
   private validateCurrentUser(id: string, user: Users) {
