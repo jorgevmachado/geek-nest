@@ -1,4 +1,3 @@
-import { EGender, ERole } from '@/modules/users/users.enum';
 import {
   IsDate,
   IsEmail,
@@ -7,10 +6,14 @@ import {
   MaxDate,
   MaxLength,
 } from 'class-validator';
-import { CPF } from '@/decorators/cpf.decorator';
 import { Transform } from 'class-transformer';
 
-export class UpdateUserDto {
+import { CPF } from '@/decorators/cpf.decorator';
+import { ERole } from '@/enums/role.enum';
+
+import { EGender } from '@/modules/auth/users/users.enum';
+
+export class UpdateAuthDto {
   /**
    * The CPF of the User
    * @example 44217458800

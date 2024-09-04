@@ -38,7 +38,7 @@ make unit-test-cov # to run the tests in the project with coverage
 
 Unit Tests
 ```sh
-npm run test -- --findRelatedTests src/modules/users/users.service.spec.ts
+npm run test -- --findRelatedTests src/modules/auth/users/users.service.spec.ts
 npm run test -- --findRelatedTests src/modules/pokemon/pokemon.service.spec.ts
 
 ```

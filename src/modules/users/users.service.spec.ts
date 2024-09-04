@@ -8,7 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
-import { EGender, ERole } from '@/modules/users/users.enum';
+import { EGender, ERole } from '@/modules/auth/users/users.enum';
 import { EStatus } from '@/enums/status.enum';
 
 import {

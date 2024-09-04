@@ -7,15 +7,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-import * as bcrypt from 'bcrypt';
-import { EGender, ERole } from '@/modules/users/users.enum';
-
-import type { IUser } from './users.interface';
-
+import { ERole } from '@/enums/role.enum';
 import { EStatus } from '@/enums/status.enum';
 
+import { EGender } from '@/modules/auth/users/users.enum';
+
 @Entity({ name: 'users' })
-export class Users implements IUser {
+export class Users {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -60,9 +58,4 @@ export class Users implements IUser {
 
   @Column({ nullable: true, length: 64 })
   confirmationToken?: string;
-
-  async validatePassword?(password: string) {
-    const hash = await bcrypt.hash(password, this.salt);
-    return hash === this.password;
-  }
 }
