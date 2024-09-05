@@ -1,23 +1,24 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { Repository } from 'typeorm';
-import { getRepositoryToken } from '@nestjs/typeorm';
-
-import { Users } from './users.entity';
-import { UsersService } from './users.service';
-import { CreateAuthDto } from '@/modules/auth/dto/create-auth.dto';
-import {
-  USERS_PAGINATE_FIXTURE,
-  USER_COMPLETE_FIXTURE,
-  USER_INCOMPLETE_FIXTURE,
-} from '@/modules/auth/users/users.fixture';
-import { UpdateAuthDto } from '@/modules/auth/dto/update-auth.dto';
-import { FilterAuthDto } from '@/modules/auth/dto/filter-auth.dto';
-import { ERole } from '@/enums/role.enum';
-import { EStatus } from '@/enums/status.enum';
 import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Repository } from 'typeorm';
+import { getRepositoryToken } from '@nestjs/typeorm';
+
+import { ERole } from '@/enums/role.enum';
+import { EStatus } from '@/enums/status.enum';
+
+import { CreateAuthDto } from '../dto/create-auth.dto';
+import { UpdateAuthDto } from '../dto/update-auth.dto';
+
+import {
+  USERS_PAGINATE_FIXTURE,
+  USER_COMPLETE_FIXTURE,
+  USER_INCOMPLETE_FIXTURE,
+} from './users.fixture';
+import { Users } from './users.entity';
+import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -39,6 +40,20 @@ describe('UsersService', () => {
     dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
   };
 
+  const createQueryBuilder = (
+    type: 'getOne' | 'getMany' | 'getManyAndCount',
+    resolve: any,
+  ) => {
+    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
+      where: jest.fn(),
+      orderBy: jest.fn(),
+      andWhere: jest.fn(),
+      withDeleted: jest.fn(),
+      leftJoinAndSelect: jest.fn(),
+      [type]: jest.fn().mockReturnValueOnce(resolve),
+    } as any);
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -58,38 +73,26 @@ describe('UsersService', () => {
 
   // create ------------------------------------------------------------------------------------------------------ BEGIN
   it('should create a user', async () => {
-    const createAuthDto: CreateAuthDto = {
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      password: USER_INCOMPLETE_FIXTURE.password,
-      dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-      passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
-    };
-
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     jest
       .spyOn(repository, 'save')
       .mockResolvedValueOnce(USER_INCOMPLETE_FIXTURE);
 
-    const result = await service.create(createAuthDto);
-
-    expect(result).toEqual({
+    expect(
+      await service.create({
+        cpf: USER_INCOMPLETE_FIXTURE.cpf,
+        name: USER_INCOMPLETE_FIXTURE.name,
+        email: USER_INCOMPLETE_FIXTURE.email,
+        password: USER_INCOMPLETE_FIXTURE.password,
+        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+      }),
+    ).toEqual({
       id: USER_INCOMPLETE_FIXTURE.id,
       cpf: USER_INCOMPLETE_FIXTURE.cpf,
       role: USER_INCOMPLETE_FIXTURE.role,
@@ -102,83 +105,49 @@ describe('UsersService', () => {
   });
 
   it('should throw error when create user with a deleted user has already been created with cpf', async () => {
-    const createAuthDto: CreateAuthDto = {
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      password: USER_INCOMPLETE_FIXTURE.password,
-      dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-      passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
-    };
-
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_INCOMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
-    const result = service.create(createAuthDto);
-
-    expect(result).rejects.toThrowError(InternalServerErrorException);
+    await expect(
+      service.create({
+        cpf: USER_INCOMPLETE_FIXTURE.cpf,
+        name: USER_INCOMPLETE_FIXTURE.name,
+        email: USER_INCOMPLETE_FIXTURE.email,
+        password: USER_INCOMPLETE_FIXTURE.password,
+        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+      }),
+    ).rejects.toThrow(InternalServerErrorException);
   });
 
   it('should throw error when create user with a deleted user has already been created with email', async () => {
-    const createAuthDto: CreateAuthDto = {
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      password: USER_INCOMPLETE_FIXTURE.password,
-      dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-      passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
-    };
-
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_INCOMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
 
-    const result = service.create(createAuthDto);
-
-    expect(result).rejects.toThrowError(InternalServerErrorException);
+    await expect(
+      service.create({
+        cpf: USER_INCOMPLETE_FIXTURE.cpf,
+        name: USER_INCOMPLETE_FIXTURE.name,
+        email: USER_INCOMPLETE_FIXTURE.email,
+        password: USER_INCOMPLETE_FIXTURE.password,
+        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+      }),
+    ).rejects.toThrow(InternalServerErrorException);
   });
 
   it('should throw error when create user', async () => {
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
@@ -191,31 +160,13 @@ describe('UsersService', () => {
   // UPDATE ------------------------------------------------------------------------------------------------------ BEGIN
   it('should update a user', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_COMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
 
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     jest.spyOn(repository, 'save').mockResolvedValueOnce(USER_COMPLETE_FIXTURE);
 
@@ -240,31 +191,13 @@ describe('UsersService', () => {
 
   it('should throw error when update user', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_COMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
 
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
@@ -277,34 +210,16 @@ describe('UsersService', () => {
 
   it('should throw error when update user with cpf already exists', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce({
-        ...USER_COMPLETE_FIXTURE,
-        id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
-      }),
-    } as any);
+    createQueryBuilder('getOne', {
+      ...USER_COMPLETE_FIXTURE,
+      id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
+    });
 
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_COMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
@@ -317,109 +232,60 @@ describe('UsersService', () => {
 
   it('should throw error when update user with email already exists', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce({
-        ...USER_COMPLETE_FIXTURE,
-        id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
-      }),
-    } as any);
-
-    // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_COMPLETE_FIXTURE),
-    } as any);
-
-    // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_COMPLETE_FIXTURE),
-    } as any);
-
-    const result = service.update(USER_COMPLETE_FIXTURE.id, {
-      email: USER_INCOMPLETE_FIXTURE.email,
+    createQueryBuilder('getOne', {
+      ...USER_COMPLETE_FIXTURE,
+      id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
     });
 
-    await expect(result).rejects.toThrow(BadRequestException);
+    // find user by cpf
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
+
+    // find user by email
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
+
+    await expect(
+      service.update(USER_COMPLETE_FIXTURE.id, {
+        email: USER_INCOMPLETE_FIXTURE.email,
+      }),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('should throw error when update user role with status incomplete', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_INCOMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
 
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
-    const result = service.update(USER_COMPLETE_FIXTURE.id, {
-      role: ERole.ADMIN,
-    });
-
-    await expect(result).rejects.toThrow(BadRequestException);
+    await expect(
+      service.update(USER_COMPLETE_FIXTURE.id, {
+        role: ERole.ADMIN,
+      }),
+    ).rejects.toThrow(BadRequestException);
   });
   // UPDATE -------------------------------------------------------------------------------------------------------- END
 
   // FIND ALL ---------------------------------------------------------------------------------------------------- BEGIN
   it('should find all users with filters', async () => {
-    const filterAuthDto: FilterAuthDto = {
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      asc: 'name',
-      page: 1,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      role: ERole.USER,
-      limit: 10,
-      status: EStatus.INCOMPLETE,
-      withDeleted: true,
-    };
-
     // find all users by filter
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      getOne: jest.fn(),
-      orderBy: jest.fn(),
-      getMany: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getManyAndCount: jest
-        .fn()
-        .mockReturnValueOnce([[USER_INCOMPLETE_FIXTURE], 1]),
-      leftJoinAndSelect: jest.fn(),
-    } as any);
+    createQueryBuilder('getManyAndCount', [[USER_INCOMPLETE_FIXTURE], 1]);
 
-    const result = await service.findAll(filterAuthDto);
-
-    expect(result).toEqual({
+    expect(
+      await service.findAll({
+        cpf: USER_INCOMPLETE_FIXTURE.cpf,
+        email: USER_INCOMPLETE_FIXTURE.email,
+        asc: 'name',
+        page: 1,
+        name: USER_INCOMPLETE_FIXTURE.name,
+        role: ERole.USER,
+        limit: 10,
+        status: EStatus.INCOMPLETE,
+        withDeleted: true,
+      }),
+    ).toEqual({
       ...USERS_PAGINATE_FIXTURE,
       data: [
         {
@@ -438,20 +304,9 @@ describe('UsersService', () => {
 
   it('should find all users without filters', async () => {
     // find all users
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      getOne: jest.fn(),
-      orderBy: jest.fn(),
-      getMany: jest.fn().mockReturnValueOnce([USER_INCOMPLETE_FIXTURE]),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getManyAndCount: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-    } as any);
+    createQueryBuilder('getMany', [USER_INCOMPLETE_FIXTURE]);
 
-    const result = await service.findAll();
-
-    expect(result).toEqual([
+    expect(await service.findAll()).toEqual([
       {
         id: USER_INCOMPLETE_FIXTURE.id,
         cpf: USER_INCOMPLETE_FIXTURE.cpf,
@@ -469,20 +324,12 @@ describe('UsersService', () => {
   // FIND ONE ---------------------------------------------------------------------------------------------------- BEGIN
   it('should find one user by id', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce({
-        ...USER_INCOMPLETE_FIXTURE,
-        deletedAt: new Date('2024-01-01'),
-      }),
-    } as any);
+    createQueryBuilder('getOne', {
+      ...USER_INCOMPLETE_FIXTURE,
+      deletedAt: new Date('2024-01-01'),
+    });
 
-    const result = await service.findOne(USER_INCOMPLETE_FIXTURE.id);
-
-    expect(result).toEqual({
+    expect(await service.findOne(USER_INCOMPLETE_FIXTURE.id)).toEqual({
       id: USER_INCOMPLETE_FIXTURE.id,
       cpf: USER_INCOMPLETE_FIXTURE.cpf,
       role: USER_INCOMPLETE_FIXTURE.role,
@@ -497,33 +344,17 @@ describe('UsersService', () => {
 
   it('should find one user by id with must clean user false', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_INCOMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
 
-    const result = await service.findOne(
-      USER_INCOMPLETE_FIXTURE.id,
-      false,
-      false,
-    );
-
-    expect(result).toEqual(USER_INCOMPLETE_FIXTURE);
+    expect(
+      await service.findOne(USER_INCOMPLETE_FIXTURE.id, false, false),
+    ).toEqual(USER_INCOMPLETE_FIXTURE);
   });
   // FIND ONE ------------------------------------------------------------------------------------------------------ END
 
   // REMOVE  ----------------------------------------------------------------------------------------------------- BEGIN
   it('should remove user by id', async () => {
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(USER_INCOMPLETE_FIXTURE),
-    } as any);
+    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
 
     jest.spyOn(repository, 'save').mockResolvedValueOnce({
       ...USER_INCOMPLETE_FIXTURE,
@@ -531,9 +362,7 @@ describe('UsersService', () => {
       deletedAt: new Date(),
     });
 
-    const result = await service.remove(USER_INCOMPLETE_FIXTURE.id);
-
-    expect(result).toEqual({
+    expect(await service.remove(USER_INCOMPLETE_FIXTURE.id)).toEqual({
       message: `User with id ${USER_INCOMPLETE_FIXTURE.id} successfully removed`,
     });
   });
@@ -548,142 +377,90 @@ describe('UsersService', () => {
       password: '$2b$10$o3nYsQECy/ZKwFQSssiyMOzN5dKjhcP9iEi5DcCeLLuYcpyKJEUJ2',
     };
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(user),
-    } as any);
+    createQueryBuilder('getOne', user);
 
-    const result = await service.checkCredentials({
-      email: USER_INCOMPLETE_FIXTURE.email,
-      password: USER_INCOMPLETE_FIXTURE.password,
-    });
-
-    expect(result).toEqual(user);
+    expect(
+      await service.checkCredentials({
+        email: USER_INCOMPLETE_FIXTURE.email,
+        password: USER_INCOMPLETE_FIXTURE.password,
+      }),
+    ).toEqual(user);
   });
 
   it('should check credentials with status incomplete', async () => {
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce({
-        ...USER_INCOMPLETE_FIXTURE,
-        salt: '$2b$10$o3nYsQECy/ZKwFQSssiyMO',
-      }),
-    } as any);
-
-    const result = await service.checkCredentials({
-      email: USER_INCOMPLETE_FIXTURE.email,
-      password: USER_INCOMPLETE_FIXTURE.password,
+    createQueryBuilder('getOne', {
+      ...USER_INCOMPLETE_FIXTURE,
+      salt: '$2b$10$o3nYsQECy/ZKwFQSssiyMO',
     });
 
-    expect(result).toEqual(null);
+    expect(
+      await service.checkCredentials({
+        email: USER_INCOMPLETE_FIXTURE.email,
+        password: USER_INCOMPLETE_FIXTURE.password,
+      }),
+    ).toEqual(null);
   });
 
   it('should check credentials with credentials invalid', async () => {
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce({
-        ...USER_INCOMPLETE_FIXTURE,
-        status: EStatus.INCOMPLETE,
-        salt: '$2b$10$o3nYsQECy/ZKwFQSssiyMO',
-      }),
-    } as any);
-
-    const result = await service.checkCredentials({
-      email: USER_INCOMPLETE_FIXTURE.email,
-      password: USER_INCOMPLETE_FIXTURE.password,
+    createQueryBuilder('getOne', {
+      ...USER_INCOMPLETE_FIXTURE,
+      status: EStatus.INCOMPLETE,
+      salt: '$2b$10$o3nYsQECy/ZKwFQSssiyMO',
     });
 
-    expect(result).toEqual(null);
+    expect(
+      await service.checkCredentials({
+        email: USER_INCOMPLETE_FIXTURE.email,
+        password: USER_INCOMPLETE_FIXTURE.password,
+      }),
+    ).toBeNull();
   });
   // CHECK CREDENTIALS  -------------------------------------------------------------------------------------------- END
 
   // PROMOTE  ---------------------------------------------------------------------------------------------------- BEGIN
   it('should promote user', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce({
-        ...USER_COMPLETE_FIXTURE,
-        status: EStatus.ACTIVE,
-      }),
-    } as any);
+    createQueryBuilder('getOne', {
+      ...USER_COMPLETE_FIXTURE,
+      status: EStatus.ACTIVE,
+    });
 
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     jest.spyOn(repository, 'save').mockResolvedValueOnce({
       ...USER_COMPLETE_FIXTURE,
       role: ERole.ADMIN,
     });
 
-    const result = await service.promote(USER_COMPLETE_FIXTURE.id);
-    expect(result).toEqual({
+    expect(await service.promote(USER_COMPLETE_FIXTURE.id)).toEqual({
       message: 'User promoted to administrator successfully',
     });
   });
 
   it('should throw error when promote user', async () => {
     // find user by id
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce({
-        ...USER_COMPLETE_FIXTURE,
-        status: EStatus.ACTIVE,
-      }),
-    } as any);
+    createQueryBuilder('getOne', {
+      ...USER_COMPLETE_FIXTURE,
+      status: EStatus.ACTIVE,
+    });
 
     // find user by cpf
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     // find user by email
-    jest.spyOn(repository, 'createQueryBuilder').mockReturnValueOnce({
-      where: jest.fn(),
-      andWhere: jest.fn(),
-      withDeleted: jest.fn(),
-      leftJoinAndSelect: jest.fn(),
-      getOne: jest.fn().mockReturnValueOnce(null),
-    } as any);
+    createQueryBuilder('getOne', null);
 
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
-    const result = service.promote(USER_COMPLETE_FIXTURE.id);
-
-    await expect(result).rejects.toThrow(InternalServerErrorException);
+    await expect(service.promote(USER_COMPLETE_FIXTURE.id)).rejects.toThrow(
+      InternalServerErrorException,
+    );
   });
   // PROMOTE  ------------------------------------------------------------------------------------------------------ END
 });

@@ -18,13 +18,31 @@ import {
 import { UsersService } from './users/users.service';
 
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let jwtService: JwtService;
   let userService: UsersService;
+
+  const findOneResponse = {
+    id: USER_INCOMPLETE_FIXTURE.id,
+    cpf: USER_INCOMPLETE_FIXTURE.cpf,
+    role: USER_INCOMPLETE_FIXTURE.role,
+    gender: undefined,
+    name: USER_INCOMPLETE_FIXTURE.name,
+    email: USER_INCOMPLETE_FIXTURE.email,
+    status: USER_INCOMPLETE_FIXTURE.status,
+    createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
+    updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+    deletedAt: new Date('2024-01-01'),
+    dateOfBirth: undefined,
+  };
+
+  const findAllResponse = [findOneResponse];
+
+  const removeResponse = {
+    message:
+      'User with id eaca4c08-e62d-495a-ae1c-918199da8d52 successfully removed',
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,9 +51,21 @@ describe('AuthService', () => {
         {
           provide: UsersService,
           useValue: {
-            create: jest.fn(),
+            create: jest.fn().mockResolvedValueOnce({
+              id: USER_INCOMPLETE_FIXTURE.id,
+              cpf: USER_INCOMPLETE_FIXTURE.cpf,
+              role: USER_INCOMPLETE_FIXTURE.role,
+              name: USER_INCOMPLETE_FIXTURE.name,
+              gender: undefined,
+              email: USER_INCOMPLETE_FIXTURE.email,
+              status: USER_INCOMPLETE_FIXTURE.status,
+              createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
+              updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+              deletedAt: undefined,
+              dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
+            }),
             update: jest.fn(),
-            remove: jest.fn(),
+            remove: jest.fn().mockResolvedValueOnce(removeResponse),
             promote: jest.fn(),
             findAll: jest.fn(),
             findOne: jest.fn(),
@@ -45,7 +75,7 @@ describe('AuthService', () => {
         {
           provide: JwtService,
           useValue: {
-            sign: jest.fn(),
+            sign: jest.fn().mockReturnValueOnce('token'),
             signAsync: jest.fn(),
           },
         },
@@ -53,7 +83,6 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    jwtService = module.get<JwtService>(JwtService);
     userService = module.get<UsersService>(UsersService);
   });
 
@@ -61,41 +90,28 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
-  // signUp ------------------------------------------------------------------------------------------------------ BEGIN
+  // SIGN-UP ----------------------------------------------------------------------------------------------------- BEGIN
   it('should signUp user.', async () => {
-    const createAuthDto: CreateAuthDto = {
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      password: USER_INCOMPLETE_FIXTURE.password,
-      dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-      passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
-    };
-    jest.spyOn(userService, 'create').mockResolvedValueOnce({
-      id: USER_INCOMPLETE_FIXTURE.id,
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      role: USER_INCOMPLETE_FIXTURE.role,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      gender: undefined,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      status: USER_INCOMPLETE_FIXTURE.status,
-      createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-      updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
-      deletedAt: undefined,
-      dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-    });
-    expect(await service.signUp(createAuthDto)).toEqual({
+    expect(
+      await service.signUp({
+        cpf: USER_INCOMPLETE_FIXTURE.cpf,
+        name: USER_INCOMPLETE_FIXTURE.name,
+        email: USER_INCOMPLETE_FIXTURE.email,
+        password: USER_INCOMPLETE_FIXTURE.password,
+        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+      }),
+    ).toEqual({
       message: 'Registration Completed Successfully!',
     });
   });
-  // signUp -------------------------------------------------------------------------------------------------------- END
+  // SIGN-UP ------------------------------------------------------------------------------------------------------- END
 
-  // signIn ------------------------------------------------------------------------------------------------------ BEGIN
+  // SIGN-IN ----------------------------------------------------------------------------------------------------- BEGIN
   it('should signIn user.', async () => {
     jest
       .spyOn(userService, 'checkCredentials')
       .mockResolvedValueOnce(USER_COMPLETE_FIXTURE);
-    jest.spyOn(jwtService, 'sign').mockReturnValueOnce('token');
 
     expect(
       await service.signIn({
@@ -115,19 +131,10 @@ describe('AuthService', () => {
       }),
     ).rejects.toThrow(UnprocessableEntityException);
   });
-  // signIn -------------------------------------------------------------------------------------------------------- END
+  // SIGN-IN ------------------------------------------------------------------------------------------------------- END
 
-  // update ------------------------------------------------------------------------------------------------------ BEGIN
+  // UPDATE ------------------------------------------------------------------------------------------------------ BEGIN
   it('should update user.', async () => {
-    const updateAuthDto: UpdateAuthDto = {
-      cpf: USER_COMPLETE_FIXTURE.cpf,
-      name: USER_COMPLETE_FIXTURE.name,
-      role: ERole.ADMIN,
-      email: USER_COMPLETE_FIXTURE.email,
-      gender: USER_COMPLETE_FIXTURE.gender,
-      dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
-    };
-
     jest.spyOn(userService, 'update').mockResolvedValueOnce({
       id: USER_COMPLETE_FIXTURE.id,
       cpf: USER_COMPLETE_FIXTURE.cpf,
@@ -141,13 +148,21 @@ describe('AuthService', () => {
       deletedAt: undefined,
       dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
     });
-    const result = await service.update(
-      USER_INCOMPLETE_FIXTURE.id,
-      updateAuthDto,
-      USER_ADMIN_FIXTURE,
-    );
 
-    expect(result).toEqual({
+    expect(
+      await service.update(
+        USER_INCOMPLETE_FIXTURE.id,
+        {
+          cpf: USER_COMPLETE_FIXTURE.cpf,
+          name: USER_COMPLETE_FIXTURE.name,
+          role: ERole.ADMIN,
+          email: USER_COMPLETE_FIXTURE.email,
+          gender: USER_COMPLETE_FIXTURE.gender,
+          dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        },
+        USER_ADMIN_FIXTURE,
+      ),
+    ).toEqual({
       id: USER_COMPLETE_FIXTURE.id,
       cpf: USER_COMPLETE_FIXTURE.cpf,
       role: USER_COMPLETE_FIXTURE.role,
@@ -162,148 +177,68 @@ describe('AuthService', () => {
   });
 
   it('should throw error when update user with authUser user.', async () => {
-    const updateAuthDto: UpdateAuthDto = {
-      cpf: USER_COMPLETE_FIXTURE.cpf,
-      name: USER_COMPLETE_FIXTURE.name,
-      role: ERole.ADMIN,
-      email: USER_COMPLETE_FIXTURE.email,
-      gender: USER_COMPLETE_FIXTURE.gender,
-      dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
-    };
-    const result = service.update(
-      USER_INCOMPLETE_FIXTURE.id,
-      updateAuthDto,
-      USER_COMPLETE_FIXTURE,
-    );
-
-    await expect(result).rejects.toThrow(ForbiddenException);
+    await expect(
+      service.update(
+        USER_INCOMPLETE_FIXTURE.id,
+        {
+          cpf: USER_COMPLETE_FIXTURE.cpf,
+          name: USER_COMPLETE_FIXTURE.name,
+          role: ERole.ADMIN,
+          email: USER_COMPLETE_FIXTURE.email,
+          gender: USER_COMPLETE_FIXTURE.gender,
+          dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        },
+        USER_COMPLETE_FIXTURE,
+      ),
+    ).rejects.toThrow(ForbiddenException);
   });
-  // update -------------------------------------------------------------------------------------------------------- END
+  // UPDATE -------------------------------------------------------------------------------------------------------- END
 
   // FIND ALL ---------------------------------------------------------------------------------------------------- BEGIN
   it('should find all users ', async () => {
-    jest.spyOn(userService, 'findAll').mockResolvedValueOnce([
-      {
-        id: USER_INCOMPLETE_FIXTURE.id,
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        role: USER_INCOMPLETE_FIXTURE.role,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        status: USER_INCOMPLETE_FIXTURE.status,
-        createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-        updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
-        deletedAt: undefined,
-        gender: undefined,
-        dateOfBirth: undefined,
-      },
-    ]);
+    jest.spyOn(userService, 'findAll').mockResolvedValueOnce(findAllResponse);
 
     const result = await service.findAll();
 
-    expect(result).toEqual([
-      {
-        id: USER_INCOMPLETE_FIXTURE.id,
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        role: USER_INCOMPLETE_FIXTURE.role,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        status: USER_INCOMPLETE_FIXTURE.status,
-        createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-        updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
-        deletedAt: undefined,
-        gender: undefined,
-        dateOfBirth: undefined,
-      },
-    ]);
+    expect(result).toEqual(findAllResponse);
   });
   // FIND ALL ------------------------------------------------------------------------------------------------------ END
 
   // FIND ONE ---------------------------------------------------------------------------------------------------- BEGIN
   it('should find one user ', async () => {
-    jest.spyOn(userService, 'findOne').mockResolvedValueOnce({
-      id: USER_INCOMPLETE_FIXTURE.id,
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      role: USER_INCOMPLETE_FIXTURE.role,
-      gender: undefined,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      status: USER_INCOMPLETE_FIXTURE.status,
-      createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-      updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
-      deletedAt: new Date('2024-01-01'),
-      dateOfBirth: undefined,
-    });
+    jest.spyOn(userService, 'findOne').mockResolvedValueOnce(findOneResponse);
 
-    const result = await service.findOne(
-      USER_INCOMPLETE_FIXTURE.id,
-      USER_ADMIN_FIXTURE,
-    );
-
-    expect(result).toEqual({
-      id: USER_INCOMPLETE_FIXTURE.id,
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      role: USER_INCOMPLETE_FIXTURE.role,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      status: USER_INCOMPLETE_FIXTURE.status,
-      createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-      updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
-      deletedAt: new Date('2024-01-01'),
-    });
+    expect(
+      await service.findOne(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+    ).toEqual(findOneResponse);
   });
 
   it('should throw error when find one user without permission', async () => {
-    jest.spyOn(userService, 'findOne').mockResolvedValueOnce({
-      id: USER_INCOMPLETE_FIXTURE.id,
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      role: USER_INCOMPLETE_FIXTURE.role,
-      gender: undefined,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      status: USER_INCOMPLETE_FIXTURE.status,
-      createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-      updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
-      deletedAt: new Date('2024-01-01'),
-      dateOfBirth: undefined,
-    });
+    jest.spyOn(userService, 'findOne').mockResolvedValueOnce(findOneResponse);
 
-    const result = service.findOne(USER_INCOMPLETE_FIXTURE.id, {
-      ...USER_INCOMPLETE_FIXTURE,
-      id: 'xpto-id',
-    });
-
-    await expect(result).rejects.toThrow(UnprocessableEntityException);
+    await expect(
+      service.findOne(USER_INCOMPLETE_FIXTURE.id, {
+        ...USER_INCOMPLETE_FIXTURE,
+        id: 'xpto-id',
+      }),
+    ).rejects.toThrow(UnprocessableEntityException);
   });
   // FIND ONE ------------------------------------------------------------------------------------------------------ END
 
   // REMOVE  ----------------------------------------------------------------------------------------------------- BEGIN
   it('should remove one user', async () => {
-    jest.spyOn(userService, 'remove').mockResolvedValueOnce({
-      message:
-        'User with id eaca4c08-e62d-495a-ae1c-918199da8d52 successfully removed',
-    });
-    const result = await service.remove(USER_INCOMPLETE_FIXTURE.id, {
-      ...USER_ADMIN_FIXTURE,
-      id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
-    });
-
-    expect(result).toEqual({
-      message:
-        'User with id eaca4c08-e62d-495a-ae1c-918199da8d52 successfully removed',
-    });
+    expect(
+      await service.remove(USER_INCOMPLETE_FIXTURE.id, {
+        ...USER_ADMIN_FIXTURE,
+        id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
+      }),
+    ).toEqual(removeResponse);
   });
 
   it('should throw error when remove one user', async () => {
-    jest.spyOn(userService, 'remove').mockResolvedValueOnce({
-      message:
-        'User with id eaca4c08-e62d-495a-ae1c-918199da8d52 successfully removed',
-    });
-    const result = service.remove(
-      USER_INCOMPLETE_FIXTURE.id,
-      USER_ADMIN_FIXTURE,
-    );
-
-    await expect(result).rejects.toThrow(BadRequestException);
+    await expect(
+      service.remove(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+    ).rejects.toThrow(BadRequestException);
   });
   // REMOVE  ------------------------------------------------------------------------------------------------------- END
 
@@ -329,12 +264,9 @@ describe('AuthService', () => {
       message: 'User promoted to administrator successfully',
     });
 
-    const result = await service.promote(
-      USER_COMPLETE_FIXTURE.id,
-      USER_ADMIN_FIXTURE,
-    );
-
-    expect(result).toEqual({
+    expect(
+      await service.promote(USER_COMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+    ).toEqual({
       message: 'User promoted to administrator successfully',
     });
   });
@@ -387,12 +319,9 @@ describe('AuthService', () => {
       message: 'User promoted to administrator successfully',
     });
 
-    const result = await service.promote(
-      USER_ACTIVE_FIXTURE.id,
-      USER_ADMIN_FIXTURE,
-    );
-
-    expect(result).toEqual({
+    expect(
+      await service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
+    ).toEqual({
       message: 'User promoted to administrator successfully',
     });
   });
@@ -427,9 +356,9 @@ describe('AuthService', () => {
       },
     ]);
 
-    const result = service.promote(USER_ACTIVE_FIXTURE.id, USER_ACTIVE_FIXTURE);
-
-    await expect(result).rejects.toThrow(ForbiddenException);
+    await expect(
+      service.promote(USER_ACTIVE_FIXTURE.id, USER_ACTIVE_FIXTURE),
+    ).rejects.toThrow(ForbiddenException);
   });
 
   it('should throw error when try to promote user with role admin', async () => {
@@ -476,9 +405,9 @@ describe('AuthService', () => {
       dateOfBirth: USER_ACTIVE_FIXTURE.dateOfBirth,
     });
 
-    const result = service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE);
-
-    await expect(result).rejects.toThrow(BadRequestException);
+    await expect(
+      service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
+    ).rejects.toThrow(BadRequestException);
   });
 
   it('should throw error when try to promote user with status inactive', async () => {
@@ -525,9 +454,9 @@ describe('AuthService', () => {
       dateOfBirth: USER_ACTIVE_FIXTURE.dateOfBirth,
     });
 
-    const result = service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE);
-
-    await expect(result).rejects.toThrow(BadRequestException);
+    await expect(
+      service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
+    ).rejects.toThrow(BadRequestException);
   });
   // PROMOTE  ------------------------------------------------------------------------------------------------------ END
 });

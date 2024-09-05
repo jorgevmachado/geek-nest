@@ -40,6 +40,7 @@ Unit Tests
 ```sh
 npm run test -- --findRelatedTests src/modules/auth/users/users.service.spec.ts
 npm run test -- --findRelatedTests src/modules/auth/auth.service.spec.ts
+npm run test -- --findRelatedTests src/modules/auth/auth.controller.spec.ts
 npm run test -- --findRelatedTests src/modules/pokemon/pokemon.service.spec.ts
 
 ```
