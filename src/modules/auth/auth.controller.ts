@@ -51,13 +51,13 @@ export class AuthController {
   @UseGuards(AuthGuard(), AuthRoleGuards)
   @Role(ERole.ADMIN)
   findAll(@Query() filter: FilterAuthDto) {
-    return this.authService.findAll(filter);
+    return this.authService.findAllUsers(filter);
   }
 
   @Get(':id')
   @UseGuards(AuthGuard(), AuthRoleGuards)
   findOne(@GetUserAuth() user: Users, @Param('id') id: string) {
-    return this.authService.findOne(id, user);
+    return this.authService.findOneUser(id, user);
   }
 
   @Patch(':id')
@@ -67,19 +67,19 @@ export class AuthController {
     @Param('id') id: string,
     @Body() updateAuthDto: UpdateAuthDto,
   ) {
-    return this.authService.update(id, updateAuthDto, user);
+    return this.authService.updateUser(id, updateAuthDto, user);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard(), AuthRoleGuards)
   @Role(ERole.ADMIN)
   remove(@GetUserAuth() user: Users, @Param('id') id: string) {
-    return this.authService.remove(id, user);
+    return this.authService.removeUser(id, user);
   }
 
   @Patch('promote/:id')
   @UseGuards(AuthGuard(), AuthRoleGuards)
   promote(@GetUserAuth() user: Users, @Param('id') id: string) {
-    return this.authService.promote(id, user);
+    return this.authService.promoteUser(id, user);
   }
 }

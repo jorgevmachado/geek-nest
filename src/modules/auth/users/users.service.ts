@@ -177,14 +177,11 @@ export class UsersService extends Service<Users> {
       value: email,
     });
 
-    if (user?.status === EStatus.INACTIVE) {
+    if (!user || user?.status === EStatus.INACTIVE) {
       return null;
     }
 
-    if (
-      user &&
-      (await this.validatePassword(user.salt, password, user.password))
-    ) {
+    if (await this.validatePassword(user.salt, password, user.password)) {
       return user;
     }
 

@@ -150,7 +150,7 @@ describe('AuthService', () => {
     });
 
     expect(
-      await service.update(
+      await service.updateUser(
         USER_INCOMPLETE_FIXTURE.id,
         {
           cpf: USER_COMPLETE_FIXTURE.cpf,
@@ -178,7 +178,7 @@ describe('AuthService', () => {
 
   it('should throw error when update user with authUser user.', async () => {
     await expect(
-      service.update(
+      service.updateUser(
         USER_INCOMPLETE_FIXTURE.id,
         {
           cpf: USER_COMPLETE_FIXTURE.cpf,
@@ -198,7 +198,7 @@ describe('AuthService', () => {
   it('should find all users ', async () => {
     jest.spyOn(userService, 'findAll').mockResolvedValueOnce(findAllResponse);
 
-    const result = await service.findAll();
+    const result = await service.findAllUsers();
 
     expect(result).toEqual(findAllResponse);
   });
@@ -209,7 +209,7 @@ describe('AuthService', () => {
     jest.spyOn(userService, 'findOne').mockResolvedValueOnce(findOneResponse);
 
     expect(
-      await service.findOne(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      await service.findOneUser(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).toEqual(findOneResponse);
   });
 
@@ -217,7 +217,7 @@ describe('AuthService', () => {
     jest.spyOn(userService, 'findOne').mockResolvedValueOnce(findOneResponse);
 
     await expect(
-      service.findOne(USER_INCOMPLETE_FIXTURE.id, {
+      service.findOneUser(USER_INCOMPLETE_FIXTURE.id, {
         ...USER_INCOMPLETE_FIXTURE,
         id: 'xpto-id',
       }),
@@ -228,7 +228,7 @@ describe('AuthService', () => {
   // REMOVE  ----------------------------------------------------------------------------------------------------- BEGIN
   it('should remove one user', async () => {
     expect(
-      await service.remove(USER_INCOMPLETE_FIXTURE.id, {
+      await service.removeUser(USER_INCOMPLETE_FIXTURE.id, {
         ...USER_ADMIN_FIXTURE,
         id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
       }),
@@ -237,7 +237,7 @@ describe('AuthService', () => {
 
   it('should throw error when remove one user', async () => {
     await expect(
-      service.remove(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      service.removeUser(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).rejects.toThrow(BadRequestException);
   });
   // REMOVE  ------------------------------------------------------------------------------------------------------- END
@@ -265,7 +265,7 @@ describe('AuthService', () => {
     });
 
     expect(
-      await service.promote(USER_COMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      await service.promoteUser(USER_COMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).toEqual({
       message: 'User promoted to administrator successfully',
     });
@@ -320,7 +320,7 @@ describe('AuthService', () => {
     });
 
     expect(
-      await service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      await service.promoteUser(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).toEqual({
       message: 'User promoted to administrator successfully',
     });
@@ -357,7 +357,7 @@ describe('AuthService', () => {
     ]);
 
     await expect(
-      service.promote(USER_ACTIVE_FIXTURE.id, USER_ACTIVE_FIXTURE),
+      service.promoteUser(USER_ACTIVE_FIXTURE.id, USER_ACTIVE_FIXTURE),
     ).rejects.toThrow(ForbiddenException);
   });
 
@@ -406,7 +406,7 @@ describe('AuthService', () => {
     });
 
     await expect(
-      service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      service.promoteUser(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -455,7 +455,7 @@ describe('AuthService', () => {
     });
 
     await expect(
-      service.promote(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      service.promoteUser(USER_ACTIVE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).rejects.toThrow(BadRequestException);
   });
   // PROMOTE  ------------------------------------------------------------------------------------------------------ END

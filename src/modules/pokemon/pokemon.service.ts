@@ -10,6 +10,9 @@ import { isArray } from 'class-validator';
 import { type IPaginate, Service, isUUID } from '@/services';
 
 import { EStatus } from '@/enums/status.enum';
+import { QueryParametersDto } from '@/dto/query-parameters.dto';
+
+import { Users } from '@/modules/auth/users/users.entity';
 
 import type {
   IResponsePokemonByName,
@@ -19,16 +22,13 @@ import { Pokemon } from './pokemon.entity';
 import { PokemonApi } from './pokemon.api';
 
 import { AbilityService } from './ability/ability.service';
-import { EvolutionsService } from '@/modules/pokemon/evolutions/evolutions.service';
+import { EvolutionsService } from './evolutions/evolutions.service';
 import { MoveService } from './move/move.service';
 import { PokedexService } from './pokedex/pokedex.service';
 import { StatService } from './stat/stat.service';
 import { TypeService } from './type/type.service';
 
-import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
-
-import { Users } from '@/modules/auth/users/users.entity';
 
 @Injectable()
 export class PokemonService extends Service<Pokemon> {
@@ -53,7 +53,7 @@ export class PokemonService extends Service<Pokemon> {
   private _totalPokemon: number = 1302;
 
   async findAll(
-    parameters: FilterPokemonDto,
+    parameters: QueryParametersDto,
   ): Promise<Array<Pokemon> | IPaginate<Pokemon>> {
     const total = await this.repository.count();
 
@@ -74,10 +74,6 @@ export class PokemonService extends Service<Pokemon> {
       value,
       withThrow,
     });
-
-    if (!withThrow && !result) {
-      return null;
-    }
 
     if (!complete) {
       return this.cleanEntity(result);
@@ -116,7 +112,7 @@ export class PokemonService extends Service<Pokemon> {
     return await this.pokeDexService.findOne(user.id);
   }
 
-  private async generate(total: number, filterDto: FilterPokemonDto) {
+  private async generate(total: number, filterDto: QueryParametersDto) {
     const response = await this.pokemonApi.getAll(0, this._totalPokemon);
 
     if (!response) {

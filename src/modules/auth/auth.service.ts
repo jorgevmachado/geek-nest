@@ -45,7 +45,7 @@ export class AuthService {
     return { token };
   }
 
-  async update(id: string, updateAuthDto: UpdateAuthDto, authUser?: Users) {
+  async updateUser(id: string, updateAuthDto: UpdateAuthDto, authUser?: Users) {
     if (Boolean(authUser)) {
       this.validateCurrentUser(id, authUser);
     }
@@ -63,24 +63,24 @@ export class AuthService {
     return await this.userService.update(id, updateAuthDto);
   }
 
-  async findAll(filterDto?: FilterAuthDto) {
+  async findAllUsers(filterDto?: FilterAuthDto) {
     return await this.userService.findAll(filterDto);
   }
 
-  async findOne(id: string, user: Users) {
+  async findOneUser(id: string, user: Users) {
     this.validateCurrentUser(id, user);
     const withDeleted = user.role === ERole.ADMIN;
     return this.userService.findOne(id, withDeleted);
   }
 
-  async remove(id: string, authUser: Users) {
+  async removeUser(id: string, authUser: Users) {
     if (authUser.id === id) {
       throw new BadRequestException('You cannot delete yourself');
     }
     return await this.userService.remove(id);
   }
 
-  async promote(id: string, authUser: Users) {
+  async promoteUser(id: string, authUser: Users) {
     const users = (await this.userService.findAll()) as Array<Users>;
     const onlyUser = users[0];
     if (

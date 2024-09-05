@@ -11,19 +11,16 @@ import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
 import { EStatus } from '@/enums/status.enum';
+import { QueryParametersDto } from '@/dto/query-parameters.dto';
 
-import { AuthRoleGuards } from '../auth/auth-role.guards';
+import { AuthRoleGuards } from '@/modules/auth/auth-role.guards';
 import { AuthStatusGuards } from '@/modules/auth/auth-status.guards';
-import { GetUserAuth } from '../auth/auth-user.decorator';
-
-import { PokemonService } from './pokemon.service';
-
-import { FilterPokemonDto } from './dto/filter-pokemon.dto';
-import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
-
+import { GetUserAuth } from '@/modules/auth/auth-user.decorator';
 import { Status } from '@/modules/auth/auth-status.decorator';
-
 import { Users } from '@/modules/auth/users/users.entity';
+
+import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
+import { PokemonService } from './pokemon.service';
 
 @ApiTags('pokemon')
 @Controller('pokemon')
@@ -32,7 +29,7 @@ export class PokemonController {
   constructor(private readonly pokemonService: PokemonService) {}
 
   @Get()
-  findAll(@Query() filter: FilterPokemonDto) {
+  findAll(@Query() filter: QueryParametersDto) {
     return this.pokemonService.findAll(filter);
   }
 
