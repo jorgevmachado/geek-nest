@@ -10,7 +10,7 @@ import { Service } from '@/services';
 import { Pokedex } from './pokedex.entity';
 
 import { Pokemon } from '../pokemon.entity';
-import { Users } from '../../users/users.entity';
+import { Users } from '@/modules/auth/users/users.entity';
 
 @Injectable()
 export class PokedexService extends Service<Pokedex> {

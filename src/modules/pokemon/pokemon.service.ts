@@ -5,8 +5,10 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isArray } from 'class-validator';
 
 import { type IPaginate, Service, isUUID } from '@/services';
+
 import { EStatus } from '@/enums/status.enum';
 
 import type {
@@ -22,11 +24,11 @@ import { MoveService } from './move/move.service';
 import { PokedexService } from './pokedex/pokedex.service';
 import { StatService } from './stat/stat.service';
 import { TypeService } from './type/type.service';
-import { Users } from '../users/users.entity';
 
 import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
-import { isArray } from 'class-validator';
+
+import { Users } from '@/modules/auth/users/users.entity';
 
 @Injectable()
 export class PokemonService extends Service<Pokemon> {

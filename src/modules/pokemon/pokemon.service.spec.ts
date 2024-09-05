@@ -41,11 +41,11 @@ import {
   generateEntities,
   generateResponse,
 } from '@/modules/pokemon/fixtures';
-import { USER_FIXTURE_ACTIVE } from '@/modules/users/users.fixture';
 import { POKEDEX_FIXTURE_ACTIVE } from '@/modules/pokemon/pokedex/pokedex.fixture';
 
 import { EStatus } from '@/enums/status.enum';
 import { PAGINATE } from '@/fixtures';
+import { USER_COMPLETE_FIXTURE } from '@/modules/auth/users/users.fixture';
 
 describe('PokemonService', () => {
   let service: PokemonService;
@@ -637,13 +637,13 @@ describe('PokemonService', () => {
 
   // addPokemon----------------------------------------------------------------------------------------------------BEGIN
   it('should throw error when try to add pokemon with names and ids empty', async () => {
-    const result = service.addPokemon(USER_FIXTURE_ACTIVE, {});
+    const result = service.addPokemonToPokedex(USER_COMPLETE_FIXTURE, {});
 
     await expect(result).rejects.toThrow(BadRequestException);
   });
 
   it('should throw error when try to add pokemon with more then 4', async () => {
-    const result = service.addPokemon(USER_FIXTURE_ACTIVE, {
+    const result = service.addPokemonToPokedex(USER_COMPLETE_FIXTURE, {
       ids: [
         ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.id,
         ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR.id,
@@ -675,7 +675,7 @@ describe('PokemonService', () => {
       .spyOn(pokeDexService, 'addInPokeDex')
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
 
-    const result = await service.addPokemon(USER_FIXTURE_ACTIVE, {
+    const result = await service.addPokemonToPokedex(USER_COMPLETE_FIXTURE, {
       ids: [
         ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.id,
         ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR.id,
@@ -693,7 +693,7 @@ describe('PokemonService', () => {
       .spyOn(pokeDexService, 'findOne')
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
 
-    const result = await service.findPokedex(USER_FIXTURE_ACTIVE);
+    const result = await service.findPokedex(USER_COMPLETE_FIXTURE);
 
     expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
   });

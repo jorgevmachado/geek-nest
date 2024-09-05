@@ -6,10 +6,10 @@ export const CURRENT_PAGE = 1;
 export const SKIP = 0;
 
 export const PAGINATE = {
-  next: 2,
+  next: NEXT,
   prev: null,
-  total: 0,
-  pages: 0,
+  total: TOTAL,
+  pages: PAGES,
   per_page: PER_PAGE,
   current_page: CURRENT_PAGE,
   skip: SKIP,

@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from './modules/auth/auth.module';
 import { PokemonModule } from './modules/pokemon/pokemon.module';
-import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -20,7 +19,6 @@ import { UsersModule } from './modules/users/users.module';
       logging: false,
       entities: [__dirname + '/**/*.entity{.js,.ts}'],
     }),
-    UsersModule,
     AuthModule,
     PokemonModule,
   ],

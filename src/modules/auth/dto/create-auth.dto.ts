@@ -11,14 +11,7 @@ import { Transform } from 'class-transformer';
 import { CPF } from '@/decorators/cpf.decorator';
 import { Match } from '@/decorators/match.decorator';
 
-import { type IUser } from '../users.interface';
-
-interface ICreateUserDto
-  extends Pick<IUser, 'name' | 'email' | 'password' | 'dateOfBirth'> {
-  passwordConfirmation: string;
-}
-
-export class CreateUserDto implements ICreateUserDto {
+export class CreateAuthDto {
   /**
    * The CPF of the User
    * @example 44217458800

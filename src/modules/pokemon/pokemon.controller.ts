@@ -10,17 +10,20 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-import { PokemonService } from './pokemon.service';
-
-import { Users } from '../users/users.entity';
+import { EStatus } from '@/enums/status.enum';
 
 import { AuthRoleGuards } from '../auth/auth-role.guards';
-import { FilterPokemonDto } from './dto/filter-pokemon.dto';
-import { GetUserAuth } from '../auth/auth-user.decorator';
-import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
 import { AuthStatusGuards } from '@/modules/auth/auth-status.guards';
+import { GetUserAuth } from '../auth/auth-user.decorator';
+
+import { PokemonService } from './pokemon.service';
+
+import { FilterPokemonDto } from './dto/filter-pokemon.dto';
+import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
+
 import { Status } from '@/modules/auth/auth-status.decorator';
-import { EStatus } from '@/enums/status.enum';
+
+import { Users } from '@/modules/auth/users/users.entity';
 
 @ApiTags('pokemon')
 @Controller('pokemon')
