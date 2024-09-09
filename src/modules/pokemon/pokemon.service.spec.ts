@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,7 +12,6 @@ import { Ability } from './ability/ability.entity';
 import { Move } from './move/move.entity';
 import { Pokedex } from './pokedex/pokedex.entity';
 import { Pokemon } from './pokemon.entity';
-import { Stat } from './stat/stat.entity';
 import { Type } from './type/type.entity';
 
 import { PokemonApi } from './pokemon.api';
@@ -43,14 +41,11 @@ import {
   generateEntities,
   generateResponse,
 } from '@/modules/pokemon/fixtures';
-import {
-  USER_FIXTURE,
-  USER_FIXTURE_ACTIVE,
-} from '@/modules/users/users.fixture';
 import { POKEDEX_FIXTURE_ACTIVE } from '@/modules/pokemon/pokedex/pokedex.fixture';
 
 import { EStatus } from '@/enums/status.enum';
 import { PAGINATE } from '@/fixtures';
+import { USER_COMPLETE_FIXTURE } from '@/modules/auth/users/users.fixture';
 
 describe('PokemonService', () => {
   let service: PokemonService;
@@ -98,7 +93,9 @@ describe('PokemonService', () => {
         entity.order,
         entity.resolve,
       );
-      jest.spyOn(entity.service, 'generate').mockResolvedValueOnce(result);
+      jest
+        .spyOn(entity.service, 'generate')
+        .mockResolvedValueOnce(result as any);
     });
   };
 
@@ -136,7 +133,6 @@ describe('PokemonService', () => {
         PokemonService,
         { provide: getRepositoryToken(Pokemon), useClass: Repository },
         { provide: getRepositoryToken(Type), useClass: Repository },
-        { provide: getRepositoryToken(Stat), useClass: Repository },
         { provide: getRepositoryToken(Move), useClass: Repository },
         { provide: getRepositoryToken(Ability), useClass: Repository },
         { provide: getRepositoryToken(Pokedex), useClass: Repository },
@@ -150,6 +146,7 @@ describe('PokemonService', () => {
           provide: MoveService,
           useValue: {
             generate: jest.fn(),
+            cleanMoves: jest.fn(),
           },
         },
         {
@@ -270,8 +267,11 @@ describe('PokemonService', () => {
 
     generateResponseApi(0, ['getAll']);
 
+    jest
+      .spyOn(repository, 'find')
+      .mockResolvedValueOnce([ENTITY_POKEMON_FIXTURE_BULBASAUR]);
+
     generateRepositorySave([
-      ENTITY_POKEMON_FIXTURE_BULBASAUR,
       ENTITY_POKEMON_FIXTURE_IVYSAUR,
       ENTITY_POKEMON_FIXTURE_VENUSAUR,
     ]);
@@ -410,6 +410,10 @@ describe('PokemonService', () => {
       ],
     };
 
+    jest
+      .spyOn(moveService, 'cleanMoves')
+      .mockReturnValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.moves);
+
     generateRepositoryCreateQueryBuilder([
       {
         type: 'getOne',
@@ -457,6 +461,10 @@ describe('PokemonService', () => {
         service: evolutionService,
       },
     ]);
+
+    jest
+      .spyOn(moveService, 'cleanMoves')
+      .mockReturnValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.moves);
 
     generateRepositoryCreateQueryBuilder([
       {
@@ -566,6 +574,10 @@ describe('PokemonService', () => {
       },
     ]);
 
+    jest
+      .spyOn(moveService, 'cleanMoves')
+      .mockReturnValueOnce(ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.moves);
+
     generateRepositorySave([ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR]);
 
     const result = await service.findOne(ENTITY_POKEMON_FIXTURE_BULBASAUR.name);
@@ -628,13 +640,13 @@ describe('PokemonService', () => {
 
   // addPokemon----------------------------------------------------------------------------------------------------BEGIN
   it('should throw error when try to add pokemon with names and ids empty', async () => {
-    const result = service.addPokemon(USER_FIXTURE_ACTIVE, {});
+    const result = service.addPokemonToPokedex(USER_COMPLETE_FIXTURE, {});
 
     await expect(result).rejects.toThrow(BadRequestException);
   });
 
   it('should throw error when try to add pokemon with more then 4', async () => {
-    const result = service.addPokemon(USER_FIXTURE_ACTIVE, {
+    const result = service.addPokemonToPokedex(USER_COMPLETE_FIXTURE, {
       ids: [
         ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.id,
         ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR.id,
@@ -666,7 +678,7 @@ describe('PokemonService', () => {
       .spyOn(pokeDexService, 'addInPokeDex')
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
 
-    const result = await service.addPokemon(USER_FIXTURE_ACTIVE, {
+    const result = await service.addPokemonToPokedex(USER_COMPLETE_FIXTURE, {
       ids: [
         ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR.id,
         ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR.id,
@@ -684,7 +696,7 @@ describe('PokemonService', () => {
       .spyOn(pokeDexService, 'findOne')
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
 
-    const result = await service.findPokedex(USER_FIXTURE_ACTIVE);
+    const result = await service.findPokedex(USER_COMPLETE_FIXTURE);
 
     expect(result).toEqual(POKEDEX_FIXTURE_ACTIVE);
   });

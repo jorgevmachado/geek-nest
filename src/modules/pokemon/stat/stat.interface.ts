@@ -1,7 +1,8 @@
 export interface IStat {
-  url: string;
-  name: string;
-  order: number;
-  effort: number;
-  base_stat: number;
+  hp: number;
+  speed: number;
+  attack: number;
+  defense: number;
+  special_attack: number;
+  special_defense: number;
 }

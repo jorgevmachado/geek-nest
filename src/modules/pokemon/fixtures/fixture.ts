@@ -15,7 +15,6 @@ import {
 import { Ability } from '@/modules/pokemon/ability/ability.entity';
 import { Move } from '@/modules/pokemon/move/move.entity';
 import { Pokemon } from '@/modules/pokemon/pokemon.entity';
-import { Stat } from '@/modules/pokemon/stat/stat.entity';
 import { Type } from '@/modules/pokemon/type/type.entity';
 
 import {
@@ -29,8 +28,9 @@ import {
   ENTITY_POKEMON_FIXTURE_VENUSAUR,
 } from '@/modules/pokemon/pokemon.fixture';
 import { ENTITIES_ABILITIES_FIXTURE } from '@/modules/pokemon/ability/ability.fixture';
-import { ENTITIES_STATS_FIXTURE } from '@/modules/pokemon/stat/stat.fixture';
 import { ENTITIES_TYPES_FIXTURE } from '@/modules/pokemon/type/type.fixture';
+import { IStat } from '@/modules/pokemon/stat/stat.interface';
+import { STAT_FIXTURE } from '@/modules/pokemon/stat/stat.fixture';
 
 export type TResponse =
   | 'getAll'
@@ -54,7 +54,7 @@ export type TService =
 export type TServiceResolve =
   | Array<Pokemon>
   | Array<Type>
-  | Array<Stat>
+  | IStat
   | Array<Move>
   | Array<Ability>;
 
@@ -94,7 +94,7 @@ export function generateEntities(
     case 'typeService':
       return !resolve ? ENTITIES_TYPES_FIXTURE : resolve;
     case 'statService':
-      return !resolve ? ENTITIES_STATS_FIXTURE : resolve;
+      return !resolve ? STAT_FIXTURE : resolve;
     case 'moveService':
       if (resolve) {
         return resolve;
@@ -295,14 +295,6 @@ export function match(expected: Pokemon, received: Pokemon) {
       matchFail = true;
       console.log('expected?.moves => ', expected?.moves);
       console.log('received?.moves => ', received?.moves);
-    }
-  }
-
-  if (expected?.stats && received?.stats) {
-    if (expected?.stats?.length !== received?.stats?.length) {
-      matchFail = true;
-      console.log('expected?.stats => ', expected?.stats);
-      console.log('received?.stats => ', received?.stats);
     }
   }
 

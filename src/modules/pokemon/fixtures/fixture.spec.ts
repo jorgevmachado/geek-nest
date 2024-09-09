@@ -22,10 +22,10 @@ import {
   RESPONSE_POKEMON_BY_SPECIE_NAME_FIXTURE_BULBASAUR,
 } from '@/modules/pokemon/fixtures/response';
 import { ENTITIES_ABILITIES_FIXTURE } from '@/modules/pokemon/ability/ability.fixture';
-import { ENTITIES_STATS_FIXTURE } from '@/modules/pokemon/stat/stat.fixture';
 import { ENTITIES_TYPES_FIXTURE } from '@/modules/pokemon/type/type.fixture';
 
 import { EStatus } from '@/enums/status.enum';
+import { STAT_FIXTURE } from '@/modules/pokemon/stat/stat.fixture';
 
 describe('fixture', () => {
   it('should return generateResponse getByName without resolve', () => {
@@ -103,12 +103,12 @@ describe('fixture', () => {
   });
 
   it('should return generateEntities statService without resolve', () => {
-    expect(generateEntities('statService')).toEqual(ENTITIES_STATS_FIXTURE);
+    expect(generateEntities('statService')).toEqual(STAT_FIXTURE);
   });
 
   it('should return generateEntities statService with resolve', () => {
-    expect(generateEntities('statService', 0, ENTITIES_STATS_FIXTURE)).toEqual(
-      ENTITIES_STATS_FIXTURE,
+    expect(generateEntities('statService', 0, STAT_FIXTURE)).toEqual(
+      STAT_FIXTURE,
     );
   });
 

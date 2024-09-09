@@ -3,7 +3,6 @@ import { EStatus } from '@/enums/status.enum';
 import { Ability } from './ability/ability.entity';
 import { Move } from './move/move.entity';
 import { Pokemon } from './pokemon.entity';
-import { Stat } from './stat/stat.entity';
 import { Type } from './type/type.entity';
 
 export interface IResponsePaginate<T> {
@@ -264,7 +263,67 @@ export interface IResponseEvolution {
   baby_trigger_item: any;
 }
 
-export interface IPokemon {
+export interface IResponseMove {
+  id: number;
+  pp: number;
+  type: Pick<IResponsePokemon, 'url' | 'name'>;
+  name: string;
+  meta: {
+    drain: number;
+    healing: number;
+    ailment: Pick<IResponsePokemon, 'url' | 'name'>;
+    category: Pick<IResponsePokemon, 'url' | 'name'>;
+    max_hits: any;
+    max_turns: any;
+    min_hits: any;
+    min_turns: any;
+    crit_rate: number;
+    stat_chance: number;
+    flinch_chance: number;
+    ailment_chance: number;
+  };
+  names: Array<{
+    name: string;
+    language: Pick<IResponsePokemon, 'url' | 'name'>;
+  }>;
+  power: number;
+  target: Pick<IResponsePokemon, 'url' | 'name'>;
+  accuracy: number;
+  machines: Array<any>;
+  priority: number;
+  generation: Pick<IResponsePokemon, 'url' | 'name'>;
+  past_values: Array<any>;
+  stat_changes: Array<any>;
+  contest_type: Pick<IResponsePokemon, 'url' | 'name'>;
+  damage_class: Pick<IResponsePokemon, 'url' | 'name'>;
+  effect_chance: any;
+  contest_combos: {
+    super: {
+      use_after: any;
+      use_before: any;
+    };
+    normal: {
+      use_after: any;
+      use_before: Array<Pick<IResponsePokemon, 'url' | 'name'>>;
+    };
+  };
+  contest_effect: Pick<IResponsePokemon, 'url'>;
+  effect_changes: Array<any>;
+  effect_entries: Array<{
+    effect: string;
+    language: Pick<IResponsePokemon, 'url' | 'name'>;
+    short_effect: string;
+  }>;
+  learned_by_pokemon: Array<Pick<IResponsePokemon, 'url' | 'name'>>;
+  flavor_text_entries: Array<{
+    language: Pick<IResponsePokemon, 'url' | 'name'>;
+    flavor_text: string;
+    version_group: Pick<IResponsePokemon, 'url' | 'name'>;
+  }>;
+  super_contest_effect: Pick<IResponsePokemon, 'url'>;
+}
+
+export interface IPokemonXPTO {
   id: string;
   url: string;
   name?: string;
@@ -272,7 +331,6 @@ export interface IPokemon {
   moves?: Array<Move>;
   order: number;
   types?: Array<Type>;
-  stats?: Array<Stat>;
   status: EStatus;
   habitat?: string;
   is_baby?: boolean;

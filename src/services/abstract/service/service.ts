@@ -19,7 +19,7 @@ export interface IPaginate<T> {
 
 interface IIndexParams {
   filters?: Array<IFilterParams>;
-  parameters: QueryParametersDto;
+  parameters?: QueryParametersDto;
   withDeleted?: boolean;
   withRelations?: boolean;
 }
@@ -39,7 +39,7 @@ export abstract class Service<T extends ObjectLiteral> {
   }: IIndexParams): Promise<Array<T> | IPaginate<T>> {
     const query = this.repository.createQueryBuilder(this.alias);
 
-    this.queryOrderBy(query, parameters.asc, parameters.desc);
+    this.queryOrderBy(query, parameters?.asc, parameters?.desc);
 
     if (withDeleted) {
       query.withDeleted();
@@ -49,21 +49,26 @@ export abstract class Service<T extends ObjectLiteral> {
       this.queryRelations(query);
     }
 
-    if (!parameters.limit || !parameters.page) {
+    if (!parameters?.limit || !parameters?.page) {
       return await query.getMany();
     }
 
     return await this.paginate(query, parameters, filters);
   }
 
-  async findBy({ by, all = false, value, withThrow = false }: IFindByParams) {
+  async findBy({
+    by,
+    value,
+    withThrow = false,
+    withDeleted = false,
+  }: IFindByParams) {
     const query = this.repository.createQueryBuilder(this.alias);
 
     this.queryRelations(query);
 
     query.andWhere(`${this.alias}.${by} = :${by}`, { [by]: value });
 
-    if (all) {
+    if (withDeleted) {
       query.withDeleted();
     }
 
@@ -131,9 +136,8 @@ export abstract class Service<T extends ObjectLiteral> {
     filters: Array<IFilterParams>,
     queryParameters: QueryParametersDto,
   ) {
-    if (!filters.length) {
-      filters = this.transformFilters(queryParameters);
-    }
+    filters = this.transformFilters(queryParameters, filters);
+
     if (filters.length) {
       filters.forEach((filter) => {
         query.andWhere(
@@ -164,18 +168,25 @@ export abstract class Service<T extends ObjectLiteral> {
     return currentPage * perPage - perPage;
   }
 
-  private transformFilters(filterDto: QueryParametersDto) {
+  private transformFilters(
+    filterDto: QueryParametersDto,
+    customFilters: Array<IFilterParams>,
+  ) {
     const filters: Array<IFilterParams> = [];
 
-    if (filterDto.status) {
+    if (!filterDto) {
+      return customFilters;
+    }
+
+    if (filterDto?.role) {
       filters.push({
-        param: 'status',
+        param: 'role',
         condition: '=',
-        value: filterDto.status.toUpperCase(),
+        value: filterDto.role.toUpperCase(),
       });
     }
 
-    if (filterDto.name) {
+    if (filterDto?.name) {
       filters.push({
         param: 'name',
         condition: 'LIKE',
@@ -183,6 +194,16 @@ export abstract class Service<T extends ObjectLiteral> {
       });
     }
 
-    return filters;
+    if (filterDto?.status) {
+      filters.push({
+        param: 'status',
+        condition: '=',
+        value: filterDto.status.toUpperCase(),
+      });
+    }
+
+    return filters.concat(
+      customFilters.filter((filter) => !filters.includes(filter)),
+    );
   }
 }

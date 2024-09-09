@@ -11,7 +11,7 @@ import {
   ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR,
 } from '@/modules/pokemon/pokemon.fixture';
 import { POKEDEX_FIXTURE_ACTIVE } from '@/modules/pokemon/pokedex/pokedex.fixture';
-import { USER_COMPLETE_FIXTURE } from '@/modules/users/users.fixture';
+import { USER_COMPLETE_FIXTURE } from '@/modules/auth/users/users.fixture';
 
 describe('PokemonController', () => {
   let controller: PokemonController;
@@ -27,8 +27,8 @@ describe('PokemonController', () => {
           useValue: {
             findAll: jest.fn(),
             findOne: jest.fn(),
-            addPokemon: jest.fn(),
             findPokedex: jest.fn(),
+            addPokemonToPokedex: jest.fn(),
           },
         },
       ],
@@ -65,9 +65,9 @@ describe('PokemonController', () => {
 
   it('should be addPokemon with param success', async () => {
     jest
-      .spyOn(service, 'addPokemon')
+      .spyOn(service, 'addPokemonToPokedex')
       .mockResolvedValueOnce(POKEDEX_FIXTURE_ACTIVE);
-    const result = await controller.addPokemon(
+    const result = await controller.addPokemonToPokedex(
       {
         ...USER_COMPLETE_FIXTURE,
         status: EStatus.ACTIVE,

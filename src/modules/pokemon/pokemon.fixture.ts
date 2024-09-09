@@ -13,7 +13,6 @@ import {
   ENTITIES_MOVES_FIXTURE_VENUSAUR,
 } from '@/modules/pokemon/move/move.fixture';
 import { ENTITIES_ABILITIES_FIXTURE } from '@/modules/pokemon/ability/ability.fixture';
-import { ENTITIES_STATS_FIXTURE } from '@/modules/pokemon/stat/stat.fixture';
 import { ENTITIES_TYPES_FIXTURE } from '@/modules/pokemon/type/type.fixture';
 
 export const ENTITY_POKEMON_FIXTURE_BULBASAUR: Pokemon = {
@@ -25,7 +24,6 @@ export const ENTITY_POKEMON_FIXTURE_BULBASAUR: Pokemon = {
   image: undefined,
   moves: [],
   types: [],
-  stats: [],
   habitat: undefined,
   is_baby: undefined,
   shape_url: undefined,
@@ -54,7 +52,7 @@ export const ENTITY_POKEMON_FIXTURE_IVYSAUR: Pokemon = {
   image: undefined,
   moves: [],
   types: [],
-  stats: [],
+
   habitat: undefined,
   is_baby: undefined,
   shape_url: undefined,
@@ -83,7 +81,7 @@ export const ENTITY_POKEMON_FIXTURE_VENUSAUR: Pokemon = {
   image: undefined,
   moves: [],
   types: [],
-  stats: [],
+
   habitat: undefined,
   is_baby: undefined,
   shape_url: undefined,
@@ -112,7 +110,6 @@ export const ENTITY_POKEMON_COMPLETE_FIXTURE_BULBASAUR: Pokemon = {
   moves: ENTITIES_MOVES_FIXTURE_BULBASAUR,
   order: RESPONSE_POKEMON_FULL_FIXTURE_BULBASAUR.order,
   types: ENTITIES_TYPES_FIXTURE,
-  stats: ENTITIES_STATS_FIXTURE,
   status: EStatus.COMPLETE,
   habitat: RESPONSE_POKEMON_FULL_FIXTURE_BULBASAUR.habitat,
   is_baby: RESPONSE_POKEMON_FULL_FIXTURE_BULBASAUR.is_baby,
@@ -144,7 +141,6 @@ export const ENTITY_POKEMON_COMPLETE_FIXTURE_IVYSAUR: Pokemon = {
   moves: ENTITIES_MOVES_FIXTURE_IVYSAUR,
   order: RESPONSE_POKEMON_FULL_FIXTURE_IVYSAUR.order,
   types: ENTITIES_TYPES_FIXTURE,
-  stats: ENTITIES_STATS_FIXTURE,
   status: EStatus.COMPLETE,
   habitat: RESPONSE_POKEMON_FULL_FIXTURE_IVYSAUR.habitat,
   is_baby: RESPONSE_POKEMON_FULL_FIXTURE_IVYSAUR.is_baby,
@@ -176,7 +172,7 @@ export const ENTITY_POKEMON_COMPLETE_FIXTURE_VENUSAUR: Pokemon = {
   moves: ENTITIES_MOVES_FIXTURE_VENUSAUR,
   order: RESPONSE_POKEMON_FULL_FIXTURE_VENUSAUR.order,
   types: ENTITIES_TYPES_FIXTURE,
-  stats: ENTITIES_STATS_FIXTURE,
+  // stats: ENTITIES_STATS_FIXTURE,
   status: EStatus.COMPLETE,
   habitat: RESPONSE_POKEMON_FULL_FIXTURE_VENUSAUR.habitat,
   is_baby: RESPONSE_POKEMON_FULL_FIXTURE_VENUSAUR.is_baby,

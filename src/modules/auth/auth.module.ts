@@ -6,8 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthController } from './auth.controller';
 import { AuthJwtStrategy } from './auth-jwt.strategy';
 import { AuthService } from './auth.service';
-import { Users } from '../users/users.entity';
-import { UsersModule } from '../users/users.module';
+import { Users } from '@/modules/auth/users/users.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [

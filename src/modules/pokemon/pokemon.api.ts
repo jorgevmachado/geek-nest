@@ -3,6 +3,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 
 import type {
   IResponseEvolution,
+  IResponseMove,
   IResponsePaginate,
   IResponsePokemon,
   IResponsePokemonByName,
@@ -28,19 +29,23 @@ export class PokemonApi extends Http {
           order: generateOrder(item.url, `${this.url}/pokemon/`),
         })),
       };
-    } catch (error) {
-      throw new InternalServerErrorException(`getAll => ${error}`);
+    } catch (_) {
+      throw new InternalServerErrorException(
+        'Error When Querying External Api getAll Please Try Again Later!',
+      );
     }
   }
 
   async getByName(name: string) {
     try {
       const response: IResponsePokemonByName = await this.get(
-        `pokemon/${name}`,
+        `pokemonx/${name}`,
       );
       return this.generateOrderList(response);
-    } catch (error) {
-      throw new InternalServerErrorException(`getByName => ${error.message}`);
+    } catch (_) {
+      throw new InternalServerErrorException(
+        'Error When Querying External Api getName Please Try Again Later!',
+      );
     }
   }
 
@@ -49,9 +54,9 @@ export class PokemonApi extends Http {
       return (await this.get(
         `pokemon-species/${name}`,
       )) as IResponsePokemonSpecie;
-    } catch (error) {
+    } catch (_) {
       throw new InternalServerErrorException(
-        `getSpecieByName => ${error.message}`,
+        'Error When Querying External Api getSpecieByName Please Try Again Later!',
       );
     }
   }
@@ -64,7 +69,35 @@ export class PokemonApi extends Http {
       return (await this.get(`evolution-chain/${order}`)) as IResponseEvolution;
     } catch (error) {
       throw new InternalServerErrorException(
-        `getEvolutionsByOrder => ${error.message}`,
+        'Error When Querying External Api getEvolutions Please Try Again Later!',
+      );
+    }
+  }
+
+  async getMove(url: string) {
+    const order = Number(url.replace(`${this.url}/move/`, '').replace('/', ''));
+    try {
+      const response = (await this.get(`move/${order}`)) as IResponseMove;
+      if (
+        !response.effect_entries.length ||
+        response.effect_entries.length <= 0
+      ) {
+        response.effect_entries = [
+          {
+            effect: 'inflicts regular damage.',
+            language: {
+              name: 'en',
+              url: 'https://pokeapi.co/api/v2/language/9/',
+            },
+            short_effect: 'inflicts regular damage with additional effects.',
+          },
+        ];
+      }
+
+      return response;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error When Querying External Api getMove Please Try Again Later!',
       );
     }
   }

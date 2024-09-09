@@ -15,7 +15,7 @@ import { EStatus } from '@/enums/status.enum';
 
 import type { IPokeDex } from './pokedex.interface';
 import { Pokemon } from '../pokemon.entity';
-import { Users } from '../../users/users.entity';
+import { Users } from '@/modules/auth/users/users.entity';
 
 @Entity('pokedex')
 export class Pokedex implements IPokeDex {
@@ -29,9 +29,9 @@ export class Pokedex implements IPokeDex {
   @JoinColumn()
   account: Users;
 
-  @ManyToMany(() => Pokemon)
+  @ManyToMany(() => Pokemon, { nullable: true })
   @JoinTable()
-  pokemons: Array<Pokemon>;
+  pokemons?: Array<Pokemon>;
 
   @CreateDateColumn()
   created_at: Date;

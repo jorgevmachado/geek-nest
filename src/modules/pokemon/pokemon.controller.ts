@@ -10,17 +10,17 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
-import { PokemonService } from './pokemon.service';
-
-import { Users } from '../users/users.entity';
-
-import { AuthRoleGuards } from '../auth/auth-role.guards';
-import { FilterPokemonDto } from './dto/filter-pokemon.dto';
-import { GetUserAuth } from '../auth/auth-user.decorator';
-import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
-import { AuthStatusGuards } from '@/modules/auth/auth-status.guards';
-import { Status } from '@/modules/auth/auth-status.decorator';
 import { EStatus } from '@/enums/status.enum';
+import { QueryParametersDto } from '@/dto/query-parameters.dto';
+
+import { AuthRoleGuards } from '@/modules/auth/auth-role.guards';
+import { AuthStatusGuards } from '@/modules/auth/auth-status.guards';
+import { GetUserAuth } from '@/modules/auth/auth-user.decorator';
+import { Status } from '@/modules/auth/auth-status.decorator';
+import { Users } from '@/modules/auth/users/users.entity';
+
+import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
+import { PokemonService } from './pokemon.service';
 
 @ApiTags('pokemon')
 @Controller('pokemon')
@@ -29,7 +29,7 @@ export class PokemonController {
   constructor(private readonly pokemonService: PokemonService) {}
 
   @Get()
-  findAll(@Query() filter: FilterPokemonDto) {
+  findAll(@Query() filter: QueryParametersDto) {
     return this.pokemonService.findAll(filter);
   }
 
@@ -39,14 +39,17 @@ export class PokemonController {
     return this.pokemonService.findPokedex(user);
   }
 
-  @Get(':name')
-  findOne(@Param('name') name: string) {
-    return this.pokemonService.findOne(name);
+  @Get(':param')
+  findOne(@Param('param') param: string) {
+    return this.pokemonService.findOne(param);
   }
 
   @Post('pokedex')
   @Status(EStatus.ACTIVE, EStatus.COMPLETE)
-  addPokemon(@GetUserAuth() user: Users, @Body() pokemons: PokemonPokedexDto) {
-    return this.pokemonService.addPokemon(user, pokemons);
+  addPokemonToPokedex(
+    @GetUserAuth() user: Users,
+    @Body() pokemons: PokemonPokedexDto,
+  ) {
+    return this.pokemonService.addPokemonToPokedex(user, pokemons);
   }
 }

@@ -70,4 +70,36 @@ describe('EvolutionsService', () => {
       evolutionVenusaur,
     ]);
   });
+
+  it('should return a list of evolutions pokemon empty', async () => {
+    const evolutionBulbasaur = new Pokemon();
+    evolutionBulbasaur.name = 'bulbasaur';
+    evolutionBulbasaur.status = EStatus.INACTIVE;
+
+    const evolutionIvysaur = new Pokemon();
+    evolutionIvysaur.name = 'ivysaur';
+    evolutionIvysaur.status = EStatus.INACTIVE;
+
+    const evolutionVenusaur = new Pokemon();
+    evolutionVenusaur.name = 'venusaur';
+    evolutionVenusaur.status = EStatus.INACTIVE;
+
+    jest.spyOn(pokemonApi, 'getEvolutions').mockResolvedValueOnce({
+      ...RESPONSE_EVOLUTION_FIXTURE,
+      chain: {
+        ...RESPONSE_EVOLUTION_FIXTURE.chain,
+        species: {
+          url: '',
+          name: undefined,
+        },
+        evolves_to: [],
+      },
+    });
+
+    const result = await service.generate(
+      'https://pokeapi.co/api/v2/evolution-chain/1/',
+    );
+
+    expect(result).toEqual([]);
+  });
 });

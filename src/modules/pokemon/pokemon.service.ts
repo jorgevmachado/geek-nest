@@ -1,17 +1,20 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { isArray } from 'class-validator';
 
 import { type IPaginate, Service, isUUID } from '@/services';
+
 import { EStatus } from '@/enums/status.enum';
+import { QueryParametersDto } from '@/dto/query-parameters.dto';
+
+import { Users } from '@/modules/auth/users/users.entity';
 
 import type {
-  IPokemon,
   IResponsePokemonByName,
   IResponsePokemonFull,
 } from './pokemon.interface';
@@ -19,14 +22,12 @@ import { Pokemon } from './pokemon.entity';
 import { PokemonApi } from './pokemon.api';
 
 import { AbilityService } from './ability/ability.service';
-import { EvolutionsService } from '@/modules/pokemon/evolutions/evolutions.service';
+import { EvolutionsService } from './evolutions/evolutions.service';
 import { MoveService } from './move/move.service';
 import { PokedexService } from './pokedex/pokedex.service';
 import { StatService } from './stat/stat.service';
 import { TypeService } from './type/type.service';
-import { Users } from '../users/users.entity';
 
-import { FilterPokemonDto } from './dto/filter-pokemon.dto';
 import { PokemonPokedexDto } from './dto/pokemon-pokedex.dto';
 
 @Injectable()
@@ -44,7 +45,6 @@ export class PokemonService extends Service<Pokemon> {
   ) {
     super(repository, 'pokemons', [
       'moves',
-      'stats',
       'types',
       'abilities',
       'evolutions',
@@ -53,14 +53,15 @@ export class PokemonService extends Service<Pokemon> {
   private _totalPokemon: number = 1302;
 
   async findAll(
-    parameters: FilterPokemonDto,
+    parameters: QueryParametersDto,
   ): Promise<Array<Pokemon> | IPaginate<Pokemon>> {
     const total = await this.repository.count();
 
     if (total === 0 || total !== this._totalPokemon) {
-      return this.generate(parameters);
+      return this.cleanEntities(await this.generate(total, parameters));
     }
-    return await this.index({ parameters });
+
+    return this.cleanEntities(await this.index({ parameters }));
   }
 
   async findOne(
@@ -74,22 +75,22 @@ export class PokemonService extends Service<Pokemon> {
       withThrow,
     });
 
-    if (!withThrow && !result) {
+    if (!result) {
       return null;
     }
 
     if (!complete) {
-      return result;
+      return this.cleanEntity(result);
     }
 
-    if (result.status === EStatus.COMPLETE) {
-      return await this.completePokemonEvolution(result);
+    if (result?.status === EStatus.COMPLETE) {
+      return this.cleanEntity(await this.completePokemonEvolution(result));
     }
 
-    return await this.completePokemon(result);
+    return this.cleanEntity(await this.completePokemon(result));
   }
 
-  async addPokemon(user: Users, pokemons: PokemonPokedexDto) {
+  async addPokemonToPokedex(user: Users, pokemons: PokemonPokedexDto) {
     const items = pokemons.ids?.length ? pokemons.ids : pokemons.names;
 
     if (!pokemons.ids && !pokemons.names) {
@@ -115,7 +116,7 @@ export class PokemonService extends Service<Pokemon> {
     return await this.pokeDexService.findOne(user.id);
   }
 
-  private async generate(filterDto: FilterPokemonDto) {
+  private async generate(total: number, filterDto: QueryParametersDto) {
     const response = await this.pokemonApi.getAll(0, this._totalPokemon);
 
     if (!response) {
@@ -124,8 +125,14 @@ export class PokemonService extends Service<Pokemon> {
       );
     }
 
+    const entities = total !== 0 ? await this.repository.find() : [];
+
+    const results = response.results.filter(
+      (item) => !entities.find((entity) => entity.name === item.name),
+    );
+
     return await Promise.all(
-      response.results.map(async (item) => {
+      results.map(async (item) => {
         const pokemon = new Pokemon();
         pokemon.name = item.name;
         pokemon.url = item.url;
@@ -154,26 +161,28 @@ export class PokemonService extends Service<Pokemon> {
 
   private async generatePokemon(
     response: IResponsePokemonFull,
-  ): Promise<IPokemon> {
+  ): Promise<Pokemon> {
     return await Promise.all([
       await this.typeService.generate(response.types),
-      await this.statService.generate(response.stats),
+      this.statService.generate(response.stats),
       await this.moveService.generate(response.moves),
       await this.abilityService.generate(response.abilities),
       await this.evolutionService.generate(response.evolution_chain_url),
     ])
       .then(([types, stats, moves, abilities, evolutions]) => {
         const pokemon = new Pokemon();
-
         pokemon.id = response.id;
+        pokemon.hp = stats.hp;
         pokemon.url = response.url;
         pokemon.name = response.name;
         pokemon.image = response.image;
+        pokemon.speed = stats.speed;
         pokemon.moves = moves;
         pokemon.order = response.order;
         pokemon.types = types;
-        pokemon.stats = stats;
         pokemon.status = EStatus.COMPLETE;
+        pokemon.attack = stats.attack;
+        pokemon.defense = stats.defense;
         pokemon.habitat = response.habitat;
         pokemon.is_baby = response.is_baby;
         pokemon.shape_url = response.shape_url;
@@ -186,6 +195,8 @@ export class PokemonService extends Service<Pokemon> {
         pokemon.capture_rate = response.capture_rate;
         pokemon.hatch_counter = response.hatch_counter;
         pokemon.base_happiness = response.base_happiness;
+        pokemon.special_attack = stats.special_attack;
+        pokemon.special_defense = stats.special_defense;
         pokemon.evolution_chain_url = response.evolution_chain_url;
         pokemon.evolves_from_species = response.evolves_from_species;
         pokemon.has_gender_differences = response.has_gender_differences;
@@ -264,6 +275,7 @@ export class PokemonService extends Service<Pokemon> {
     if (!pokemon) {
       return null;
     }
+
     try {
       return await this.repository.save(pokemon);
     } catch (_) {
@@ -296,5 +308,25 @@ export class PokemonService extends Service<Pokemon> {
     ].sort((a, b) => a.order - b.order);
 
     return result;
+  }
+
+  private cleanEntity(entity: Pokemon) {
+    const moves = Boolean(entity.moves.length)
+      ? this.moveService.cleanMoves(entity.moves)
+      : entity.moves;
+    return {
+      ...entity,
+      moves,
+    };
+  }
+
+  private cleanEntities(entities: Array<Pokemon> | IPaginate<Pokemon>) {
+    if (isArray(entities)) {
+      return entities.map((entity) => this.cleanEntity(entity));
+    }
+    return {
+      ...entities,
+      data: entities.data.map((entity) => this.cleanEntity(entity)),
+    };
   }
 }
