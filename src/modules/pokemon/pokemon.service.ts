@@ -75,11 +75,15 @@ export class PokemonService extends Service<Pokemon> {
       withThrow,
     });
 
+    if (!result) {
+      return null;
+    }
+
     if (!complete) {
       return this.cleanEntity(result);
     }
 
-    if (result.status === EStatus.COMPLETE) {
+    if (result?.status === EStatus.COMPLETE) {
       return this.cleanEntity(await this.completePokemonEvolution(result));
     }
 

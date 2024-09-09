@@ -267,8 +267,11 @@ describe('PokemonService', () => {
 
     generateResponseApi(0, ['getAll']);
 
+    jest
+      .spyOn(repository, 'find')
+      .mockResolvedValueOnce([ENTITY_POKEMON_FIXTURE_BULBASAUR]);
+
     generateRepositorySave([
-      ENTITY_POKEMON_FIXTURE_BULBASAUR,
       ENTITY_POKEMON_FIXTURE_IVYSAUR,
       ENTITY_POKEMON_FIXTURE_VENUSAUR,
     ]);

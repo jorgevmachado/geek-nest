@@ -27,8 +27,8 @@ describe('PokemonController', () => {
           useValue: {
             findAll: jest.fn(),
             findOne: jest.fn(),
-            addPokemon: jest.fn(),
             findPokedex: jest.fn(),
+            addPokemonToPokedex: jest.fn(),
           },
         },
       ],
