@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { RESPONSE_STATS_FIXTURE } from '@/modules/pokemon/fixtures';
-import { StatService } from './stat.service';
 import { STAT_FIXTURE } from '@/modules/pokemon/stat/stat.fixture';
+
+import { StatService } from './stat.service';
 
 describe('StatService', () => {
   let service: StatService;
