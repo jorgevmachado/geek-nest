@@ -1,5 +1,4 @@
 import type { IResponseMove } from '@/modules/pokemon/pokemon.interface';
-import { RESPONSE_MOVE_FIXTURE_CUT } from '@/modules/pokemon/fixtures/response/by-name/pokemon.response.pokemon-by-name-moves.fixture';
 
 export const RESPONSE_MOVE_FIXTURE: IResponseMove = {
   id: 1,
@@ -2219,7 +2218,9 @@ export const RESPONSE_MOVE_FIXTURE_RAZOR_WIND_ITEM: IResponseMove = {
   effect_entries: [
     {
       effect:
-        "Inflicts regular damage.  User's critical hit rate is one level higher when using this move.  User charges for one turn before attacking.\n\nThis move cannot be selected by sleep talk.",
+        'Inflicts regular damage.  User s critical hit rate is one level' +
+        ' higher when using this move.  User charges for one turn before' +
+        ' attacking.\n\nThis move cannot be selected by sleep talk.',
       language: {
         name: 'en',
         url: 'https://pokeapi.co/api/v2/language/9/',
@@ -2458,12 +2459,12 @@ export const RESPONSE_MOVE_FIXTURE_SWORDS_DANCE_ITEM: IResponseMove = {
   effect_chance: null,
   effect_entries: [
     {
-      effect: "Raises the user's Attack by two stages.",
+      effect: 'Raises the user s Attack by two stages.',
       language: {
         name: 'en',
         url: 'https://pokeapi.co/api/v2/language/9/',
       },
-      short_effect: "Raises the user's Attack by two stages.",
+      short_effect: 'Raises the user s Attack by two stages.',
     },
   ],
   learned_by_pokemon: [
