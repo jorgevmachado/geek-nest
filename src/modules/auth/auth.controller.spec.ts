@@ -6,11 +6,11 @@ import { ERole } from '@/enums/role.enum';
 import {
   USER_ADMIN_FIXTURE,
   USER_COMPLETE_FIXTURE,
-  USER_INCOMPLETE_FIXTURE,
 } from './users/users.fixture';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { EGender } from '@/modules/auth/users/users.enum';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -37,15 +37,15 @@ describe('AuthController', () => {
   };
 
   const findOneResponse = {
-    id: USER_INCOMPLETE_FIXTURE.id,
-    cpf: USER_INCOMPLETE_FIXTURE.cpf,
-    role: USER_INCOMPLETE_FIXTURE.role,
+    id: USER_COMPLETE_FIXTURE.id,
+    cpf: USER_COMPLETE_FIXTURE.cpf,
+    role: USER_COMPLETE_FIXTURE.role,
     gender: undefined,
-    name: USER_INCOMPLETE_FIXTURE.name,
-    email: USER_INCOMPLETE_FIXTURE.email,
-    status: USER_INCOMPLETE_FIXTURE.status,
-    createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-    updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+    name: USER_COMPLETE_FIXTURE.name,
+    email: USER_COMPLETE_FIXTURE.email,
+    status: USER_COMPLETE_FIXTURE.status,
+    createdAt: USER_COMPLETE_FIXTURE.createdAt,
+    updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
     deletedAt: new Date('2024-01-01'),
     dateOfBirth: undefined,
   };
@@ -88,12 +88,14 @@ describe('AuthController', () => {
     jest.spyOn(service, 'signUp').mockResolvedValueOnce(signUpResponse);
     expect(
       await controller.signUp({
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
-        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        name: USER_COMPLETE_FIXTURE.name,
+        email: USER_COMPLETE_FIXTURE.email,
+        gender: USER_COMPLETE_FIXTURE.gender,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+        password: USER_COMPLETE_FIXTURE.password,
+        dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_COMPLETE_FIXTURE.password,
       }),
     ).toEqual(signUpResponse);
   });
@@ -104,6 +106,8 @@ describe('AuthController', () => {
         cpf: '',
         name: '',
         email: '',
+        gender: EGender.MALE,
+        whatsUp: '',
         password: '',
         passwordConfirmation: '',
         dateOfBirth: undefined,
@@ -152,7 +156,7 @@ describe('AuthController', () => {
   // FIND ONE ---------------------------------------------------------------------------------------------------- BEGIN
   it('should be get findOne success', async () => {
     expect(
-      await controller.findOne(USER_ADMIN_FIXTURE, USER_INCOMPLETE_FIXTURE.id),
+      await controller.findOne(USER_ADMIN_FIXTURE, USER_COMPLETE_FIXTURE.id),
     ).toEqual(findOneResponse);
   });
   // FIND ONE ------------------------------------------------------------------------------------------------------ END
@@ -160,7 +164,7 @@ describe('AuthController', () => {
   // UPDATE ------------------------------------------------------------------------------------------------------ BEGIN
   it('should be patch update success', async () => {
     expect(
-      await controller.update(USER_ADMIN_FIXTURE, USER_INCOMPLETE_FIXTURE.id, {
+      await controller.update(USER_ADMIN_FIXTURE, USER_COMPLETE_FIXTURE.id, {
         cpf: USER_COMPLETE_FIXTURE.cpf,
         name: USER_COMPLETE_FIXTURE.name,
         role: ERole.ADMIN,
@@ -175,7 +179,7 @@ describe('AuthController', () => {
   // REMOVE  ----------------------------------------------------------------------------------------------------- BEGIN
   it('should be delete remove success', async () => {
     expect(
-      await controller.remove(USER_ADMIN_FIXTURE, USER_INCOMPLETE_FIXTURE.id),
+      await controller.remove(USER_ADMIN_FIXTURE, USER_COMPLETE_FIXTURE.id),
     ).toEqual(removeResponse);
   });
   // REMOVE  ------------------------------------------------------------------------------------------------------- END
@@ -183,7 +187,7 @@ describe('AuthController', () => {
   // PROMOTE  ---------------------------------------------------------------------------------------------------- BEGIN
   it('should be patch promote success', async () => {
     expect(
-      await controller.promote(USER_ADMIN_FIXTURE, USER_INCOMPLETE_FIXTURE.id),
+      await controller.promote(USER_ADMIN_FIXTURE, USER_COMPLETE_FIXTURE.id),
     ).toEqual(promoteResponse);
   });
   // PROMOTE  ------------------------------------------------------------------------------------------------------ END

@@ -12,11 +12,7 @@ import { EStatus } from '@/enums/status.enum';
 import { CreateAuthDto } from '../dto/create-auth.dto';
 import { UpdateAuthDto } from '../dto/update-auth.dto';
 
-import {
-  USERS_PAGINATE_FIXTURE,
-  USER_COMPLETE_FIXTURE,
-  USER_INCOMPLETE_FIXTURE,
-} from './users.fixture';
+import { USERS_PAGINATE_FIXTURE, USER_COMPLETE_FIXTURE } from './users.fixture';
 import { Users } from './users.entity';
 import { UsersService } from './users.service';
 
@@ -25,18 +21,20 @@ describe('UsersService', () => {
   let repository: Repository<Users>;
 
   const createAuthDto: CreateAuthDto = {
-    cpf: USER_INCOMPLETE_FIXTURE.cpf,
-    name: USER_INCOMPLETE_FIXTURE.name,
-    email: USER_INCOMPLETE_FIXTURE.email,
-    password: USER_INCOMPLETE_FIXTURE.password,
-    dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-    passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+    cpf: USER_COMPLETE_FIXTURE.cpf,
+    name: USER_COMPLETE_FIXTURE.name,
+    email: USER_COMPLETE_FIXTURE.email,
+    whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+    password: USER_COMPLETE_FIXTURE.password,
+    dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+    passwordConfirmation: USER_COMPLETE_FIXTURE.password,
   };
   const updateAuthDto: UpdateAuthDto = {
     cpf: USER_COMPLETE_FIXTURE.cpf,
     name: USER_COMPLETE_FIXTURE.name,
     email: USER_COMPLETE_FIXTURE.email,
     gender: USER_COMPLETE_FIXTURE.gender,
+    whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
     dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
   };
 
@@ -79,46 +77,55 @@ describe('UsersService', () => {
     // find user by email
     createQueryBuilder('getOne', null);
 
-    jest
-      .spyOn(repository, 'save')
-      .mockResolvedValueOnce(USER_INCOMPLETE_FIXTURE);
+    // find user by whatsUp
+    createQueryBuilder('getOne', null);
+
+    jest.spyOn(repository, 'save').mockResolvedValueOnce(USER_COMPLETE_FIXTURE);
 
     expect(
       await service.create({
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
-        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        name: USER_COMPLETE_FIXTURE.name,
+        email: USER_COMPLETE_FIXTURE.email,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+        password: USER_COMPLETE_FIXTURE.password,
+        dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_COMPLETE_FIXTURE.password,
       }),
     ).toEqual({
-      id: USER_INCOMPLETE_FIXTURE.id,
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      role: USER_INCOMPLETE_FIXTURE.role,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      status: USER_INCOMPLETE_FIXTURE.status,
-      createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-      updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+      id: USER_COMPLETE_FIXTURE.id,
+      cpf: USER_COMPLETE_FIXTURE.cpf,
+      role: USER_COMPLETE_FIXTURE.role,
+      name: USER_COMPLETE_FIXTURE.name,
+      email: USER_COMPLETE_FIXTURE.email,
+      gender: USER_COMPLETE_FIXTURE.gender,
+      status: USER_COMPLETE_FIXTURE.status,
+      whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+      createdAt: USER_COMPLETE_FIXTURE.createdAt,
+      updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
+      dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
     });
   });
 
   it('should throw error when create user with a deleted user has already been created with cpf', async () => {
     // find user by cpf
-    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
 
     // find user by email
     createQueryBuilder('getOne', null);
 
+    // find user by whatsUp
+    createQueryBuilder('getOne', null);
+
     await expect(
       service.create({
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
-        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        name: USER_COMPLETE_FIXTURE.name,
+        email: USER_COMPLETE_FIXTURE.email,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+        password: USER_COMPLETE_FIXTURE.password,
+        dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_COMPLETE_FIXTURE.password,
       }),
     ).rejects.toThrow(InternalServerErrorException);
   });
@@ -128,16 +135,43 @@ describe('UsersService', () => {
     createQueryBuilder('getOne', null);
 
     // find user by email
-    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
+
+    // find user by whatsUp
+    createQueryBuilder('getOne', null);
 
     await expect(
       service.create({
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
-        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        name: USER_COMPLETE_FIXTURE.name,
+        email: USER_COMPLETE_FIXTURE.email,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+        password: USER_COMPLETE_FIXTURE.password,
+        dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_COMPLETE_FIXTURE.password,
+      }),
+    ).rejects.toThrow(InternalServerErrorException);
+  });
+
+  it('should throw error when create user with a deleted user has already been created with whatsUp', async () => {
+    // find user by cpf
+    createQueryBuilder('getOne', null);
+
+    // find user by email
+    createQueryBuilder('getOne', null);
+
+    // find user by whatsUp
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
+
+    await expect(
+      service.create({
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        name: USER_COMPLETE_FIXTURE.name,
+        email: USER_COMPLETE_FIXTURE.email,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+        password: USER_COMPLETE_FIXTURE.password,
+        dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_COMPLETE_FIXTURE.password,
       }),
     ).rejects.toThrow(InternalServerErrorException);
   });
@@ -147,6 +181,9 @@ describe('UsersService', () => {
     createQueryBuilder('getOne', null);
 
     // find user by email
+    createQueryBuilder('getOne', null);
+
+    // find user by whatsUp
     createQueryBuilder('getOne', null);
 
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
@@ -168,6 +205,9 @@ describe('UsersService', () => {
     // find user by email
     createQueryBuilder('getOne', null);
 
+    // find user by whatsUp
+    createQueryBuilder('getOne', null);
+
     jest.spyOn(repository, 'save').mockResolvedValueOnce(USER_COMPLETE_FIXTURE);
 
     const result = await service.update(
@@ -183,6 +223,7 @@ describe('UsersService', () => {
       email: USER_COMPLETE_FIXTURE.email,
       gender: USER_COMPLETE_FIXTURE.gender,
       status: USER_COMPLETE_FIXTURE.status,
+      whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
       createdAt: USER_COMPLETE_FIXTURE.createdAt,
       updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
       dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
@@ -202,7 +243,7 @@ describe('UsersService', () => {
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
     const result = service.update(USER_COMPLETE_FIXTURE.id, {
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
+      cpf: USER_COMPLETE_FIXTURE.cpf,
     });
 
     await expect(result).rejects.toThrow(InternalServerErrorException);
@@ -224,7 +265,7 @@ describe('UsersService', () => {
     jest.spyOn(repository, 'save').mockRejectedValueOnce(new Error());
 
     const result = service.update(USER_COMPLETE_FIXTURE.id, {
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
+      cpf: USER_COMPLETE_FIXTURE.cpf,
     });
 
     await expect(result).rejects.toThrow(BadRequestException);
@@ -245,14 +286,14 @@ describe('UsersService', () => {
 
     await expect(
       service.update(USER_COMPLETE_FIXTURE.id, {
-        email: USER_INCOMPLETE_FIXTURE.email,
+        email: USER_COMPLETE_FIXTURE.email,
       }),
     ).rejects.toThrow(BadRequestException);
   });
 
   it('should throw error when update user role with status incomplete', async () => {
     // find user by id
-    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
 
     // find user by cpf
     createQueryBuilder('getOne', null);
@@ -271,15 +312,15 @@ describe('UsersService', () => {
   // FIND ALL ---------------------------------------------------------------------------------------------------- BEGIN
   it('should find all users with filters', async () => {
     // find all users by filter
-    createQueryBuilder('getManyAndCount', [[USER_INCOMPLETE_FIXTURE], 1]);
+    createQueryBuilder('getManyAndCount', [[USER_COMPLETE_FIXTURE], 1]);
 
     expect(
       await service.findAll({
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        email: USER_INCOMPLETE_FIXTURE.email,
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        email: USER_COMPLETE_FIXTURE.email,
         asc: 'name',
         page: 1,
-        name: USER_INCOMPLETE_FIXTURE.name,
+        name: USER_COMPLETE_FIXTURE.name,
         role: ERole.USER,
         limit: 10,
         status: EStatus.INCOMPLETE,
@@ -289,14 +330,17 @@ describe('UsersService', () => {
       ...USERS_PAGINATE_FIXTURE,
       data: [
         {
-          id: USER_INCOMPLETE_FIXTURE.id,
-          cpf: USER_INCOMPLETE_FIXTURE.cpf,
-          role: USER_INCOMPLETE_FIXTURE.role,
-          name: USER_INCOMPLETE_FIXTURE.name,
-          email: USER_INCOMPLETE_FIXTURE.email,
-          status: USER_INCOMPLETE_FIXTURE.status,
-          createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-          updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+          id: USER_COMPLETE_FIXTURE.id,
+          cpf: USER_COMPLETE_FIXTURE.cpf,
+          role: USER_COMPLETE_FIXTURE.role,
+          name: USER_COMPLETE_FIXTURE.name,
+          email: USER_COMPLETE_FIXTURE.email,
+          gender: USER_COMPLETE_FIXTURE.gender,
+          status: USER_COMPLETE_FIXTURE.status,
+          whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+          createdAt: USER_COMPLETE_FIXTURE.createdAt,
+          updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
+          dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
         },
       ],
     });
@@ -304,18 +348,21 @@ describe('UsersService', () => {
 
   it('should find all users without filters', async () => {
     // find all users
-    createQueryBuilder('getMany', [USER_INCOMPLETE_FIXTURE]);
+    createQueryBuilder('getMany', [USER_COMPLETE_FIXTURE]);
 
     expect(await service.findAll()).toEqual([
       {
-        id: USER_INCOMPLETE_FIXTURE.id,
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        role: USER_INCOMPLETE_FIXTURE.role,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        status: USER_INCOMPLETE_FIXTURE.status,
-        createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-        updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+        id: USER_COMPLETE_FIXTURE.id,
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        role: USER_COMPLETE_FIXTURE.role,
+        name: USER_COMPLETE_FIXTURE.name,
+        email: USER_COMPLETE_FIXTURE.email,
+        gender: USER_COMPLETE_FIXTURE.gender,
+        status: USER_COMPLETE_FIXTURE.status,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+        createdAt: USER_COMPLETE_FIXTURE.createdAt,
+        updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
+        dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
       },
     ]);
   });
@@ -325,45 +372,48 @@ describe('UsersService', () => {
   it('should find one user by id', async () => {
     // find user by id
     createQueryBuilder('getOne', {
-      ...USER_INCOMPLETE_FIXTURE,
+      ...USER_COMPLETE_FIXTURE,
       deletedAt: new Date('2024-01-01'),
     });
 
-    expect(await service.findOne(USER_INCOMPLETE_FIXTURE.id)).toEqual({
-      id: USER_INCOMPLETE_FIXTURE.id,
-      cpf: USER_INCOMPLETE_FIXTURE.cpf,
-      role: USER_INCOMPLETE_FIXTURE.role,
-      name: USER_INCOMPLETE_FIXTURE.name,
-      email: USER_INCOMPLETE_FIXTURE.email,
-      status: USER_INCOMPLETE_FIXTURE.status,
-      createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-      updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+    expect(await service.findOne(USER_COMPLETE_FIXTURE.id)).toEqual({
+      id: USER_COMPLETE_FIXTURE.id,
+      cpf: USER_COMPLETE_FIXTURE.cpf,
+      role: USER_COMPLETE_FIXTURE.role,
+      name: USER_COMPLETE_FIXTURE.name,
+      email: USER_COMPLETE_FIXTURE.email,
+      gender: USER_COMPLETE_FIXTURE.gender,
+      status: USER_COMPLETE_FIXTURE.status,
+      whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+      createdAt: USER_COMPLETE_FIXTURE.createdAt,
+      updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
+      dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
       deletedAt: new Date('2024-01-01'),
     });
   });
 
   it('should find one user by id with must clean user false', async () => {
     // find user by id
-    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
 
     expect(
-      await service.findOne(USER_INCOMPLETE_FIXTURE.id, false, false),
-    ).toEqual(USER_INCOMPLETE_FIXTURE);
+      await service.findOne(USER_COMPLETE_FIXTURE.id, false, false),
+    ).toEqual(USER_COMPLETE_FIXTURE);
   });
   // FIND ONE ------------------------------------------------------------------------------------------------------ END
 
   // REMOVE  ----------------------------------------------------------------------------------------------------- BEGIN
   it('should remove user by id', async () => {
-    createQueryBuilder('getOne', USER_INCOMPLETE_FIXTURE);
+    createQueryBuilder('getOne', USER_COMPLETE_FIXTURE);
 
     jest.spyOn(repository, 'save').mockResolvedValueOnce({
-      ...USER_INCOMPLETE_FIXTURE,
+      ...USER_COMPLETE_FIXTURE,
       status: EStatus.INACTIVE,
       deletedAt: new Date(),
     });
 
-    expect(await service.remove(USER_INCOMPLETE_FIXTURE.id)).toEqual({
-      message: `User with id ${USER_INCOMPLETE_FIXTURE.id} successfully removed`,
+    expect(await service.remove(USER_COMPLETE_FIXTURE.id)).toEqual({
+      message: `User with id ${USER_COMPLETE_FIXTURE.id} successfully removed`,
     });
   });
   // REMOVE  ------------------------------------------------------------------------------------------------------- END
@@ -371,7 +421,7 @@ describe('UsersService', () => {
   // CHECK CREDENTIALS  ------------------------------------------------------------------------------------------ BEGIN
   it('should check credentials', async () => {
     const user: Users = {
-      ...USER_INCOMPLETE_FIXTURE,
+      ...USER_COMPLETE_FIXTURE,
       status: EStatus.INCOMPLETE,
       salt: '$2b$10$o3nYsQECy/ZKwFQSssiyMO',
       password: '$2b$10$o3nYsQECy/ZKwFQSssiyMOzN5dKjhcP9iEi5DcCeLLuYcpyKJEUJ2',
@@ -381,8 +431,8 @@ describe('UsersService', () => {
 
     expect(
       await service.checkCredentials({
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
+        email: USER_COMPLETE_FIXTURE.email,
+        password: USER_COMPLETE_FIXTURE.password,
       }),
     ).toEqual(user);
   });
@@ -390,14 +440,14 @@ describe('UsersService', () => {
   it('should check credentials with status incomplete', async () => {
     // find user by email
     createQueryBuilder('getOne', {
-      ...USER_INCOMPLETE_FIXTURE,
+      ...USER_COMPLETE_FIXTURE,
       salt: '$2b$10$o3nYsQECy/ZKwFQSssiyMO',
     });
 
     expect(
       await service.checkCredentials({
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
+        email: USER_COMPLETE_FIXTURE.email,
+        password: USER_COMPLETE_FIXTURE.password,
       }),
     ).toEqual(null);
   });
@@ -405,15 +455,15 @@ describe('UsersService', () => {
   it('should check credentials with credentials invalid', async () => {
     // find user by email
     createQueryBuilder('getOne', {
-      ...USER_INCOMPLETE_FIXTURE,
+      ...USER_COMPLETE_FIXTURE,
       status: EStatus.INCOMPLETE,
       salt: '$2b$10$o3nYsQECy/ZKwFQSssiyMO',
     });
 
     expect(
       await service.checkCredentials({
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
+        email: USER_COMPLETE_FIXTURE.email,
+        password: USER_COMPLETE_FIXTURE.password,
       }),
     ).toBeNull();
   });

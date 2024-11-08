@@ -15,7 +15,8 @@ const USER: Users = {
   name: 'John Doe',
   email: 'john.doe@mail.com',
   status: EStatus.INCOMPLETE,
-  gender: undefined,
+  gender: EGender.MALE,
+  whatsUp: '11998765432',
   password: '123456',
   createdAt: new Date('2024-09-09'),
   deletedAt: undefined,
@@ -29,7 +30,6 @@ export const USER_INCOMPLETE_FIXTURE: Users = USER;
 
 export const USER_COMPLETE_FIXTURE: Users = {
   ...USER,
-  gender: EGender.MALE,
   createdAt: new Date('2021-01-01'),
   updatedAt: new Date('2021-01-01'),
 };

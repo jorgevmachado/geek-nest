@@ -1,6 +1,7 @@
 import {
   IsDate,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
   MaxDate,
   MaxLength,
@@ -10,6 +11,8 @@ import { Transform } from 'class-transformer';
 
 import { CPF } from '@/decorators/cpf.decorator';
 import { Match } from '@/decorators/match.decorator';
+
+import { EGender } from '@/modules/auth/users/users.enum';
 
 export class CreateAuthDto {
   /**
@@ -22,7 +25,7 @@ export class CreateAuthDto {
 
   /**
    * The NAME of the User
-   * @example 44217458800
+   * @example john doe
    */
   @IsNotEmpty()
   @MaxLength(200)
@@ -38,21 +41,29 @@ export class CreateAuthDto {
   email: string;
 
   /**
+   * the gender of the User
+   * @example MALE
+   */
+  @IsNotEmpty()
+  @IsEnum(EGender)
+  gender?: EGender;
+
+  /**
+   * The WhatsUp of the User
+   * @example 11998765432
+   */
+  @MaxLength(11)
+  @MinLength(11)
+  @IsNotEmpty()
+  whatsUp: string;
+
+  /**
    * The password of the User
    * @example 123456
    */
   @IsNotEmpty()
   @MinLength(6)
   password: string;
-
-  /**
-   * The password confirmation of the User
-   * @example 123456
-   */
-  @IsNotEmpty()
-  @MinLength(6)
-  @Match('password')
-  passwordConfirmation: string;
 
   /**
    * The date of birth of the User
@@ -65,4 +76,13 @@ export class CreateAuthDto {
     message: 'You must be over 18 years old',
   })
   dateOfBirth: Date;
+
+  /**
+   * The password confirmation of the User
+   * @example 123456
+   */
+  @IsNotEmpty()
+  @MinLength(6)
+  @Match('password')
+  passwordConfirmation: string;
 }

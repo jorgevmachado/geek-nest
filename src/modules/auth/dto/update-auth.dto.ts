@@ -5,6 +5,7 @@ import {
   IsOptional,
   MaxDate,
   MaxLength,
+  MinLength,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 
@@ -46,6 +47,15 @@ export class UpdateAuthDto {
   @MaxLength(200)
   @IsEmail()
   email?: string;
+
+  /**
+   * The WhatsUp of the User
+   * @example 11998765432
+   */
+  @MaxLength(11)
+  @MinLength(11)
+  @IsOptional()
+  whatsUp?: string;
 
   /**
    * the gender of the User

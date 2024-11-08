@@ -38,6 +38,12 @@ export class Users {
   @Column({ nullable: false, default: 'INCOMPLETE' })
   status: EStatus;
 
+  @Column({ nullable: false, unique: true, length: 11 })
+  whatsUp: string;
+
+  @Column({ nullable: true })
+  picture?: string;
+
   @Column({ nullable: false })
   password: string;
 

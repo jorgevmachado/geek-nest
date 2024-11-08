@@ -13,7 +13,6 @@ import {
   USER_ACTIVE_FIXTURE,
   USER_ADMIN_FIXTURE,
   USER_COMPLETE_FIXTURE,
-  USER_INCOMPLETE_FIXTURE,
 } from './users/users.fixture';
 import { UsersService } from './users/users.service';
 
@@ -24,17 +23,18 @@ describe('AuthService', () => {
   let userService: UsersService;
 
   const findOneResponse = {
-    id: USER_INCOMPLETE_FIXTURE.id,
-    cpf: USER_INCOMPLETE_FIXTURE.cpf,
-    role: USER_INCOMPLETE_FIXTURE.role,
-    gender: undefined,
-    name: USER_INCOMPLETE_FIXTURE.name,
-    email: USER_INCOMPLETE_FIXTURE.email,
-    status: USER_INCOMPLETE_FIXTURE.status,
-    createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-    updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+    id: USER_COMPLETE_FIXTURE.id,
+    cpf: USER_COMPLETE_FIXTURE.cpf,
+    role: USER_COMPLETE_FIXTURE.role,
+    name: USER_COMPLETE_FIXTURE.name,
+    email: USER_COMPLETE_FIXTURE.email,
+    gender: USER_COMPLETE_FIXTURE.gender,
+    status: USER_COMPLETE_FIXTURE.status,
+    whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+    createdAt: USER_COMPLETE_FIXTURE.createdAt,
+    updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
     deletedAt: new Date('2024-01-01'),
-    dateOfBirth: undefined,
+    dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
   };
 
   const findAllResponse = [findOneResponse];
@@ -52,17 +52,17 @@ describe('AuthService', () => {
           provide: UsersService,
           useValue: {
             create: jest.fn().mockResolvedValueOnce({
-              id: USER_INCOMPLETE_FIXTURE.id,
-              cpf: USER_INCOMPLETE_FIXTURE.cpf,
-              role: USER_INCOMPLETE_FIXTURE.role,
-              name: USER_INCOMPLETE_FIXTURE.name,
-              gender: undefined,
-              email: USER_INCOMPLETE_FIXTURE.email,
-              status: USER_INCOMPLETE_FIXTURE.status,
-              createdAt: USER_INCOMPLETE_FIXTURE.createdAt,
-              updatedAt: USER_INCOMPLETE_FIXTURE.updatedAt,
+              id: USER_COMPLETE_FIXTURE.id,
+              cpf: USER_COMPLETE_FIXTURE.cpf,
+              role: USER_COMPLETE_FIXTURE.role,
+              name: USER_COMPLETE_FIXTURE.name,
+              email: USER_COMPLETE_FIXTURE.email,
+              status: USER_COMPLETE_FIXTURE.status,
+              gender: USER_COMPLETE_FIXTURE.gender,
+              createdAt: USER_COMPLETE_FIXTURE.createdAt,
+              updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
               deletedAt: undefined,
-              dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
+              dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
             }),
             update: jest.fn(),
             remove: jest.fn().mockResolvedValueOnce(removeResponse),
@@ -94,12 +94,14 @@ describe('AuthService', () => {
   it('should signUp user.', async () => {
     expect(
       await service.signUp({
-        cpf: USER_INCOMPLETE_FIXTURE.cpf,
-        name: USER_INCOMPLETE_FIXTURE.name,
-        email: USER_INCOMPLETE_FIXTURE.email,
-        password: USER_INCOMPLETE_FIXTURE.password,
-        dateOfBirth: USER_INCOMPLETE_FIXTURE.dateOfBirth,
-        passwordConfirmation: USER_INCOMPLETE_FIXTURE.password,
+        cpf: USER_COMPLETE_FIXTURE.cpf,
+        name: USER_COMPLETE_FIXTURE.name,
+        email: USER_COMPLETE_FIXTURE.email,
+        gender: USER_COMPLETE_FIXTURE.gender,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
+        password: USER_COMPLETE_FIXTURE.password,
+        dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
+        passwordConfirmation: USER_COMPLETE_FIXTURE.password,
       }),
     ).toEqual({
       message: 'Registration Completed Successfully!',
@@ -143,6 +145,7 @@ describe('AuthService', () => {
       email: USER_COMPLETE_FIXTURE.email,
       gender: USER_COMPLETE_FIXTURE.gender,
       status: USER_COMPLETE_FIXTURE.status,
+      whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
       createdAt: USER_COMPLETE_FIXTURE.createdAt,
       updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
       deletedAt: undefined,
@@ -151,7 +154,7 @@ describe('AuthService', () => {
 
     expect(
       await service.updateUser(
-        USER_INCOMPLETE_FIXTURE.id,
+        USER_COMPLETE_FIXTURE.id,
         {
           cpf: USER_COMPLETE_FIXTURE.cpf,
           name: USER_COMPLETE_FIXTURE.name,
@@ -170,6 +173,7 @@ describe('AuthService', () => {
       email: USER_COMPLETE_FIXTURE.email,
       gender: USER_COMPLETE_FIXTURE.gender,
       status: USER_COMPLETE_FIXTURE.status,
+      whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
       createdAt: USER_COMPLETE_FIXTURE.createdAt,
       updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
       dateOfBirth: USER_COMPLETE_FIXTURE.dateOfBirth,
@@ -179,7 +183,7 @@ describe('AuthService', () => {
   it('should throw error when update user with authUser user.', async () => {
     await expect(
       service.updateUser(
-        USER_INCOMPLETE_FIXTURE.id,
+        USER_COMPLETE_FIXTURE.id,
         {
           cpf: USER_COMPLETE_FIXTURE.cpf,
           name: USER_COMPLETE_FIXTURE.name,
@@ -209,7 +213,7 @@ describe('AuthService', () => {
     jest.spyOn(userService, 'findOne').mockResolvedValueOnce(findOneResponse);
 
     expect(
-      await service.findOneUser(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      await service.findOneUser(USER_COMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).toEqual(findOneResponse);
   });
 
@@ -217,8 +221,8 @@ describe('AuthService', () => {
     jest.spyOn(userService, 'findOne').mockResolvedValueOnce(findOneResponse);
 
     await expect(
-      service.findOneUser(USER_INCOMPLETE_FIXTURE.id, {
-        ...USER_INCOMPLETE_FIXTURE,
+      service.findOneUser(USER_COMPLETE_FIXTURE.id, {
+        ...USER_COMPLETE_FIXTURE,
         id: 'xpto-id',
       }),
     ).rejects.toThrow(UnprocessableEntityException);
@@ -228,7 +232,7 @@ describe('AuthService', () => {
   // REMOVE  ----------------------------------------------------------------------------------------------------- BEGIN
   it('should remove one user', async () => {
     expect(
-      await service.removeUser(USER_INCOMPLETE_FIXTURE.id, {
+      await service.removeUser(USER_COMPLETE_FIXTURE.id, {
         ...USER_ADMIN_FIXTURE,
         id: 'f3b02d02-b3af-492e-a4e2-5d8a16c1af3f',
       }),
@@ -237,7 +241,7 @@ describe('AuthService', () => {
 
   it('should throw error when remove one user', async () => {
     await expect(
-      service.removeUser(USER_INCOMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
+      service.removeUser(USER_COMPLETE_FIXTURE.id, USER_ADMIN_FIXTURE),
     ).rejects.toThrow(BadRequestException);
   });
   // REMOVE  ------------------------------------------------------------------------------------------------------- END
@@ -253,6 +257,7 @@ describe('AuthService', () => {
         name: USER_COMPLETE_FIXTURE.name,
         email: USER_COMPLETE_FIXTURE.email,
         status: EStatus.ACTIVE,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
         createdAt: USER_COMPLETE_FIXTURE.createdAt,
         updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -277,10 +282,11 @@ describe('AuthService', () => {
         id: USER_ACTIVE_FIXTURE.id,
         cpf: USER_ACTIVE_FIXTURE.cpf,
         role: USER_ACTIVE_FIXTURE.role,
-        gender: USER_ACTIVE_FIXTURE.gender,
         name: USER_ACTIVE_FIXTURE.name,
         email: USER_ACTIVE_FIXTURE.email,
+        gender: USER_ACTIVE_FIXTURE.gender,
         status: USER_ACTIVE_FIXTURE.status,
+        whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
         createdAt: USER_ACTIVE_FIXTURE.createdAt,
         updatedAt: USER_ACTIVE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -290,10 +296,11 @@ describe('AuthService', () => {
         id: USER_COMPLETE_FIXTURE.id,
         cpf: USER_COMPLETE_FIXTURE.cpf,
         role: USER_COMPLETE_FIXTURE.role,
-        gender: USER_COMPLETE_FIXTURE.gender,
         name: USER_COMPLETE_FIXTURE.name,
         email: USER_COMPLETE_FIXTURE.email,
+        gender: USER_COMPLETE_FIXTURE.gender,
         status: EStatus.ACTIVE,
+        whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
         createdAt: USER_COMPLETE_FIXTURE.createdAt,
         updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -305,10 +312,11 @@ describe('AuthService', () => {
       id: USER_ACTIVE_FIXTURE.id,
       cpf: USER_ACTIVE_FIXTURE.cpf,
       role: USER_ACTIVE_FIXTURE.role,
-      gender: USER_ACTIVE_FIXTURE.gender,
       name: USER_ACTIVE_FIXTURE.name,
       email: USER_ACTIVE_FIXTURE.email,
+      gender: USER_ACTIVE_FIXTURE.gender,
       status: USER_ACTIVE_FIXTURE.status,
+      whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
       createdAt: USER_ACTIVE_FIXTURE.createdAt,
       updatedAt: USER_ACTIVE_FIXTURE.updatedAt,
       deletedAt: undefined,
@@ -332,10 +340,11 @@ describe('AuthService', () => {
         id: USER_ACTIVE_FIXTURE.id,
         cpf: USER_ACTIVE_FIXTURE.cpf,
         role: USER_ACTIVE_FIXTURE.role,
-        gender: USER_ACTIVE_FIXTURE.gender,
         name: USER_ACTIVE_FIXTURE.name,
         email: USER_ACTIVE_FIXTURE.email,
+        gender: USER_ACTIVE_FIXTURE.gender,
         status: USER_ACTIVE_FIXTURE.status,
+        whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
         createdAt: USER_ACTIVE_FIXTURE.createdAt,
         updatedAt: USER_ACTIVE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -345,10 +354,11 @@ describe('AuthService', () => {
         id: USER_COMPLETE_FIXTURE.id,
         cpf: USER_COMPLETE_FIXTURE.cpf,
         role: USER_COMPLETE_FIXTURE.role,
-        gender: USER_COMPLETE_FIXTURE.gender,
         name: USER_COMPLETE_FIXTURE.name,
         email: USER_COMPLETE_FIXTURE.email,
+        gender: USER_COMPLETE_FIXTURE.gender,
         status: EStatus.ACTIVE,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
         createdAt: USER_COMPLETE_FIXTURE.createdAt,
         updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -367,10 +377,11 @@ describe('AuthService', () => {
         id: USER_ACTIVE_FIXTURE.id,
         cpf: USER_ACTIVE_FIXTURE.cpf,
         role: ERole.ADMIN,
-        gender: USER_ACTIVE_FIXTURE.gender,
         name: USER_ACTIVE_FIXTURE.name,
         email: USER_ACTIVE_FIXTURE.email,
+        gender: USER_ACTIVE_FIXTURE.gender,
         status: EStatus.ACTIVE,
+        whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
         createdAt: USER_ACTIVE_FIXTURE.createdAt,
         updatedAt: USER_ACTIVE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -380,10 +391,11 @@ describe('AuthService', () => {
         id: USER_COMPLETE_FIXTURE.id,
         cpf: USER_COMPLETE_FIXTURE.cpf,
         role: USER_COMPLETE_FIXTURE.role,
-        gender: USER_COMPLETE_FIXTURE.gender,
         name: USER_COMPLETE_FIXTURE.name,
         email: USER_COMPLETE_FIXTURE.email,
+        gender: USER_COMPLETE_FIXTURE.gender,
         status: EStatus.ACTIVE,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
         createdAt: USER_COMPLETE_FIXTURE.createdAt,
         updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -395,10 +407,11 @@ describe('AuthService', () => {
       id: USER_ACTIVE_FIXTURE.id,
       cpf: USER_ACTIVE_FIXTURE.cpf,
       role: ERole.ADMIN,
-      gender: USER_ACTIVE_FIXTURE.gender,
       name: USER_ACTIVE_FIXTURE.name,
       email: USER_ACTIVE_FIXTURE.email,
+      gender: USER_ACTIVE_FIXTURE.gender,
       status: USER_ACTIVE_FIXTURE.status,
+      whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
       createdAt: USER_ACTIVE_FIXTURE.createdAt,
       updatedAt: USER_ACTIVE_FIXTURE.updatedAt,
       deletedAt: undefined,
@@ -416,10 +429,11 @@ describe('AuthService', () => {
         id: USER_ACTIVE_FIXTURE.id,
         cpf: USER_ACTIVE_FIXTURE.cpf,
         role: USER_ACTIVE_FIXTURE.role,
-        gender: USER_ACTIVE_FIXTURE.gender,
         name: USER_ACTIVE_FIXTURE.name,
         email: USER_ACTIVE_FIXTURE.email,
+        gender: USER_ACTIVE_FIXTURE.gender,
         status: EStatus.INACTIVE,
+        whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
         createdAt: USER_ACTIVE_FIXTURE.createdAt,
         updatedAt: USER_ACTIVE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -429,10 +443,11 @@ describe('AuthService', () => {
         id: USER_COMPLETE_FIXTURE.id,
         cpf: USER_COMPLETE_FIXTURE.cpf,
         role: USER_COMPLETE_FIXTURE.role,
-        gender: USER_COMPLETE_FIXTURE.gender,
         name: USER_COMPLETE_FIXTURE.name,
         email: USER_COMPLETE_FIXTURE.email,
+        gender: USER_COMPLETE_FIXTURE.gender,
         status: EStatus.ACTIVE,
+        whatsUp: USER_COMPLETE_FIXTURE.whatsUp,
         createdAt: USER_COMPLETE_FIXTURE.createdAt,
         updatedAt: USER_COMPLETE_FIXTURE.updatedAt,
         deletedAt: undefined,
@@ -444,10 +459,11 @@ describe('AuthService', () => {
       id: USER_ACTIVE_FIXTURE.id,
       cpf: USER_ACTIVE_FIXTURE.cpf,
       role: USER_ACTIVE_FIXTURE.role,
-      gender: USER_ACTIVE_FIXTURE.gender,
       name: USER_ACTIVE_FIXTURE.name,
       email: USER_ACTIVE_FIXTURE.email,
+      gender: USER_ACTIVE_FIXTURE.gender,
       status: EStatus.INACTIVE,
+      whatsUp: USER_ACTIVE_FIXTURE.whatsUp,
       createdAt: USER_ACTIVE_FIXTURE.createdAt,
       updatedAt: USER_ACTIVE_FIXTURE.updatedAt,
       deletedAt: undefined,

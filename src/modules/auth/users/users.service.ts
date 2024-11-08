@@ -44,9 +44,16 @@ export class UsersService extends Service<Users> {
       withDeleted: true,
     });
 
+    const userWhatsUp = await this.findBy({
+      by: 'whatsUp',
+      value: createAuthDto.whatsUp,
+      withDeleted: true,
+    });
+
     if (
       (userCpf && userCpf.deletedAt !== null) ||
-      (userEmail && userEmail.deletedAt !== null)
+      (userEmail && userEmail.deletedAt !== null) ||
+      (userWhatsUp && userWhatsUp.deletedAt !== null)
     ) {
       throw new InternalServerErrorException(
         'Inactive user, please contact administrator.',
@@ -59,7 +66,9 @@ export class UsersService extends Service<Users> {
     user.role = ERole.USER;
     user.name = createAuthDto.name;
     user.email = createAuthDto.email;
-    user.status = EStatus.INCOMPLETE;
+    user.gender = createAuthDto.gender;
+    user.status = EStatus.COMPLETE;
+    user.whatsUp = createAuthDto.whatsUp;
     user.password = await bcrypt.hash(createAuthDto.password, user.salt);
     user.dateOfBirth = createAuthDto.dateOfBirth;
     user.confirmationToken = crypto.randomBytes(32).toString('hex');
@@ -77,7 +86,8 @@ export class UsersService extends Service<Users> {
   }
 
   async update(id: string, updateAuthDto: UpdateAuthDto) {
-    const { cpf, role, name, email, gender, dateOfBirth } = updateAuthDto;
+    const { cpf, role, name, email, gender, whatsUp, dateOfBirth } =
+      updateAuthDto;
 
     const currentUser = await this.findBy({
       by: 'id',
@@ -101,6 +111,12 @@ export class UsersService extends Service<Users> {
       currentUser.id,
       currentUser.email,
       email,
+    );
+
+    currentUser.whatsUp = await this.validateWhatsUp(
+      currentUser.id,
+      currentUser.whatsUp,
+      whatsUp,
     );
 
     currentUser.name = !name ? currentUser.name : name;
@@ -205,10 +221,9 @@ export class UsersService extends Service<Users> {
       name: user.name,
       email: user.email,
       status: user.status,
-      ...(user.status !== EStatus.INCOMPLETE && {
-        gender: user.gender,
-        dateOfBirth: user.dateOfBirth,
-      }),
+      gender: user.gender,
+      whatsUp: user.whatsUp,
+      dateOfBirth: user.dateOfBirth,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       ...(user.deletedAt && { deletedAt: user.deletedAt }),
@@ -253,6 +268,26 @@ export class UsersService extends Service<Users> {
     }
 
     return email;
+  }
+
+  private async validateWhatsUp(
+    id: Users['id'],
+    userWhatsUp: Users['whatsUp'],
+    whatsUp?: string,
+  ) {
+    if (!whatsUp) {
+      return userWhatsUp;
+    }
+    const entityWhatsUp = await this.findBy({
+      by: 'whatsUp',
+      value: whatsUp,
+    });
+
+    if (Boolean(entityWhatsUp) && entityWhatsUp.id !== id) {
+      throw new BadRequestException('WhatsUp already exists');
+    }
+
+    return whatsUp;
   }
 
   private validateRole(
