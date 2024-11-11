@@ -110,6 +110,10 @@ export class AuthService {
     return await this.userService.promote(user.id);
   }
 
+  cleanUser(user: Users) {
+    return this.userService.cleanUser(user);
+  }
+
   private validateCurrentUser(id: string, user: Users) {
     if (id !== user.id && user.role !== 'ADMIN') {
       throw new UnprocessableEntityException(

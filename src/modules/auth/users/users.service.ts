@@ -213,7 +213,7 @@ export class UsersService extends Service<Users> {
     }
   }
 
-  private cleanUser(user: Users) {
+  cleanUser(user: Users) {
     return {
       id: user.id,
       cpf: user.cpf,

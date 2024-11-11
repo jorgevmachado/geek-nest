@@ -44,7 +44,7 @@ export class AuthController {
   @Get('me')
   @UseGuards(AuthGuard())
   getMe(@GetUserAuth() user: Users) {
-    return user;
+    return this.authService.cleanUser(user);
   }
 
   @Get('users')
