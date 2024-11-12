@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -60,7 +61,7 @@ export class AuthController {
     return this.authService.findOneUser(id, user);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseGuards(AuthGuard(), AuthRoleGuards)
   update(
     @GetUserAuth() user: Users,

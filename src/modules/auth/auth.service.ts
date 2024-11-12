@@ -53,7 +53,8 @@ export class AuthService {
     if (
       Boolean(authUser) &&
       authUser.role !== ERole.ADMIN &&
-      Boolean(updateAuthDto.role)
+      Boolean(updateAuthDto.role) &&
+      updateAuthDto.role !== ERole.USER
     ) {
       throw new ForbiddenException(
         'You are not authorized to change the user role',

@@ -67,7 +67,7 @@ export class UsersService extends Service<Users> {
     user.name = createAuthDto.name;
     user.email = createAuthDto.email;
     user.gender = createAuthDto.gender;
-    user.status = EStatus.COMPLETE;
+    user.status = EStatus.ACTIVE;
     user.whatsUp = createAuthDto.whatsUp;
     user.password = await bcrypt.hash(createAuthDto.password, user.salt);
     user.dateOfBirth = createAuthDto.dateOfBirth;
@@ -298,7 +298,7 @@ export class UsersService extends Service<Users> {
     if (!role) {
       return userRole;
     }
-    if (userStatus !== EStatus.ACTIVE) {
+    if (userStatus !== EStatus.ACTIVE && role !== ERole.USER) {
       throw new BadRequestException(
         'the user cannot be an administrator because it is not active',
       );
