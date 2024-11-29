@@ -15,6 +15,7 @@ import {
   RESPONSE_MOVES_FIXTURE_IVYSAUR,
 } from '@/modules/pokemon/fixtures/response/by-name/pokemon.response.pokemon-by-name-moves.fixture';
 import { PokemonApi } from '@/modules/pokemon/pokemon.api';
+
 import {
   RESPONSE_MOVE_FIXTURE_BIND_ITEM,
   RESPONSE_MOVE_FIXTURE_CUT_ITEM,
